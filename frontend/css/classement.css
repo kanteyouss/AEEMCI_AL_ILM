@@ -1,0 +1,790 @@
+/* ============================================
+   PAGE CLASSEMENT PUBLIC - AL ILM 2026
+   ============================================ */
+
+/* Hero Section */
+.hero-classement {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1d4e1f 100%);
+    color: white;
+    padding: 3rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-classement::before {
+    content: '🏆';
+    position: absolute;
+    font-size: 15rem;
+    opacity: 0.05;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+}
+
+.hero-classement .container {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-classement h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: white;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+.refresh-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    font-size: 0.9rem;
+}
+
+.refresh-icon {
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.last-update {
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Section Titles */
+.section-title {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: var(--secondary-color);
+    border-radius: 2px;
+}
+
+/* Filtres */
+.filters-section {
+    padding: 2rem 0;
+    background: #f7fafc;
+}
+
+.filters-container {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-icon {
+    font-size: 1.2rem;
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e6ed;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
+}
+
+.btn-reset {
+    padding: 0.75rem 1.5rem;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.btn-reset:hover {
+    background: #FFE066;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Podium Section */
+.podium-section {
+    padding: 4rem 0;
+    background: white;
+}
+
+/* En-tête du Podium avec Carrousel */
+.podium-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.podium-title-wrapper {
+    text-align: center;
+}
+
+.manche-info {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-radius: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+}
+
+/* Boutons de Navigation Carrousel */
+.carousel-btn {
+    background: white;
+    border: 2px solid var(--primary-color);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-btn:hover {
+    background: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.carousel-btn:hover svg {
+    stroke: white;
+}
+
+.carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.carousel-btn:disabled:hover {
+    background: white;
+    transform: scale(1);
+}
+
+/* Indicateurs de Carrousel */
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.carousel-indicator {
+    padding: 0.5rem 1rem;
+    background: white;
+    border: 2px solid #e0e6ed;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #718096;
+}
+
+.carousel-indicator:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.carousel-indicator.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 15px rgba(45, 106, 79, 0.3);
+}
+
+/* Carrousel de Podiums */
+.podium-carousel {
+    position: relative;
+    overflow: hidden;
+    min-height: 500px;
+}
+
+.podium-slide {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+}
+
+.podium-slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+    pointer-events: auto;
+}
+
+.podium-slide.prev {
+    transform: translateX(-100%);
+}
+
+.podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-top: 3rem;
+    perspective: 1000px;
+}
+
+.podium-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: slideUp 0.8s ease-out;
+}
+
+.podium-item[data-place="1"] {
+    animation-delay: 0.2s;
+    order: 2;
+}
+
+.podium-item[data-place="2"] {
+    animation-delay: 0s;
+    order: 1;
+}
+
+.podium-item[data-place="3"] {
+    animation-delay: 0.4s;
+    order: 3;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.podium-crown {
+    font-size: 3rem;
+    margin-bottom: -1rem;
+    z-index: 2;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.podium-card {
+    background: white;
+    padding: 2rem 1.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    min-width: 220px;
+    border: 3px solid #e0e6ed;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.podium-card.winner {
+    border-color: var(--secondary-color);
+    box-shadow: 0 15px 50px rgba(255, 215, 0, 0.3);
+}
+
+.podium-card:hover {
+    transform: translateY(-10px) scale(1.05);
+}
+
+.team-logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f7fafc 0%, #e0e6ed 100%);
+    border-radius: 50%;
+}
+
+.team-symbol {
+    font-size: 2.5rem;
+}
+
+.team-name {
+    font-size: 1.3rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.team-position {
+    font-size: 0.9rem;
+    color: #718096;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.team-score {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.score-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--primary-color);
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 0.85rem;
+    color: #718096;
+    text-transform: uppercase;
+}
+
+.podium-base {
+    width: 180px;
+    height: 120px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1d4e1f 100%);
+    margin-top: -30px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 1rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.podium-base-1 {
+    height: 150px;
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #FFD700 100%);
+}
+
+.podium-base-2 {
+    height: 120px;
+}
+
+.podium-base-3 {
+    height: 90px;
+}
+
+.podium-number {
+    font-size: 3rem;
+    font-weight: 900;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Tableau Classement */
+.classement-section {
+    padding: 4rem 0;
+    background: #f7fafc;
+}
+
+.table-container {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+}
+
+.classement-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.classement-table thead {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1d4e1f 100%);
+    color: white;
+}
+
+.classement-table th {
+    padding: 1.2rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.classement-table th.col-rank {
+    width: 80px;
+    text-align: center;
+}
+
+.classement-table th.col-score,
+.classement-table th.col-manches,
+.classement-table th.col-moyenne,
+.classement-table th.col-trend {
+    text-align: center;
+}
+
+.classement-table tbody tr {
+    border-bottom: 1px solid #e0e6ed;
+    transition: all 0.3s ease;
+}
+
+.classement-table tbody tr:hover {
+    background: #f7fafc;
+    transform: scale(1.01);
+}
+
+.classement-table tbody tr.top-3 {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.05) 0%, transparent 100%);
+}
+
+.classement-table td {
+    padding: 1.2rem 1rem;
+}
+
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.rank-badge.rank-1 {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+.rank-badge.rank-2 {
+    background: linear-gradient(135deg, #C0C0C0 0%, #808080 100%);
+}
+
+.rank-badge.rank-3 {
+    background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+}
+
+.team-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.team-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #f7fafc 0%, #e0e6ed 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.team-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.team-name-table {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.team-subtitle {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.score-cell {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--primary-color);
+}
+
+.manches-cell,
+.moyenne-cell {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #4a5568;
+}
+
+.trend-cell {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.trend-up {
+    color: #38a169;
+}
+
+.trend-down {
+    color: #e53e3e;
+}
+
+.trend-stable {
+    color: #718096;
+}
+
+.loading-row {
+    text-align: center;
+    padding: 3rem !important;
+}
+
+.loader {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e0e6ed;
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Graphiques */
+.charts-section {
+    padding: 4rem 0;
+    background: white;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.chart-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e0e6ed;
+}
+
+.chart-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.chart-title {
+    font-size: 1.3rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.chart-placeholder {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+#evolutionCanvas,
+#rubriqueCanvas,
+#compareCanvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Statistiques */
+.stats-section {
+    padding: 4rem 0;
+    background: #f7fafc;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.stat-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e0e6ed;
+    transition: all 0.3s ease;
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 35px rgba(44, 95, 45, 0.2);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.stat-value {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--primary-color);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .podium {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .podium-item {
+        order: initial !important;
+    }
+
+    .podium-header {
+        gap: 1rem;
+    }
+
+    .carousel-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .carousel-indicators {
+        gap: 0.5rem;
+    }
+
+    .carousel-indicator {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filters-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-classement h1 {
+        font-size: 2rem;
+    }
+
+    .podium-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .carousel-btn {
+        display: none;
+    }
+
+    .carousel-indicators {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .manche-info {
+        font-size: 0.95rem;
+        padding: 0.4rem 1rem;
+    }
+
+    .classement-table {
+        font-size: 0.9rem;
+    }
+
+    .classement-table th,
+    .classement-table td {
+        padding: 0.8rem 0.5rem;
+    }
+
+    .team-info {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

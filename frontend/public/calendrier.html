@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendrier Ramadan 2026 - AL ILM 🌙</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/calendrier.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <h1>🕌 AL ILM 2026</h1>
+                    <p class="tagline">Pour une identité islamique !</p>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="/" class="btn-secondary">Accueil</a>
+                <a href="/public/classement.html" class="btn-secondary">🏆 Classement</a>
+                <a href="/public/inscription.html" class="btn-primary">S'inscrire</a>
+                <a href="/login.html" class="btn-secondary">Connexion</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-calendrier">
+            <div class="container">
+                <h1>🌙 Calendrier Ramadan 2026</h1>
+                <p class="subtitle">Suivez toutes les manches du concours AL ILM</p>
+                <div class="date-display">
+                    <div class="date-gregorian">
+                        <span class="date-label">Calendrier Grégorien</span>
+                        <span class="date-value" id="dateGregorien">Mercredi 18 Février 2026</span>
+                    </div>
+                    <div class="date-separator">⭐</div>
+                    <div class="date-hijri">
+                        <span class="date-label">Calendrier Hégirien</span>
+                        <span class="date-value" id="dateHijri">1 Ramadan 1447</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Légende des types de manches -->
+        <section class="legend-section">
+            <div class="container">
+                <h2 class="section-title">📋 Légende des Manches</h2>
+                <div class="legend-grid">
+                    <div class="legend-item" data-type="preliminaire">
+                        <div class="legend-color color-preliminaire"></div>
+                        <div class="legend-info">
+                            <h3>Manches Préliminaires</h3>
+                            <p>Phase de qualification - Toutes les équipes participent</p>
+                        </div>
+                    </div>
+                    <div class="legend-item" data-type="quart">
+                        <div class="legend-color color-quart"></div>
+                        <div class="legend-info">
+                            <h3>Quarts de Finale</h3>
+                            <p>8 meilleures équipes s'affrontent</p>
+                        </div>
+                    </div>
+                    <div class="legend-item" data-type="demi">
+                        <div class="legend-color color-demi"></div>
+                        <div class="legend-info">
+                            <h3>Demi-Finales</h3>
+                            <p>4 équipes en lice pour la finale</p>
+                        </div>
+                    </div>
+                    <div class="legend-item" data-type="finale">
+                        <div class="legend-color color-finale"></div>
+                        <div class="legend-info">
+                            <h3>Grande Finale</h3>
+                            <p>Le match ultime pour le titre</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendrier du mois -->
+        <section class="calendar-section">
+            <div class="container">
+                <div class="calendar-header">
+                    <button id="prevMonth" class="btn-nav">◀ Précédent</button>
+                    <h2 id="currentMonth" class="month-title">Ramadan 1447 - Février 2026</h2>
+                    <button id="nextMonth" class="btn-nav">Suivant ▶</button>
+                </div>
+
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Généré dynamiquement -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Liste des manches planifiées -->
+        <section class="manches-list-section">
+            <div class="container">
+                <h2 class="section-title">📅 Manches Planifiées</h2>
+                <div id="manchesList" class="manches-timeline">
+                    <!-- Généré dynamiquement -->
+                    <div class="loading-container">
+                        <div class="loader"></div>
+                        <p>Chargement des manches...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistiques -->
+        <section class="stats-ramadan">
+            <div class="container">
+                <h2 class="section-title">📊 Statistiques du Ramadan</h2>
+                <div class="ramadan-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="joursRestants">0</span>
+                            <span class="stat-label">Jours restants</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="manchesTotales">0</span>
+                            <span class="stat-label">Manches prévues</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="manchesTerminees">0</span>
+                            <span class="stat-label">Manches terminées</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="manchesAVenir">0</span>
+                            <span class="stat-label">Manches à venir</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Détails Manche -->
+    <div id="mancheModal" class="modal">
+        <div class="modal-content modal-manche">
+            <span class="modal-close">&times;</span>
+            <div id="mancheModalBody">
+                <!-- Contenu dynamique -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 AEEMCI - Association des Élèves et Étudiants Musulmans de Côte d'Ivoire</p>
+            <p>Section ESATIC - "Pour une identité islamique !"</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/public/calendrier.js"></script>
+</body>
+</html>

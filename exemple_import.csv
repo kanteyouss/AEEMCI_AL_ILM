@@ -1,0 +1,6 @@
+nom,prenom,email,telephone,etablissement,niveau_coranique,connaissance_hadiths,memorisation_sourate
+KOUAME,Jean,jean.kouame@example.com,0701020304,ESATIC,lis_aisement,oui,oui
+DIALLO,Fatou,fatou.diallo@example.com,0705060708,EMSP,debute,moins_de_5,un_peu_moins
+TRAORE,Ibrahim,ibrahim.traore@example.com,0709101112,ESATIC,lis_aisement,oui,oui
+KONE,Aminata,aminata.kone@example.com,0713141516,ESATIC,ne_sais_pas,non,non
+OUATTARA,Mohamed,mohamed.ouattara@example.com,0717181920,EMSP,lis_aisement,oui,oui

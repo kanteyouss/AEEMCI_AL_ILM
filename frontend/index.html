@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEU CONCOURS AL ILM 2026 🕌 - AEEMCI ESATIC</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🕌 AL ILM 2026</h1>
+                <p class="tagline">Pour une identité islamique !</p>
+            </div>
+            <nav class="nav">
+                <a href="/public/calendrier.html" class="btn-secondary">🌙 Calendrier</a>
+                <a href="/public/classement.html" class="btn-secondary">🏆 Classement</a>
+                <a href="/public/inscription.html" class="btn-primary">S'inscrire</a>
+                <a href="/login.html" class="btn-secondary">Connexion</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Verset Coranique -->
+        <section class="verset-section">
+            <div class="container">
+                <div class="verset-card">
+                    <div class="verset-icon">📖</div>
+                    <p class="verset-arabe" id="versetArabe"></p>
+                    <p class="verset-traduction" id="versetTraduction"></p>
+                    <p class="verset-reference" id="versetReference"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Compte à rebours Ramadan -->
+        <section class="countdown-section">
+            <div class="container">
+                <h2>🌙 Compte à rebours jusqu'au Ramadan 2026</h2>
+                <div id="countdown" class="countdown">
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="days">00</span>
+                        <span class="countdown-label">Jours</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="hours">00</span>
+                        <span class="countdown-label">Heures</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="minutes">00</span>
+                        <span class="countdown-label">Minutes</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="seconds">00</span>
+                        <span class="countdown-label">Secondes</span>
+                    </div>
+                </div>
+                <p class="countdown-date">Date prévue : Mercredi 18 Février 2026</p>
+            </div>
+        </section>
+
+        <section class="hero">
+            <div class="container">
+                <h2 id="heroTitle" class="hero-title">Marhaba au Jeu Concours AL ILM - Édition 2026</h2>
+                <p class="subtitle">Concours de connaissances islamiques organisé par l'AEEMCI - Section ESATIC</p>
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <h3>10</h3>
+                        <p>Équipes</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>8</h3>
+                        <p>Rubriques</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Ramadan 2026</h3>
+                        <p>Période du concours</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about">
+            <div class="container">
+                <h2>À propos du concours</h2>
+                <p>
+                    Le Jeu Concours AL ILM est une compétition de connaissances islamiques
+                    qui réunit les étudiants de l'ESATIC et l'EMSP durant le mois béni de Ramadan.
+                </p>
+                <p>
+                    Dix (10) équipes s'affrontent à travers différentes épreuves : récitation du Coran,
+                    Adhan, Hadiths, et questions sur l'Islam. Chaque équipe est composée d'au moins trois (3) membres.
+                </p>
+            </div>
+        </section>
+
+        <section class="rubriques">
+            <div class="container">
+                <h2>Les 8 Rubriques</h2>
+                <p class="section-intro">Cliquez sur une rubrique pour voir les détails</p>
+                <div class="rubriques-grid">
+                    <div class="rubrique-card" data-rubrique="adhan">
+                        <h3>📢 Adhan</h3>
+                        <p>Récitation de l'appel à la prière</p>
+                        <span class="rubrique-points">100 pts</span>
+                        <button class="btn-details">En savoir plus</button>
+                    </div>
+                    <div class="rubrique-card" data-rubrique="coran-ouvert">
+                        <h3>📖 Coran Ouvert</h3>
+                        <p>Lecture avec Tajwid</p>
+                        <span class="rubrique-points">100 pts</span>
+                        <button class="btn-details">En savoir plus</button>
+                    </div>
+                    <div class="rubrique-card" data-rubrique="coran-ferme">
+                        <h3>📕 Coran Fermé</h3>
+                        <p>Récitation de mémoire</p>
+                        <span class="rubrique-points">150 pts</span>
+                        <button class="btn-details">En savoir plus</button>
+                    </div>
+                    <div class="rubrique-card" data-rubrique="jurisprudence">
+                        <h3>⚖️ Jurisprudence</h3>
+                        <p>Fiqh et pratiques religieuses</p>
+                        <span class="rubrique-points">100 pts</span>
+                        <button class="btn-details">En savoir plus</button>
+                    </div>
+                    <div class="rubrique-card" data-rubrique="relais">
+                        <h3>⚡ Questions Relais</h3>
+                        <p>Questions rapides en équipe</p>
+                        <span class="rubrique-points">150 pts</span>
+                        <button class="btn-details">En savoir plus</button>
+                    </div>
+                    <div class="rubrique-card" data-rubrique="prophete">
+                        <h3>☪️ Vie du Prophète ﷺ et des Compagnons</h3>
+                        <p>Sira et histoire des Sahaba</p>
+                        <span class="rubrique-points">100 pts</span>
+                        <button class="btn-details">En savoir plus</button>
+                    </div>
+                    <div class="rubrique-card" data-rubrique="culture">
+                        <h3>🌍 Culture Générale Islamique</h3>
+                        <p>Histoire et civilisation musulmane</p>
+                        <span class="rubrique-points">100 pts</span>
+                        <button class="btn-details">En savoir plus</button>
+                    </div>
+                    <div class="rubrique-card" data-rubrique="hadith">
+                        <h3>📜 Hadith</h3>
+                        <p>Paroles du Prophète ﷺ</p>
+                        <span class="rubrique-points">100 pts</span>
+                        <button class="btn-details">En savoir plus</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal pour les détails des rubriques -->
+        <div id="rubriqueModal" class="modal">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <div id="modalBody">
+                    <!-- Contenu dynamique -->
+                </div>
+            </div>
+        </div>
+
+        <section class="equipes">
+            <div class="container">
+                <h2>Les 10 Équipes</h2>
+                <p class="section-intro">Chaque équipe porte un nom inspiré du Coran et de l'Islam</p>
+                <div id="equipesGrid" class="equipes-grid">
+                    <!-- Chargé dynamiquement via JS -->
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <div class="container">
+                <h2>Rejoignez l'aventure !</h2>
+                <p>Inscrivez-vous dès maintenant pour participer au Jeu Concours AL ILM 2026</p>
+                <a href="/public/inscription.html" class="btn-large">S'inscrire maintenant</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 AEEMCI - Association des Élèves et Étudiants Musulmans de Côte d'Ivoire</p>
+            <p>Section ESATIC - "Pour une identité islamique !"</p>
+        </div>
+    </footer>
+
+    <script src="/js/public/index.js"></script>
+</body>
+</html>

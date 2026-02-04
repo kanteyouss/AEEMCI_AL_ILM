@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - AL ILM 2026</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <header class="header-admin">
+        <div class="container">
+            <h1>🕌 AL ILM 2026 - Administration</h1>
+            <div class="user-info">
+                <span id="userName"></span>
+                <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <a href="#" data-section="overview" class="nav-item active">
+                    Vue d'ensemble
+                </a>
+                <a href="#" data-section="participants" class="nav-item">
+                    Participants
+                </a>
+                <a href="equipes.html" class="nav-item">
+                    Former les Équipes
+                </a>
+                <a href="#" data-section="manches" class="nav-item">
+                    Manches
+                </a>
+                <a href="#" data-section="questions" class="nav-item">
+                    Questions
+                </a>
+                <a href="#" data-section="classement" class="nav-item">
+                    Classement
+                </a>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <!-- Section Vue d'ensemble -->
+            <section id="overview" class="content-section active">
+                <h2>Vue d'ensemble</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="totalParticipants">0</h3>
+                        <p>Participants inscrits</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalEquipes">0</h3>
+                        <p>Équipes formées</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalManches">0</h3>
+                        <p>Manches programmées</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalQuestions">0</h3>
+                        <p>Questions créées</p>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>Activité récente</h3>
+                    <div id="recentActivity"></div>
+                </div>
+            </section>
+
+            <!-- Section Participants -->
+            <section id="participants" class="content-section">
+                <div class="section-header">
+                    <h2>Gestion des participants</h2>
+                    <button class="btn-primary" id="importCSVBtn">
+                        📥 Importer CSV
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <select id="filterEtablissement">
+                        <option value="">Tous les établissements</option>
+                        <option value="ESATIC">ESATIC</option>
+                        <option value="EMSP">EMSP</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table id="participantsTable">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Établissement</th>
+                                <th>Téléphone</th>
+                                <th>Équipe</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Section Équipes -->
+            <section id="equipes" class="content-section">
+                <div class="section-header">
+                    <h2>Gestion des équipes</h2>
+                </div>
+
+                <div id="equipesGrid" class="equipes-admin-grid"></div>
+            </section>
+
+            <!-- Section Manches -->
+            <section id="manches" class="content-section">
+                <div class="section-header">
+                    <h2>Programme des Manches</h2>
+                    <p style="color: #718096; font-size: 0.9rem;">Configuration du calendrier du concours</p>
+                </div>
+
+                <!-- Phase Préliminaire -->
+                <div class="phase-container">
+                    <h3 class="phase-title">Phase Préliminaire (3 jours)</h3>
+                    <p class="phase-description">10 équipes en lice</p>
+                    
+                    <div class="manches-grid">
+                        <div class="manche-card">
+                            <div class="manche-header">
+                                <h4>Jour 1 - Préliminaire</h4>
+                                <span class="manche-badge badge-preliminaire">Manche 1</span>
+                            </div>
+                            <div class="manche-body">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="date_prelim_1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Heure</label>
+                                    <input type="time" class="form-control" id="heure_prelim_1" value="19:00">
+                                </div>
+                                <button class="btn-create-manche" data-type="preliminaire" data-numero="1">
+                                    Créer Manche 1
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="manche-card">
+                            <div class="manche-header">
+                                <h4>Jour 2 - Préliminaire</h4>
+                                <span class="manche-badge badge-preliminaire">Manche 2</span>
+                            </div>
+                            <div class="manche-body">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="date_prelim_2">
+                                </div>
+                                <div class="form-group">
+                                    <label>Heure</label>
+                                    <input type="time" class="form-control" id="heure_prelim_2" value="19:00">
+                                </div>
+                                <button class="btn-create-manche" data-type="preliminaire" data-numero="2">
+                                    Créer Manche 2
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="manche-card">
+                            <div class="manche-header">
+                                <h4>Jour 3 - Préliminaire</h4>
+                                <span class="manche-badge badge-preliminaire">Manche 3</span>
+                            </div>
+                            <div class="manche-body">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="date_prelim_3">
+                                </div>
+                                <div class="form-group">
+                                    <label>Heure</label>
+                                    <input type="time" class="form-control" id="heure_prelim_3" value="19:00">
+                                </div>
+                                <button class="btn-create-manche" data-type="preliminaire" data-numero="3">
+                                    Créer Manche 3
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quarts de Finale -->
+                <div class="phase-container">
+                    <h3 class="phase-title">Quarts de Finale (3 jours)</h3>
+                    <p class="phase-description">8 équipes qualifiées</p>
+                    
+                    <div class="manches-grid">
+                        <div class="manche-card">
+                            <div class="manche-header">
+                                <h4>Jour 1 - Quart</h4>
+                                <span class="manche-badge badge-quart">Manche 4</span>
+                            </div>
+                            <div class="manche-body">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="date_quart_1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Heure</label>
+                                    <input type="time" class="form-control" id="heure_quart_1" value="19:00">
+                                </div>
+                                <button class="btn-create-manche" data-type="quart" data-numero="4">
+                                    Créer Manche 4
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="manche-card">
+                            <div class="manche-header">
+                                <h4>Jour 2 - Quart</h4>
+                                <span class="manche-badge badge-quart">Manche 5</span>
+                            </div>
+                            <div class="manche-body">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="date_quart_2">
+                                </div>
+                                <div class="form-group">
+                                    <label>Heure</label>
+                                    <input type="time" class="form-control" id="heure_quart_2" value="19:00">
+                                </div>
+                                <button class="btn-create-manche" data-type="quart" data-numero="5">
+                                    Créer Manche 5
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="manche-card">
+                            <div class="manche-header">
+                                <h4>Jour 3 - Quart</h4>
+                                <span class="manche-badge badge-quart">Manche 6</span>
+                            </div>
+                            <div class="manche-body">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="date_quart_3">
+                                </div>
+                                <div class="form-group">
+                                    <label>Heure</label>
+                                    <input type="time" class="form-control" id="heure_quart_3" value="19:00">
+                                </div>
+                                <button class="btn-create-manche" data-type="quart" data-numero="6">
+                                    Créer Manche 6
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demi-Finales -->
+                <div class="phase-container">
+                    <h3 class="phase-title">Demi-Finales (2 jours)</h3>
+                    <p class="phase-description">4 équipes qualifiées</p>
+                    
+                    <div class="manches-grid">
+                        <div class="manche-card">
+                            <div class="manche-header">
+                                <h4>Jour 1 - Demi</h4>
+                                <span class="manche-badge badge-demi">Manche 7</span>
+                            </div>
+                            <div class="manche-body">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="date_demi_1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Heure</label>
+                                    <input type="time" class="form-control" id="heure_demi_1" value="19:00">
+                                </div>
+                                <button class="btn-create-manche" data-type="demi" data-numero="7">
+                                    Créer Manche 7
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="manche-card">
+                            <div class="manche-header">
+                                <h4>Jour 2 - Demi</h4>
+                                <span class="manche-badge badge-demi">Manche 8</span>
+                            </div>
+                            <div class="manche-body">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="date_demi_2">
+                                </div>
+                                <div class="form-group">
+                                    <label>Heure</label>
+                                    <input type="time" class="form-control" id="heure_demi_2" value="19:00">
+                                </div>
+                                <button class="btn-create-manche" data-type="demi" data-numero="8">
+                                    Créer Manche 8
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grande Finale -->
+                <div class="phase-container">
+                    <h3 class="phase-title">Grande Finale (1 jour)</h3>
+                    <p class="phase-description">2 équipes finalistes</p>
+                    
+                    <div class="manches-grid">
+                        <div class="manche-card">
+                            <div class="manche-header">
+                                <h4>Jour de la Finale</h4>
+                                <span class="manche-badge badge-finale">Manche 9</span>
+                            </div>
+                            <div class="manche-body">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="date_finale">
+                                </div>
+                                <div class="form-group">
+                                    <label>Heure</label>
+                                    <input type="time" class="form-control" id="heure_finale" value="19:00">
+                                </div>
+                                <button class="btn-create-manche" data-type="finale" data-numero="9">
+                                    Créer Grande Finale
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liste des manches créées -->
+                <div class="manches-list">
+                    <h3>Manches Créées</h3>
+                    <div id="manchesCreees"></div>
+                </div>
+            </section>
+
+            <!-- Section Questions -->
+            <section id="questions" class="content-section">
+                <div class="section-header">
+                    <h2>Banque de questions</h2>
+                    <button class="btn-primary" id="createQuestionBtn">
+                        ➕ Créer une question
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <select id="filterRubrique">
+                        <option value="">Toutes les rubriques</option>
+                    </select>
+                </div>
+
+                <div id="questionsTable"></div>
+            </section>
+
+            <!-- Section Classement -->
+            <section id="classement" class="content-section">
+                <h2>Classement général</h2>
+                <div id="classementTable"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal de sélection des rubriques -->
+    <div id="rubriquesModal" class="modal">
+        <div class="modal-content modal-rubriques">
+            <div class="modal-header">
+                <h3>Sélectionner les rubriques</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="modal-subtitle" id="mancheModalTitle"></p>
+                
+                <!-- Section Date/Heure (affichée en mode édition) -->
+                <div id="editDateSection" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+                    <h4 style="margin: 0 0 1rem 0; color: var(--primary-color);">📅 Date et heure</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date</label>
+                            <input type="date" id="editDateInput" class="form-input" style="width: 100%; padding: 0.5rem; border: 2px solid #e0e6ed; border-radius: 8px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Heure de début</label>
+                            <input type="time" id="editTimeInput" class="form-input" style="width: 100%; padding: 0.5rem; border: 2px solid #e0e6ed; border-radius: 8px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="rubriques-selection" id="rubriquesSelection">
+                    <!-- Les rubriques seront chargées dynamiquement -->
+                </div>
+                <div class="modal-footer">
+                    <p class="selection-count">
+                        <span id="selectedCount">0</span> rubrique(s) sélectionnée(s)
+                    </p>
+                    <div class="modal-actions">
+                        <button class="btn-danger" id="btnDeleteManche" style="display: none; margin-right: auto;">
+                            🗑️ Supprimer
+                        </button>
+                        <button class="btn-secondary" id="btnCancelRubriques">Annuler</button>
+                        <button class="btn-primary" id="btnConfirmRubriques">Créer la manche</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/admin/dashboard.js"></script>
+</body>
+</html>
+

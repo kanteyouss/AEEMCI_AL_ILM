@@ -1,0 +1,174 @@
+// ============================================
+// GESTION DES ÉQUIPES - ADMIN
+// ============================================
+
+let allEquipes = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Vérifier l'authentification admin
+    const user = getUser();
+    
+    if (!user || user.role !== 'admin') {
+        window.location.href = '/login.html';
+        return;
+    }
+    
+    // Charger les équipes
+    await loadEquipes();
+});
+
+/**
+ * Charger toutes les équipes
+ */
+async function loadEquipes() {
+    try {
+        const response = await apiRequest('/equipes');
+        allEquipes = response.data;
+        
+        displayEquipes(allEquipes);
+        
+    } catch (error) {
+        console.error('Erreur lors du chargement des équipes:', error);
+        showError('errorMessage', 'Impossible de charger les équipes');
+    }
+}
+
+/**
+ * Afficher les équipes
+ */
+function displayEquipes(equipes) {
+    const container = document.getElementById('equipesContainer');
+    container.innerHTML = '';
+    
+    if (equipes.length === 0) {
+        container.innerHTML = '<p class="text-center">Aucune équipe trouvée</p>';
+        return;
+    }
+    
+    equipes.forEach(equipe => {
+        const card = document.createElement('div');
+        card.className = 'equipe-card';
+        card.style.borderLeft = `5px solid ${equipe.couleur}`;
+        
+        card.innerHTML = `
+            <div class="equipe-header">
+                <h3>${equipe.symbole} ${equipe.nom}</h3>
+                <span class="equipe-members-count">${equipe.nb_membres || 0} membres</span>
+            </div>
+            <div class="equipe-body">
+                <p class="equipe-signification">${equipe.signification}</p>
+                <p class="equipe-code"><strong>Code:</strong> ${equipe.code_acces}</p>
+            </div>
+            <div class="equipe-actions">
+                <button class="btn btn-sm btn-primary" onclick="viewEquipe(${equipe.id})">
+                    <i class="fas fa-eye"></i> Voir
+                </button>
+                <button class="btn btn-sm btn-info" onclick="manageMembers(${equipe.id})">
+                    <i class="fas fa-users"></i> Membres
+                </button>
+                <button class="btn btn-sm btn-success" onclick="sendCode(${equipe.id})">
+                    <i class="fas fa-envelope"></i> Envoyer code
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(card);
+    });
+}
+
+/**
+ * Voir les détails d'une équipe
+ */
+async function viewEquipe(id) {
+    try {
+        const response = await apiRequest(`/equipes/${id}`);
+        const equipe = response.data;
+        
+        let membresHTML = '<p>Aucun membre</p>';
+        
+        if (equipe.membres && equipe.membres.length > 0) {
+            membresHTML = '<ul class="membres-list">';
+            equipe.membres.forEach(membre => {
+                membresHTML += `
+                    <li>
+                        ${membre.est_capitaine ? '👑 ' : ''}
+                        ${membre.prenom} ${membre.nom} (${membre.etablissement})
+                        ${membre.role_adhan ? '📢 Adhan' : ''}
+                        ${membre.role_coran_ouvert ? '📖 Coran ouvert' : ''}
+                        ${membre.role_coran_ferme ? '📕 Coran fermé' : ''}
+                        ${membre.role_hadith ? '📜 Hadith' : ''}
+                    </li>
+                `;
+            });
+            membresHTML += '</ul>';
+        }
+        
+        showModal(`${equipe.symbole} ${equipe.nom}`, `
+            <div class="equipe-details">
+                <p><strong>Signification:</strong> ${equipe.signification}</p>
+                <p><strong>Couleur:</strong> <span style="color: ${equipe.couleur}">${equipe.couleur}</span></p>
+                <p><strong>Code d'accès:</strong> ${equipe.code_acces}</p>
+                <h4>Membres (${equipe.membres?.length || 0})</h4>
+                ${membresHTML}
+            </div>
+        `);
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        showError('errorMessage', 'Impossible de charger les détails');
+    }
+}
+
+/**
+ * Gérer les membres d'une équipe
+ */
+async function manageMembers(id) {
+    window.location.href = `/admin/manage-members.html?equipeId=${id}`;
+}
+
+/**
+ * Envoyer le code d'accès au capitaine
+ */
+async function sendCode(id) {
+    if (!confirm('Envoyer le code d\'accès au capitaine de l\'équipe ?')) {
+        return;
+    }
+    
+    try {
+        await apiRequest(`/equipes/${id}/send-code`, { method: 'POST' });
+        showSuccess('successMessage', 'Code envoyé avec succès');
+    } catch (error) {
+        console.error('Erreur:', error);
+        showError('errorMessage', 'Impossible d\'envoyer le code');
+    }
+}
+
+/**
+ * Créer une nouvelle équipe
+ */
+document.getElementById('btnCreateEquipe')?.addEventListener('click', () => {
+    window.location.href = '/admin/create-equipe.html';
+});
+
+// Fonctions helpers
+function showModal(title, content) {
+    alert(`${title}\n\n${content}`);
+}
+
+function showSuccess(elementId, message) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = message;
+        element.classList.add('success');
+        setTimeout(() => element.textContent = '', 3000);
+    }
+}
+
+function showError(elementId, message) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = message;
+        element.classList.add('error');
+        setTimeout(() => element.textContent = '', 3000);
+    }
+}

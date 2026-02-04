@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classement - AL ILM 2026 🏆</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/classement.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <h1>🕌 AL ILM 2026</h1>
+                    <p class="tagline">Pour une identité islamique !</p>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="/" class="btn-secondary">Accueil</a>
+                <a href="/public/calendrier.html" class="btn-secondary">🌙 Calendrier</a>
+                <a href="/public/inscription.html" class="btn-primary">S'inscrire</a>
+                <a href="/login.html" class="btn-secondary">Connexion</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-classement">
+            <div class="container">
+                <h1>🏆 Classement Général</h1>
+                <p class="subtitle">Suivez la compétition en temps réel</p>
+                <div class="refresh-info">
+                    <span class="refresh-icon">🔄</span>
+                    <span>Mise à jour automatique toutes les 30 secondes</span>
+                    <span id="lastUpdate" class="last-update"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filtres -->
+        <section class="filters-section">
+            <div class="container">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="mancheFilter">
+                            <span class="filter-icon">🎯</span>
+                            Manche
+                        </label>
+                        <select id="mancheFilter" class="filter-select">
+                            <option value="">Toutes les manches</option>
+                            <!-- Chargé dynamiquement -->
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="rubriqueFilter">
+                            <span class="filter-icon">📚</span>
+                            Rubrique
+                        </label>
+                        <select id="rubriqueFilter" class="filter-select">
+                            <option value="">Toutes les rubriques</option>
+                            <!-- Chargé dynamiquement -->
+                        </select>
+                    </div>
+                    
+                    <button id="resetFilters" class="btn-reset">
+                        ↺ Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Podium (Top 3) - Carrousel par Manche -->
+        <section class="podium-section">
+            <div class="container">
+                <div class="podium-header">
+                    <button id="prevPodium" class="carousel-btn carousel-prev" title="Manche précédente">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    
+                    <div class="podium-title-wrapper">
+                        <h2 class="section-title">🏅 Podium</h2>
+                        <p id="podiumMancheInfo" class="manche-info">Classement Général</p>
+                    </div>
+                    
+                    <button id="nextPodium" class="carousel-btn carousel-next" title="Manche suivante">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="carousel-indicators" id="carouselIndicators">
+                    <!-- Indicateurs générés dynamiquement -->
+                </div>
+
+                <div id="podiumCarousel" class="podium-carousel">
+                    <!-- Les podiums seront générés dynamiquement -->
+                    <div class="podium-slide" data-manche-id="general">
+                        <div class="podium">
+                            <!-- 2ème place -->
+                            <div class="podium-item podium-2" data-place="2">
+                                <div class="podium-crown">🥈</div>
+                                <div class="podium-card">
+                                    <div class="team-logo">
+                                        <span class="team-symbol">⚡</span>
+                                    </div>
+                                    <h3 class="team-name">-</h3>
+                                    <p class="team-position">2ème place</p>
+                                    <div class="team-score">
+                                        <span class="score-value">0</span>
+                                        <span class="score-label">points</span>
+                                    </div>
+                                </div>
+                                <div class="podium-base podium-base-2">
+                                    <span class="podium-number">2</span>
+                                </div>
+                            </div>
+
+                            <!-- 1ère place -->
+                            <div class="podium-item podium-1" data-place="1">
+                                <div class="podium-crown">👑</div>
+                                <div class="podium-card winner">
+                                    <div class="team-logo">
+                                        <span class="team-symbol">🏆</span>
+                                    </div>
+                                    <h3 class="team-name">-</h3>
+                                    <p class="team-position">1ère place</p>
+                                    <div class="team-score">
+                                        <span class="score-value">0</span>
+                                        <span class="score-label">points</span>
+                                    </div>
+                                </div>
+                                <div class="podium-base podium-base-1">
+                                    <span class="podium-number">1</span>
+                                </div>
+                            </div>
+
+                            <!-- 3ème place -->
+                            <div class="podium-item podium-3" data-place="3">
+                                <div class="podium-crown">🥉</div>
+                                <div class="podium-card">
+                                    <div class="team-logo">
+                                        <span class="team-symbol">⭐</span>
+                                    </div>
+                                    <h3 class="team-name">-</h3>
+                                    <p class="team-position">3ème place</p>
+                                    <div class="team-score">
+                                        <span class="score-value">0</span>
+                                        <span class="score-label">points</span>
+                                    </div>
+                                </div>
+                                <div class="podium-base podium-base-3">
+                                    <span class="podium-number">3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tableau Classement Complet -->
+        <section class="classement-section">
+            <div class="container">
+                <h2 class="section-title">📊 Classement Complet</h2>
+                <div class="table-container">
+                    <table class="classement-table">
+                        <thead>
+                            <tr>
+                                <th class="col-rank">Rang</th>
+                                <th class="col-team">Équipe</th>
+                                <th class="col-score">Score Total</th>
+                                <th class="col-manches">Manches</th>
+                                <th class="col-moyenne">Moyenne</th>
+                                <th class="col-trend">Tendance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classementTableBody">
+                            <!-- Chargé dynamiquement -->
+                            <tr>
+                                <td colspan="6" class="loading-row">
+                                    <div class="loader"></div>
+                                    <span>Chargement du classement...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Graphiques de Performance -->
+        <section class="charts-section">
+            <div class="container">
+                <h2 class="section-title">📈 Graphiques de Performance</h2>
+                
+                <div class="charts-grid">
+                    <!-- Graphique 1 : Évolution des scores -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">📊 Évolution du Top 5</h3>
+                        <div id="evolutionChart" class="chart-placeholder">
+                            <canvas id="evolutionCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Graphique 2 : Répartition par rubrique -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">🎯 Performance par Rubrique</h3>
+                        <div id="rubriqueChart" class="chart-placeholder">
+                            <canvas id="rubriqueCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Graphique 3 : Comparaison équipes -->
+                    <div class="chart-card full-width">
+                        <h3 class="chart-title">⚖️ Comparaison des Équipes</h3>
+                        <div id="compareChart" class="chart-placeholder">
+                            <canvas id="compareCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistiques Globales -->
+        <section class="stats-section">
+            <div class="container">
+                <h2 class="section-title">📋 Statistiques Globales</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-value" id="totalManches">0</div>
+                        <div class="stat-label">Manches jouées</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-value" id="totalPoints">0</div>
+                        <div class="stat-label">Points distribués</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-value" id="totalRubriques">8</div>
+                        <div class="stat-label">Rubriques</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-value" id="totalEquipes">10</div>
+                        <div class="stat-label">Équipes</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 AEEMCI - Association des Élèves et Étudiants Musulmans de Côte d'Ivoire</p>
+            <p>Section ESATIC - "Pour une identité islamique !"</p>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/public/classement.js"></script>
+</body>
+</html>

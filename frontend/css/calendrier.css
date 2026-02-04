@@ -1,0 +1,736 @@
+/* ============================================
+   PAGE CALENDRIER RAMADAN - AL ILM 2026
+   ============================================ */
+
+/* Hero Section */
+.hero-calendrier {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1d4e1f 100%);
+    color: white;
+    padding: 3rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-calendrier::before {
+    content: '🌙';
+    position: absolute;
+    font-size: 20rem;
+    opacity: 0.05;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+}
+
+.hero-calendrier .container {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-calendrier h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: white;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+/* Affichage des dates */
+.date-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.date-gregorian,
+.date-hijri {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem 2rem;
+    border-radius: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 250px;
+}
+
+.date-label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.date-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.date-separator {
+    font-size: 2rem;
+    animation: twinkle 2s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* Section Titles */
+.section-title {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: var(--secondary-color);
+    border-radius: 2px;
+}
+
+/* Légende */
+.legend-section {
+    padding: 3rem 0;
+    background: #f7fafc;
+}
+
+.legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.legend-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.legend-color {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.color-preliminaire {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.color-quart {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+}
+
+.color-demi {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.color-finale {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+.legend-info h3 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.legend-info p {
+    font-size: 0.9rem;
+    color: #718096;
+    margin: 0;
+}
+
+/* Calendrier */
+.calendar-section {
+    padding: 4rem 0;
+    background: white;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+}
+
+.month-title {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    font-weight: 700;
+    margin: 0;
+}
+
+.btn-nav {
+    padding: 0.75rem 1.5rem;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.btn-nav:hover {
+    background: #FFE066;
+    transform: scale(1.05);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1rem;
+    background: #f7fafc;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-weight: 700;
+    color: var(--primary-color);
+    padding: 1rem;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.calendar-day {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    min-height: 100px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.calendar-day:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+}
+
+.calendar-day.other-month {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.calendar-day.other-month:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: transparent;
+}
+
+.calendar-day.today {
+    border-color: var(--secondary-color);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+}
+
+.day-number {
+    display: block;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.day-hijri {
+    display: block;
+    font-size: 0.8rem;
+    color: #718096;
+    margin-bottom: 0.5rem;
+    font-style: italic;
+}
+
+.day-manches {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.manche-indicator {
+    padding: 0.4rem;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.manche-indicator:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.manche-preliminaire {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.manche-quart {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+.manche-demi {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.manche-finale {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: var(--primary-color);
+}
+
+/* Timeline des manches */
+.manches-list-section {
+    padding: 4rem 0;
+    background: #f7fafc;
+}
+
+.manches-timeline {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.manches-timeline::before {
+    content: '';
+    position: absolute;
+    left: 30px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+    border-radius: 2px;
+}
+
+.manche-timeline-item {
+    position: relative;
+    padding-left: 80px;
+    margin-bottom: 2rem;
+    animation: slideInLeft 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 17px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: white;
+    border: 4px solid var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(44, 95, 45, 0.1);
+    z-index: 2;
+}
+
+.timeline-marker.completed {
+    background: var(--primary-color);
+}
+
+.timeline-marker.completed::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.manche-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 5px solid var(--primary-color);
+}
+
+.manche-card:hover {
+    transform: translateX(10px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.manche-card.type-preliminaire {
+    border-left-color: #3498db;
+}
+
+.manche-card.type-quart {
+    border-left-color: #f39c12;
+}
+
+.manche-card.type-demi {
+    border-left-color: #e74c3c;
+}
+
+.manche-card.type-finale {
+    border-left-color: #FFD700;
+}
+
+.manche-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.manche-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.manche-type-badge {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+}
+
+.badge-preliminaire {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.badge-quart {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+.badge-demi {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.badge-finale {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: var(--primary-color);
+}
+
+.manche-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.manche-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4a5568;
+}
+
+.detail-icon {
+    font-size: 1.2rem;
+}
+
+.detail-text {
+    font-size: 0.95rem;
+}
+
+/* Statistiques Ramadan */
+.stats-ramadan {
+    padding: 4rem 0;
+    background: white;
+}
+
+.ramadan-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e0e6ed;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 35px rgba(44, 95, 45, 0.2);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    flex-shrink: 0;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--primary-color);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0.25rem;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    background: #f7fafc;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: #4a5568;
+}
+
+.modal-close:hover {
+    background: #e0e6ed;
+    color: var(--error-color);
+    transform: rotate(90deg);
+}
+
+.modal-manche-title {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid var(--secondary-color);
+}
+
+.modal-info-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.modal-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.modal-info-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.modal-info-content h4 {
+    color: var(--primary-color);
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+}
+
+.modal-info-content p {
+    margin: 0;
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+.loading-container {
+    text-align: center;
+    padding: 3rem;
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #e0e6ed;
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .date-display {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .date-separator {
+        transform: rotate(90deg);
+    }
+
+    .calendar-grid {
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+
+    .calendar-day {
+        padding: 0.5rem;
+        min-height: 80px;
+    }
+
+    .legend-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-calendrier h1 {
+        font-size: 2rem;
+    }
+
+    .calendar-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .calendar-grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.25rem;
+    }
+
+    .calendar-day {
+        min-height: 60px;
+        padding: 0.25rem;
+    }
+
+    .day-number {
+        font-size: 1rem;
+    }
+
+    .day-hijri {
+        font-size: 0.7rem;
+    }
+
+    .manche-indicator {
+        font-size: 0.65rem;
+        padding: 0.2rem;
+    }
+
+    .manche-timeline-item {
+        padding-left: 60px;
+    }
+
+    .ramadan-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
