@@ -15,7 +15,7 @@
     content: '☪️';
     position: absolute;
     font-size: 15rem;
-    opacity: 0.02;
+    opacity: 0.3; /* Augmenté de 0.02 à 0.1 pour plus de visibilité */
     animation: rotate 20s linear infinite;
 }
 
@@ -62,11 +62,21 @@
     content: '☪️';
     position: absolute;
     font-size: 8rem;
-    opacity: 0.05;
+    opacity: 0.01; /* Diminué de 0.05 à 0.02 pour ne pas gêner le texte */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    animation: pulse 3s ease-in-out infinite;
+    animation: pulse 4s ease-in-out infinite;
+    z-index: 0; /* Placer derrière le contenu */
+}
+
+/* S'assurer que le contenu reste au-dessus du filigrane */
+.verset-icon,
+.verset-arabe,
+.verset-traduction,
+.verset-reference {
+    position: relative;
+    z-index: 1;
 }
 
 .verset-icon {

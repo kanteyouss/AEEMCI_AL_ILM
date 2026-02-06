@@ -165,3 +165,76 @@ function formatTime(timeString) {
     if (!timeString) return '';
     return timeString.substring(0, 5); // HH:MM
 }
+
+/**
+ * Appliquer la configuration de navigation globale
+ * Cette fonction doit être appelée sur toutes les pages publiques
+ */
+/**
+ * Appliquer la configuration de navigation globale
+ * Cette fonction doit être appelée sur toutes les pages publiques
+ */
+async function applyGlobalNavConfig() {
+    // 1. Essayer d'appliquer depuis le cache local (localStorage) immédiatement
+    // Cela évite l'effet de "flash" où les menus apparaissent puis disparaissent
+    const cachedConfig = localStorage.getItem('navConfig');
+    if (cachedConfig) {
+        try {
+            applyNavVisibility(JSON.parse(cachedConfig));
+        } catch (e) {
+            console.error('Erreur lecture cache nav:', e);
+        }
+    }
+
+    // 2. Récupérer la configuration fraîche depuis le serveur
+    try {
+        const response = await fetch(`${API_BASE_URL}/classement-config`);
+        if (!response.ok) return;
+        
+        const result = await response.json();
+        const config = result.data;
+        
+        // Mettre à jour le cache
+        localStorage.setItem('navConfig', JSON.stringify(config));
+        
+        // Appliquer
+        applyNavVisibility(config);
+            
+    } catch (error) {
+        console.error('Erreur chargement config navigation:', error);
+    }
+}
+
+/**
+ * Fonction helper pour appliquer la visibilité (évite la duplication)
+ */
+function applyNavVisibility(config) {
+    // Sélecteurs pour les liens de navigation (basés sur les attributs href standards)
+    // On cible spécifiquement les liens dans la barre de navigation (.nav)
+    const navLinks = {
+        calendrier: document.querySelector('.nav a[href*="calendrier.html"]'),
+        classement: document.querySelector('.nav a[href*="classement.html"]'),
+        inscription: document.querySelector('.nav a[href*="inscription.html"]'),
+        connexion: document.querySelector('.nav a[href*="login.html"]')
+    };
+    
+    // Appliquer la visibilité
+    if (navLinks.calendrier) 
+        navLinks.calendrier.style.display = (config.afficher_nav_calendrier !== false) ? '' : 'none';
+    
+    if (navLinks.classement) 
+        navLinks.classement.style.display = (config.afficher_nav_classement !== false) ? '' : 'none';
+    
+    if (navLinks.inscription) 
+        navLinks.inscription.style.display = (config.afficher_nav_inscription !== false) ? '' : 'none';
+        
+    if (navLinks.connexion) 
+        navLinks.connexion.style.display = (config.afficher_nav_connexion !== false) ? '' : 'none';
+}
+
+// Exécuter automatiquement au chargement du DOM si nous sommes sur une page publique
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyGlobalNavConfig);
+} else {
+    applyGlobalNavConfig();
+}

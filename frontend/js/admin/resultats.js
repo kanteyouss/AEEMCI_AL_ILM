@@ -544,6 +544,16 @@ async function chargerConfiguration() {
         if(document.getElementById('configAfficherPhaseFinale'))
             document.getElementById('configAfficherPhaseFinale').checked = config.afficher_phase_finale !== false;
         
+        // Configurations de la navigation
+        if(document.getElementById('configAfficherNavCalendrier'))
+            document.getElementById('configAfficherNavCalendrier').checked = config.afficher_nav_calendrier !== false;
+        if(document.getElementById('configAfficherNavClassement'))
+            document.getElementById('configAfficherNavClassement').checked = config.afficher_nav_classement !== false;
+        if(document.getElementById('configAfficherNavInscription'))
+            document.getElementById('configAfficherNavInscription').checked = config.afficher_nav_inscription !== false;
+        if(document.getElementById('configAfficherNavConnexion'))
+            document.getElementById('configAfficherNavConnexion').checked = config.afficher_nav_connexion !== false;
+
         console.log('✅ Configuration chargée:', config);
     } catch (error) {
         console.error('❌ Erreur chargement configuration:', error);
@@ -572,7 +582,13 @@ async function sauvegarderConfiguration() {
             afficher_phase_preliminaire: document.getElementById('configAfficherPhasePreliminaire').checked,
             afficher_phase_quart: document.getElementById('configAfficherPhaseQuart').checked,
             afficher_phase_demi: document.getElementById('configAfficherPhaseDemi').checked,
-            afficher_phase_finale: document.getElementById('configAfficherPhaseFinale').checked
+            afficher_phase_finale: document.getElementById('configAfficherPhaseFinale').checked,
+
+            // Nouvelles configs de navigation
+            afficher_nav_calendrier: document.getElementById('configAfficherNavCalendrier').checked,
+            afficher_nav_classement: document.getElementById('configAfficherNavClassement').checked,
+            afficher_nav_inscription: document.getElementById('configAfficherNavInscription').checked,
+            afficher_nav_connexion: document.getElementById('configAfficherNavConnexion').checked
         };
         
         // Envoyer au serveur

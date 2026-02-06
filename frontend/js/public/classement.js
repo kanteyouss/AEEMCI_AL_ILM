@@ -81,6 +81,11 @@ async function loadDisplayConfig() {
         const result = await response.json();
         displayConfig = { ...displayConfig, ...result.data };
         
+        // Mettre à jour la phase courante immédiatement si définie dans la config
+        if (displayConfig.etape_publiee) {
+            currentPhase = displayConfig.etape_publiee;
+        }
+
         console.log('✅ Configuration chargée:', displayConfig);
         
         // Appliquer la configuration
@@ -202,25 +207,25 @@ async function switchPhase(phase) {
  * Mettre à jour le message personnalisé en fonction de la phase
  */
 function updateCustomMessage(phase) {
-    // Nettoyer les messages existants
     const heroSection = document.querySelector('.hero-classement .container');
-    const existingMessage = document.querySelector('.custom-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
     
-    // Déterminer le message à afficher
-    let messageToDisplay = displayConfig.message_personnalise; // Fallback ou message général
+    // Nettoyer les messages existants pour réaffichage ordonné
+    const existingCustomMsg = document.querySelector('.custom-message');
+    if (existingCustomMsg) existingCustomMsg.remove();
     
-    // Si une phase est active, chercher un message spécifique
-    if (phase) {
-        const specificMessage = displayConfig[`message_${phase}`];
-        if (specificMessage) {
-            messageToDisplay = specificMessage;
-        }
-    }
+    const existingPhaseMsg = document.querySelector('.phase-message');
+    if (existingPhaseMsg) existingPhaseMsg.remove();
+
+    // Masquer l'ancienne zone de notification en bas de page pour éviter les doublons
+    const noteBasPage = document.getElementById('noteBasPage');
+    if (noteBasPage) noteBasPage.style.display = 'none';
     
-    if (messageToDisplay && heroSection) {
+    if (!heroSection) return;
+
+    // --- 1. Message Général (.custom-message) ---
+    const generalMessage = displayConfig.message_personnalise;
+    
+    if (generalMessage && generalMessage.trim() !== '') {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'custom-message';
         messageDiv.style.cssText = `
@@ -228,13 +233,46 @@ function updateCustomMessage(phase) {
             color: white;
             padding: 1.5rem;
             border-radius: 12px;
-            margin: 1rem 0;
+            margin: 1rem 0 0.5rem 0;
             text-align: center;
             font-size: 1.1rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         `;
-        messageDiv.textContent = messageToDisplay;
+        messageDiv.textContent = generalMessage;
         heroSection.appendChild(messageDiv);
+    }
+
+    // --- 2. Message Spécifique à la Phase (.phase-message) ---
+    // S'affiche juste en dessous du message général
+    let specificMessage = '';
+    if (phase) {
+        specificMessage = displayConfig[`message_${phase}`];
+    }
+    
+    if (specificMessage && specificMessage.trim() !== '') {
+        const phaseDiv = document.createElement('div');
+        phaseDiv.className = 'phase-message';
+        phaseDiv.style.cssText = `
+            background-color: #fff3cd; /* Jaune pâle style 'Avertissement/Note' */
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 0.5rem 0 1rem 0; /* Marge haut réduite pour coller au message précédent */
+            text-align: center;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        `;
+        
+        // On ajoute le nom de la phase pour un contexte clair
+        const phaseName = etapesNoms[phase] || phase;
+        phaseDiv.innerHTML = `<strong>${phaseName} :</strong> ${specificMessage}`;
+        
+        heroSection.appendChild(phaseDiv);
     }
 }
 

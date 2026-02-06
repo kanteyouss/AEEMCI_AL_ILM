@@ -218,7 +218,25 @@ function initCountdown() {
         const distance = ramadanDate - now;
         
         if (distance < 0) {
-            document.getElementById('countdown').innerHTML = '<p style="font-size: 2rem;">🌙 Ramadan Mubarak ! 🕌</p>';
+            const countdownEl = document.getElementById('countdown');
+            // Message de bienvenue
+            countdownEl.innerHTML = '<div style="font-size: 3rem; font-weight: bold; text-shadow: 0 4px 6px rgba(0,0,0,0.3);">🌙 Ramadan Mubarak ! 🕌</div>';
+            
+            // Ajuster le style pour enlever la grille (grid) et centrer le message
+            countdownEl.style.display = 'flex';
+            countdownEl.style.justifyContent = 'center';
+            countdownEl.style.alignItems = 'center';
+            countdownEl.style.maxWidth = '100%';
+
+            // Mettre à jour le titre de la section et cacher la date
+            const section = document.querySelector('.countdown-section');
+            if (section) {
+                const title = section.querySelector('h2');
+                const dateText = section.querySelector('.countdown-date');
+                
+                if (title) title.textContent = "Le mois sacré est arrivé !";
+                if (dateText) dateText.style.display = 'none';
+            }
             return;
         }
         
@@ -354,8 +372,8 @@ async function loadEquipes() {
         console.log('✅ Affichage mis à jour');
         console.log('=== FIN CHARGEMENT ===\n');
         
-        // Auto-refresh toutes les 10 secondes pour le debug
-        setTimeout(loadEquipes, 10000);
+        // Auto-refresh désactivé pour éviter les boucles d'erreurs réseau infinies
+        // setTimeout(loadEquipes, 10000);
         
     } catch (error) {
         console.error('❌ Erreur lors du chargement des équipes:', error);
