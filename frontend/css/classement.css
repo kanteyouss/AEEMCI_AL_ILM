@@ -447,7 +447,7 @@
 .table-container {
     background: white;
     border-radius: 15px;
-    overflow: hidden;
+    overflow-x: auto;
     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
 }
 
@@ -468,6 +468,7 @@
     text-transform: uppercase;
     font-size: 0.85rem;
     letter-spacing: 1px;
+    white-space: nowrap;
 }
 
 .classement-table th.col-rank {
@@ -552,6 +553,7 @@
     font-weight: 700;
     color: var(--primary-color);
     font-size: 1.1rem;
+    white-space: nowrap;
 }
 
 .team-subtitle {
@@ -609,51 +611,9 @@
     to { transform: rotate(360deg); }
 }
 
-/* Graphiques */
-.charts-section {
-    padding: 4rem 0;
-    background: white;
-}
+/* Graphiques (Supprimés) */
+/* .charts-section { ... } */
 
-.charts-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-}
-
-.chart-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
-    border: 2px solid #e0e6ed;
-}
-
-.chart-card.full-width {
-    grid-column: 1 / -1;
-}
-
-.chart-title {
-    font-size: 1.3rem;
-    color: var(--primary-color);
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-.chart-placeholder {
-    min-height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-#evolutionCanvas,
-#rubriqueCanvas,
-#compareCanvas {
-    width: 100% !important;
-    height: 100% !important;
-}
 
 /* Statistiques */
 .stats-section {
@@ -787,4 +747,49 @@
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+/* Navigation des Phases */
+.phases-nav-container {
+    background: white;
+    border-bottom: 1px solid #e0e6ed;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.phases-nav {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+}
+
+.phases-nav::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.phase-tab {
+    padding: 1.2rem 1.5rem;
+    font-weight: 600;
+    color: #718096;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    font-size: 1rem;
+}
+
+.phase-tab:hover {
+    color: var(--primary-color);
+    background: #f7fafc;
+}
+
+.phase-tab.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    background: #f0fdf4;
 }

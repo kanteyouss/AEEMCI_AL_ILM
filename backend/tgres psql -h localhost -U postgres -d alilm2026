@@ -1,0 +1,30 @@
+                                           Table "public.questions"
+      Column      |            Type             | Collation | Nullable |                Default                
+------------------+-----------------------------+-----------+----------+---------------------------------------
+ id               | integer                     |           | not null | nextval('questions_id_seq'::regclass)
+ rubrique_id      | integer                     |           | not null | 
+ question_texte   | text                        |           | not null | 
+ reponse_correcte | text                        |           |          | 
+ type             | character varying(20)       |           |          | 
+ choix_a          | character varying(255)      |           |          | 
+ choix_b          | character varying(255)      |           |          | 
+ choix_c          | character varying(255)      |           |          | 
+ choix_d          | character varying(255)      |           |          | 
+ difficulte       | character varying(20)       |           |          | 
+ points           | integer                     |           | not null | 1
+ reference        | character varying(255)      |           |          | 
+ utilise          | boolean                     |           |          | false
+ created_at       | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+ updated_at       | timestamp without time zone |           |          | CURRENT_TIMESTAMP
+Indexes:
+    "questions_pkey" PRIMARY KEY, btree (id)
+    "idx_questions_rubrique" btree (rubrique_id)
+    "idx_questions_utilise" btree (utilise)
+Check constraints:
+    "questions_difficulte_check" CHECK (difficulte::text = ANY (ARRAY['facile'::character varying, 'moyen'::character varying, 'difficile'::character varying]::text[]))
+    "questions_type_check" CHECK (type::text = ANY (ARRAY['qcm'::character varying, 'texte_libre'::character varying]::text[]))
+Foreign-key constraints:
+    "questions_rubrique_id_fkey" FOREIGN KEY (rubrique_id) REFERENCES rubriques(id)
+Referenced by:
+    TABLE "soumissions" CONSTRAINT "soumissions_question_id_fkey" FOREIGN KEY (question_id) REFERENCES questions(id)
+

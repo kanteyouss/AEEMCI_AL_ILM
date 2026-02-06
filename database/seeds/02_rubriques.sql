@@ -1,72 +1,81 @@
 -- ============================================
--- SEED : 9 RUBRIQUES OFFICIELLES
+-- SEED : 8 RUBRIQUES OFFICIELLES
 -- JEU CONCOURS AL ILM 2026
+-- BARÈME OFFICIEL
 -- ============================================
 
 INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, criteres_evaluation) VALUES
 (
     'Adhan',
     'recitation',
-    100,
+    10,
     180,
-    'Récitation de l''Adhan avec Tajwid. Chaque équipe désigne un membre pour réciter.',
-    '{"voix": 40, "tajwid": 40, "prononciation": 20}'::jsonb
+    'Récitation de l''Adhan avec Tajwid. 1 participant par équipe. 3 min max pour l''exécution.',
+    '{"voix": 3, "prononciation": 7}'::jsonb
 ),
 (
-    'Coran Ouvert',
+    'Coran ouvert',
     'recitation',
-    100,
-    300,
-    'Récitation d''un passage du Coran choisi par le jury (livre ouvert).',
-    '{"voix": 35, "tajwid": 45, "prononciation": 20}'::jsonb
+    15,
+    NULL,
+    'Lecture d''une partie imposée (Juz Amma). Voix: 5 pts, Prononciation: 10 pts.',
+    '{"voix": 5, "prononciation": 10}'::jsonb
 ),
 (
-    'Coran Fermé',
+    'Coran fermé',
     'recitation',
-    150,
-    300,
-    'Récitation de mémoire d''une sourate désignée par le jury.',
-    '{"voix": 30, "tajwid": 50, "memorisation": 40, "prononciation": 30}'::jsonb
+    15,
+    NULL,
+    'Lecture sans consultation (Sabi). Voix: 5 pts, Prononciation: 10 pts.',
+    '{"voix": 5, "prononciation": 10}'::jsonb
+),
+(
+    'Questions sur le Coran',
+    'questions_ecrites',
+    10,
+    15,
+    '2 questions. 5 pts par bonne réponse. 15 sec par question.',
+    '{"exactitude": 10}'::jsonb
+),
+(
+    'Vie du Prophète',
+    'questions_ecrites',
+    30,
+    15,
+    '2 questions sur le Prophète (ﷺ) et Compagnons. 15 pts par bonne réponse. 15 sec par question.',
+    '{"exactitude": 30}'::jsonb
 ),
 (
     'Jurisprudence',
     'questions_ecrites',
-    100,
-    60,
-    'Questions sur le Fiqh : prière, jeûne, purification, Zakat, Hajj.',
-    '{"exactitude": 70, "temps": 30}'::jsonb
+    50,
+    15,
+    '2 questions. 25 pts par bonne réponse. 15 sec par question.',
+    '{"exactitude": 50}'::jsonb
 ),
 (
-    'Questions Relais',
-    'relais',
-    150,
-    30,
-    'Série de questions rapides en relais. Toute l''équipe participe à tour de rôle.',
-    '{"rapidite": 50, "exactitude": 100}'::jsonb
-),
-(
-    'Vie du Prophète et des Compagnons',
+    'Culture générale',
     'questions_ecrites',
     100,
-    60,
-    'Questions sur la vie du Prophète Muhammad (SAW), sa Sira, ses enseignements et l''histoire de ses Compagnons.',
-    '{"exactitude": 70, "temps": 30}'::jsonb
-),
-(
-    'Culture Générale Islamique',
-    'questions_ecrites',
-    100,
-    60,
-    'Questions sur l''histoire islamique, les compagnons, les califes, les savants.',
-    '{"exactitude": 70, "temps": 30}'::jsonb
+    15,
+    '4 questions. 25 pts par bonne réponse. 15 sec par question.',
+    '{"exactitude": 100}'::jsonb
 ),
 (
     'Hadith',
     'hadith',
-    100,
-    180,
-    'Récitation de Hadiths (en arabe avec traduction française). Évaluation de la mémorisation et prononciation.',
-    '{"memorisation": 50, "prononciation": 30, "comprehension": 20}'::jsonb
+    20,
+    20,
+    '1 question. 20 pts par bonne réponse. 20 sec par question.',
+    '{"exactitude": 20}'::jsonb
+),
+(
+    'Questions relais',
+    'relais',
+    40,
+    15,
+    'Relais avec 4 participants max (1 question par personne). Bonne réponse = 10 pts + passage au suivant. Mauvaise réponse = 0 pt + fin du relais. 15 sec par question.',
+    '{"exactitude": 10}'::jsonb
 );
 
 -- ============================================
@@ -74,17 +83,19 @@ INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, c
 -- ============================================
 DO $$
 BEGIN
-    RAISE NOTICE '✅ 8 rubriques officielles créées avec succès !';
+    RAISE NOTICE '✅ 9 rubriques officielles créées avec succès !';
     RAISE NOTICE '';
-    RAISE NOTICE '📖 Les 8 rubriques AL ILM 2026 :';
-    RAISE NOTICE '   1️⃣  Adhan (100 pts)';
-    RAISE NOTICE '   2️⃣  Coran Ouvert (100 pts)';
-    RAISE NOTICE '   3️⃣  Coran Fermé (150 pts)';
-    RAISE NOTICE '   4️⃣  Jurisprudence (100 pts)';
-    RAISE NOTICE '   5️⃣  Questions Relais (150 pts)';
-    RAISE NOTICE '   6️⃣  Vie du Prophète et des Compagnons (100 pts)';
-    RAISE NOTICE '   7️⃣  Culture Générale Islamique (100 pts)';
-    RAISE NOTICE '   8️⃣  Hadith (100 pts)';
+    RAISE NOTICE '📖 Les 9 rubriques AL ILM 2026 (Barème officiel) :';
+    RAISE NOTICE '   1️⃣  Adhan (10 pts - 3 min)';
+    RAISE NOTICE '   2️⃣  Coran ouvert (15 pts - N/A)';
+    RAISE NOTICE '   3️⃣  Coran fermé (15 pts - N/A)';
+    RAISE NOTICE '   4️⃣  Questions sur le Coran (10 pts - 2x 15 sec)';
+    RAISE NOTICE '   5️⃣  Vie du Prophète (30 pts - 2x 15 sec)';
+    RAISE NOTICE '   6️⃣  Jurisprudence (50 pts - 2x 15 sec)';
+    RAISE NOTICE '   7️⃣  Culture générale (100 pts - 4x 15 sec)';
+    RAISE NOTICE '   8️⃣  Hadith (20 pts - 1x 20 sec)';
+    RAISE NOTICE '   9️⃣  Questions relais (40 pts max - 4 participants - 10 pts/question - arrêt si erreur)';
     RAISE NOTICE '';
-    RAISE NOTICE '💯 Total maximum possible : 900 points par manche';
+    RAISE NOTICE '💯 Total maximum possible : 280 points par manche';
+    RAISE NOTICE '   (10 + 15 + 15 + 10 + 30 + 50 + 100 + 20 + 40 = 280)';
 END $$;

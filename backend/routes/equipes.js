@@ -58,4 +58,16 @@ router.post('/:id/send-code', verifyJWT, isAdmin, validateId, equipeController.s
  */
 router.post('/validate', verifyJWT, isAdmin, equipeController.validateAllEquipes);
 
+/**
+ * GET /api/equipes/public/validated
+ * Récupérer les équipes validées pour affichage public (sans auth)
+ */
+router.get('/public/validated', equipeController.getValidatedEquipes);
+
+/**
+ * GET /api/equipes/public/:nom/membres
+ * Récupérer les membres d'une équipe par son nom (sans auth)
+ */
+router.get('/public/:nom/membres', equipeController.getEquipeMembres);
+
 module.exports = router;

@@ -6,6 +6,37 @@
 .verset-section {
     padding: 2rem 0;
     background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.verset-section::before,
+.verset-section::after {
+    content: '☪️';
+    position: absolute;
+    font-size: 15rem;
+    opacity: 0.02;
+    animation: rotate 20s linear infinite;
+}
+
+.verset-section::before {
+    top: -5rem;
+    left: -5rem;
+}
+
+.verset-section::after {
+    bottom: -5rem;
+    right: -5rem;
+    animation-direction: reverse;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .verset-card {
@@ -19,6 +50,12 @@
     border: 3px solid var(--secondary-color);
     position: relative;
     overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.verset-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
 }
 
 .verset-card::before {
@@ -29,6 +66,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    animation: pulse 3s ease-in-out infinite;
 }
 
 .verset-icon {
@@ -148,6 +186,15 @@
     overflow: hidden;
 }
 
+.hero-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.2;
+}
+
 .hero::before {
     content: '';
     position: absolute;
@@ -161,7 +208,7 @@
 
 .hero .container {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .hero-title {
@@ -195,7 +242,24 @@
     border-radius: 15px;
     border: 2px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
+    opacity: 0;
+    animation: fadeInScale 0.6s ease forwards;
 }
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.hero-stats .stat-card:nth-child(1) { animation-delay: 0.2s; }
+.hero-stats .stat-card:nth-child(2) { animation-delay: 0.4s; }
+.hero-stats .stat-card:nth-child(3) { animation-delay: 0.6s; }
 
 .hero-stats .stat-card:hover {
     transform: translateY(-10px) scale(1.05);
@@ -366,7 +430,31 @@
     text-align: center;
     transition: all 0.3s ease;
     border-left: 5px solid var(--primary-color);
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
 }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.equipe-card:nth-child(1) { animation-delay: 0.1s; }
+.equipe-card:nth-child(2) { animation-delay: 0.2s; }
+.equipe-card:nth-child(3) { animation-delay: 0.3s; }
+.equipe-card:nth-child(4) { animation-delay: 0.4s; }
+.equipe-card:nth-child(5) { animation-delay: 0.5s; }
+.equipe-card:nth-child(6) { animation-delay: 0.6s; }
+.equipe-card:nth-child(7) { animation-delay: 0.7s; }
+.equipe-card:nth-child(8) { animation-delay: 0.8s; }
+.equipe-card:nth-child(9) { animation-delay: 0.9s; }
+.equipe-card:nth-child(10) { animation-delay: 1s; }
 
 .equipe-card:hover {
     transform: translateY(-5px) scale(1.02);
@@ -423,6 +511,121 @@
     font-size: 0.85rem;
     font-weight: 600;
     display: inline-block;
+}
+
+/* Statut des équipes */
+.equipe-validated {
+    background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+    border-left-color: #28a745 !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.equipe-validated::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(40, 167, 69, 0.1), transparent);
+    animation: shine 3s ease-in-out infinite;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.equipe-status {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.badge-validated {
+    display: inline-block;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 16px rgba(40, 167, 69, 0.5), 0 0 20px rgba(40, 167, 69, 0.2);
+    }
+}
+
+.badge-pending {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.equipe-info {
+    font-size: 0.9rem;
+    color: #2d3748;
+    margin: 0.5rem 0;
+}
+
+.equipe-capitaine {
+    font-size: 0.85rem;
+    color: #4a5568;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+}
+
+.capitaine-label {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.equipe-signification {
+    color: #718096;
+    font-size: 0.95rem;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+}
+
+.equipe-link {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.equipe-card:hover .equipe-link {
+    color: var(--secondary-color);
+    transform: translateX(5px);
 }
 
 /* CTA Section */

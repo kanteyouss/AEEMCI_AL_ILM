@@ -24,8 +24,26 @@ let draggedElement = null;
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', async () => {
+    // Vérifier l'authentification avec api.js
+    const token = getAuthToken();
+    const user = getUser();
+    
+    console.log('🔐 Token présent:', !!token);
+    console.log('👤 Utilisateur:', user);
+    
+    if (!token || !user) {
+        console.log('❌ Pas authentifié, redirection vers login');
+        window.location.href = '../login.html';
+        return;
+    }
+    
+    if (user.role !== 'admin') {
+        console.log('❌ Pas admin, redirection vers login');
+        window.location.href = '../login.html';
+        return;
+    }
+    
     // Afficher le nom de l'utilisateur
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userNameElement = document.getElementById('userName');
     if (userNameElement && user.nom) {
         userNameElement.textContent = `${user.prenom || ''} ${user.nom}`.trim();
@@ -35,14 +53,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login.html';
+            clearAuthToken();
+            window.location.href = '../login.html';
         });
     }
 
     await loadParticipants();
-    initEquipes();
+    await loadEquipesWithMembers();
     renderEquipes();
     renderParticipants();
     initEventListeners();
@@ -53,15 +70,40 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function loadParticipants() {
     try {
-        const response = await fetch('/api/participants');
-        if (!response.ok) throw new Error('Erreur réseau');
+        const token = getAuthToken();
+        console.log('🔑 Chargement participants avec token:', token ? 'Présent' : 'Absent');
         
-        const data = await response.json();
-        participants = data.filter(p => !p.equipe_id); // Seulement les non assignés
+        const response = await fetch('/api/participants', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        console.log('📡 Réponse API participants:', response.status);
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                console.error('❌ Non autorisé (401)');
+                showNotification('Session expirée. Redirection...', 'error');
+                setTimeout(() => {
+                    clearAuthToken();
+                    window.location.href = '../login.html';
+                }, 1500);
+                return;
+            }
+            throw new Error(`Erreur ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('📊 Données reçues:', result);
+        
+        participants = result.data.filter(p => !p.equipe_id); // Seulement les non assignés
         
         updatePoolCount();
+        console.log(`✅ ${participants.length} participants chargés`);
     } catch (error) {
-        console.error('Erreur lors du chargement des participants:', error);
+        console.error('❌ Erreur lors du chargement des participants:', error);
         showNotification('Impossible de charger les participants', 'error');
     }
 }
@@ -77,6 +119,91 @@ function initEquipes() {
             capitaine: null
         };
     });
+}
+
+/**
+ * Charger les équipes avec leurs membres depuis la base de données
+ */
+async function loadEquipesWithMembers() {
+    try {
+        const token = getAuthToken();
+        
+        // Charger toutes les équipes avec leurs membres
+        const response = await fetch('/api/equipes', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Erreur ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('📊 Équipes chargées depuis la BD:', result);
+        
+        // Initialiser les équipes vides
+        initEquipes();
+        
+        // Remplir avec les données de la BD
+        result.data.forEach(equipeDB => {
+            const equipeLocal = equipes[equipeDB.id];
+            if (!equipeLocal) return;
+            
+            // Si l'équipe a des membres dans la BD, les charger
+            if (equipeDB.nb_membres > 0) {
+                loadEquipeMembres(equipeDB.id);
+            }
+        });
+        
+        console.log('✅ Équipes initialisées avec membres');
+        
+    } catch (error) {
+        console.error('❌ Erreur chargement équipes:', error);
+        // En cas d'erreur, initialiser avec équipes vides
+        initEquipes();
+    }
+}
+
+/**
+ * Charger les membres d'une équipe spécifique
+ */
+async function loadEquipeMembres(equipeId) {
+    try {
+        const token = getAuthToken();
+        
+        const response = await fetch(`/api/equipes/${equipeId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) return;
+        
+        const result = await response.json();
+        const equipeData = result.data;
+        
+        if (equipeData.membres && equipeData.membres.length > 0) {
+            equipes[equipeId].membres = equipeData.membres;
+            
+            // Trouver le capitaine
+            const capitaine = equipeData.membres.find(m => m.est_capitaine);
+            if (capitaine) {
+                equipes[equipeId].capitaine = capitaine.id;
+            }
+            
+            console.log(`✅ Équipe ${equipeId} : ${equipeData.membres.length} membre(s) chargé(s)`);
+            
+            // Mettre à jour l'affichage
+            renderEquipeMembers(equipeId);
+            updateEquipeCount(equipeId);
+        }
+        
+    } catch (error) {
+        console.error(`❌ Erreur chargement membres équipe ${equipeId}:`, error);
+    }
 }
 
 /**
@@ -588,14 +715,14 @@ function generateEquipesPDF() {
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(24);
         doc.setFont('helvetica', 'bold');
-        doc.text('🕌 AL ILM 2026', 105, 15, { align: 'center' });
+        doc.text('AL ILM 2026', 105, 15, { align: 'center' });
         
         doc.setFontSize(16);
-        doc.text('FICHE ÉQUIPE', 105, 25, { align: 'center' });
+        doc.text('FICHE EQUIPE', 105, 25, { align: 'center' });
         
-        // Nom de l'équipe avec symbole
+        // Nom de l'équipe
         doc.setFontSize(14);
-        doc.text(`${equipeData.symbole} ${equipeData.nom}`, 105, 35, { align: 'center' });
+        doc.text(equipeData.nom.toUpperCase(), 105, 35, { align: 'center' });
         
         // Informations de l'équipe
         doc.setTextColor(0, 0, 0);
@@ -607,10 +734,10 @@ function generateEquipesPDF() {
         // Code d'accès
         doc.setFillColor(240, 240, 240);
         doc.roundedRect(20, y - 5, 170, 15, 3, 3, 'F');
-        doc.text('Code d\'accès:', 25, y + 5);
+        doc.text('Code d\'acces:', 25, y + 5);
         doc.setFont('courier', 'bold');
         doc.setFontSize(14);
-        doc.text(equipe.code || 'NON GÉNÉRÉ', 70, y + 5);
+        doc.text(equipe.code || 'NON GENERE', 70, y + 5);
         
         y += 25;
         
@@ -618,19 +745,24 @@ function generateEquipesPDF() {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         const capitaine = equipe.membres.find(m => m.id === equipe.capitaine);
-        doc.text('👑 Capitaine:', 25, y);
+        doc.text('CAPITAINE:', 25, y);
         doc.setFont('helvetica', 'normal');
         if (capitaine) {
-            doc.text(`${capitaine.prenom} ${capitaine.nom} - ${capitaine.etablissement}`, 60, y);
+            doc.text(`${capitaine.prenom} ${capitaine.nom}`, 60, y);
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(capitaine.etablissement, 60, y + 5);
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
         } else {
-            doc.text('Non désigné', 60, y);
+            doc.text('Non designe', 60, y);
         }
         
-        y += 15;
+        y += 20;
         
         // Liste des membres
         doc.setFont('helvetica', 'bold');
-        doc.text(`👥 Membres (${equipe.membres.length}):`, 25, y);
+        doc.text(`MEMBRES (${equipe.membres.length}):`, 25, y);
         
         y += 10;
         
@@ -639,17 +771,17 @@ function generateEquipesPDF() {
         
         equipe.membres.forEach((membre, idx) => {
             const isCap = membre.id === equipe.capitaine;
-            const prefix = isCap ? '👑' : `${idx + 1}.`;
-            const text = `${prefix} ${membre.prenom} ${membre.nom}`;
-            const etablissement = membre.etablissement;
+            const prefix = isCap ? '[C]' : `${idx + 1}.`;
             
-            // Nom
-            doc.text(text, 30, y);
+            // Nom avec préfixe
+            doc.setFont('helvetica', isCap ? 'bold' : 'normal');
+            doc.text(`${prefix} ${membre.prenom} ${membre.nom}`, 30, y);
             
             // Établissement
+            doc.setFont('helvetica', 'normal');
             doc.setTextColor(100, 100, 100);
             doc.setFontSize(9);
-            doc.text(etablissement, 30, y + 4);
+            doc.text(membre.etablissement, 35, y + 4);
             
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(10);
@@ -666,7 +798,7 @@ function generateEquipesPDF() {
         // Pied de page
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.text('AL ILM 2026 - Compétition Islamique Inter-Écoles', 105, 285, { align: 'center' });
+        doc.text('AL ILM 2026 - Competition Islamique Inter-Ecoles', 105, 285, { align: 'center' });
         doc.text(`Page ${pageCount}`, 105, 290, { align: 'center' });
     });
     
@@ -674,27 +806,41 @@ function generateEquipesPDF() {
     const date = new Date().toISOString().split('T')[0];
     doc.save(`AL_ILM_2026_Equipes_${date}.pdf`);
     
-    showNotification('✅ Fiches PDF générées avec succès !', 'success');
+    showNotification('Fiches PDF generees avec succes !', 'success');
 }
 
 async function confirmValidation() {
     try {
+        // Envoyer TOUTES les équipes (même vides) pour synchroniser la base de données
         const equipesData = EQUIPES_DATA.map(eq => ({
             equipe_id: eq.id,
             membres: equipes[eq.id].membres.map(m => m.id),
             capitaine_id: equipes[eq.id].capitaine
-        })).filter(e => e.membres.length > 0);
+        }));
+        
+        const token = getAuthToken();
+        if (!token) {
+            throw new Error('Non authentifié');
+        }
         
         const response = await fetch('/api/equipes/validate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ equipes: equipesData })
         });
         
         if (!response.ok) {
+            if (response.status === 401) {
+                showNotification('Session expirée. Redirection...', 'error');
+                setTimeout(() => {
+                    clearAuthToken();
+                    window.location.href = '/login.html';
+                }, 1500);
+                return;
+            }
             const errorData = await response.json();
             throw new Error(errorData.message || 'Erreur serveur');
         }
@@ -841,7 +987,7 @@ function initEventListeners() {
     document.getElementById('btnConfirmValidation').addEventListener('click', confirmValidation);
     document.getElementById('btnGeneratePDF').addEventListener('click', generateEquipesPDF);
     
-    document.getElementById('btnLogout').addEventListener('click', () => {
+    document.getElementById('logoutBtn').addEventListener('click', () => {
         localStorage.removeItem('token');
         window.location.href = '../login.html';
     });

@@ -8,7 +8,12 @@ const verifyJWT = async (req, res, next) => {
     try {
         const token = extractToken(req);
         
+        // Logs désactivés en production (trop verbeux)
+        // console.log('🔐 Vérification JWT:');
+        // console.log('   Token présent:', !!token);
+        
         if (!token) {
+            // console.log('❌ Pas de token');
             return res.status(401).json({
                 success: false,
                 message: 'Token d\'authentification manquant'
@@ -17,6 +22,7 @@ const verifyJWT = async (req, res, next) => {
         
         // Décoder le token
         const decoded = verifyToken(token);
+        console.log('   Token décodé:', decoded);
         
         // Vérifier si la session existe en base
         const sessionQuery = `
@@ -28,11 +34,14 @@ const verifyJWT = async (req, res, next) => {
         const sessionResult = await db.query(sessionQuery, [token]);
         
         if (sessionResult.rows.length === 0) {
+            console.log('❌ Session expirée ou invalide');
             return res.status(401).json({
                 success: false,
                 message: 'Session expirée ou invalide'
             });
         }
+        
+        console.log('✅ Session valide');
         
         // Ajouter les infos utilisateur à la requête
         req.user = decoded;
@@ -40,6 +49,7 @@ const verifyJWT = async (req, res, next) => {
         
         next();
     } catch (error) {
+        console.log('❌ Erreur JWT:', error.message);
         return res.status(401).json({
             success: false,
             message: 'Token invalide',
@@ -52,12 +62,19 @@ const verifyJWT = async (req, res, next) => {
  * Middleware : Vérifier que l'utilisateur est Admin
  */
 const isAdmin = (req, res, next) => {
+    console.log('🔍 Vérification isAdmin:');
+    console.log('   req.user:', req.user);
+    console.log('   req.user.role:', req.user?.role);
+    
     if (!req.user || req.user.role !== 'admin') {
+        console.log('❌ Accès refusé - Non admin');
         return res.status(403).json({
             success: false,
             message: 'Accès réservé aux administrateurs'
         });
     }
+    
+    console.log('✅ Utilisateur admin confirmé');
     next();
 };
 

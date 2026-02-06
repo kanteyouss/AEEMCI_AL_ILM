@@ -161,6 +161,9 @@ const removeMember = async (req, res, next) => {
     try {
         const { id, participantId } = req.params;
         
+        console.log('\n🗑️ === REMOVE MEMBER ===');
+        console.log(`Équipe ID: ${id}, Participant ID: ${participantId}`);
+        
         const query = `
             DELETE FROM membres_equipe 
             WHERE equipe_id = $1 AND participant_id = $2
@@ -170,18 +173,46 @@ const removeMember = async (req, res, next) => {
         const result = await db.query(query, [id, participantId]);
         
         if (result.rows.length === 0) {
+            console.log('⚠️ Membre non trouvé dans cette équipe');
             return res.status(404).json({
                 success: false,
                 message: 'Membre non trouvé dans cette équipe'
             });
         }
         
+        console.log('✅ Membre supprimé:', result.rows[0]);
+        
+        // Vérifier s'il reste des membres dans l'équipe
+        const checkQuery = `
+            SELECT COUNT(*) as nb_membres 
+            FROM membres_equipe 
+            WHERE equipe_id = $1
+        `;
+        const checkResult = await db.query(checkQuery, [id]);
+        const nbMembres = parseInt(checkResult.rows[0].nb_membres);
+        
+        console.log(`📊 Nombre de membres restants: ${nbMembres}`);
+        
+        // Si l'équipe est vide, réinitialiser le code d'accès
+        if (nbMembres === 0) {
+            console.log('🔄 Équipe vide détectée - Réinitialisation du code_acces');
+            const resetResult = await db.query(
+                'UPDATE equipes SET code_acces = NULL WHERE id = $1 RETURNING *',
+                [id]
+            );
+            console.log('✅ Code accès réinitialisé:', resetResult.rows[0]);
+        }
+        
+        console.log('=== FIN REMOVE MEMBER ===\n');
+        
         res.json({
             success: true,
-            message: 'Membre retiré de l\'équipe'
+            message: 'Membre retiré de l\'équipe',
+            equipe_vide: nbMembres === 0
         });
         
     } catch (error) {
+        console.error('❌ Erreur dans removeMember:', error);
         next(error);
     }
 };
@@ -363,8 +394,18 @@ const validateAllEquipes = async (req, res, next) => {
         for (const equipeData of equipes) {
             const { equipe_id, membres, capitaine_id } = equipeData;
             
-            // Vérifier que l'équipe a des membres
+            // Supprimer les anciennes associations (pour toutes les équipes, même vides)
+            await client.query(
+                'DELETE FROM membres_equipe WHERE equipe_id = $1',
+                [equipe_id]
+            );
+            
+            // Si l'équipe est vide, réinitialiser le code d'accès et continuer
             if (!membres || membres.length === 0) {
+                await client.query(
+                    'UPDATE equipes SET code_acces = NULL WHERE id = $1',
+                    [equipe_id]
+                );
                 continue;
             }
             
@@ -385,12 +426,6 @@ const validateAllEquipes = async (req, res, next) => {
                     message: `Le capitaine doit faire partie de l'équipe ${equipe_id}`
                 });
             }
-            
-            // Supprimer les anciennes associations
-            await client.query(
-                'DELETE FROM membres_equipe WHERE equipe_id = $1',
-                [equipe_id]
-            );
             
             // Ajouter les nouveaux membres
             for (const participantId of membres) {
@@ -463,6 +498,136 @@ const validateAllEquipes = async (req, res, next) => {
     }
 };
 
+/**
+ * Récupérer les équipes validées pour affichage public
+ */
+const getValidatedEquipes = async (req, res, next) => {
+    try {
+        console.log('\n🔍 === GET VALIDATED EQUIPES ===');
+        
+        // Désactiver le cache
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+        
+        const query = `
+            SELECT 
+                e.id,
+                e.nom,
+                e.code_acces,
+                COUNT(me.participant_id) FILTER (WHERE me.participant_id IS NOT NULL) as nb_membres,
+                json_agg(
+                    json_build_object(
+                        'id', p.id,
+                        'prenom', p.prenom,
+                        'nom', p.nom,
+                        'etablissement', p.etablissement,
+                        'est_capitaine', me.est_capitaine
+                    ) ORDER BY me.est_capitaine DESC, p.prenom
+                ) FILTER (WHERE p.id IS NOT NULL) as membres
+            FROM equipes e
+            LEFT JOIN membres_equipe me ON e.id = me.equipe_id
+            LEFT JOIN participants p ON me.participant_id = p.id
+            WHERE e.code_acces IS NOT NULL
+            GROUP BY e.id
+            ORDER BY e.nom
+        `;
+        
+        const result = await db.query(query);
+        
+        console.log(`📊 Nombre d'équipes trouvées: ${result.rows.length}`);
+        
+        // Formater les données pour l'affichage
+        const equipesFormatted = result.rows.map(eq => {
+            const capitaine = eq.membres?.find(m => m.est_capitaine);
+            
+            console.log(`\n📋 Équipe: ${eq.nom}`);
+            console.log(`   - Code accès: ${eq.code_acces}`);
+            console.log(`   - Nombre membres: ${eq.nb_membres}`);
+            console.log(`   - Membres bruts:`, eq.membres);
+            console.log(`   - Capitaine:`, capitaine ? `${capitaine.prenom} ${capitaine.nom}` : 'Aucun');
+            
+            return {
+                id: eq.id,
+                nom: eq.nom,
+                nb_membres: parseInt(eq.nb_membres),
+                capitaine: capitaine ? {
+                    prenom: capitaine.prenom,
+                    nom: capitaine.nom,
+                    etablissement: capitaine.etablissement
+                } : null
+            };
+        });
+        
+        console.log(`\n✅ Données formatées:`, JSON.stringify(equipesFormatted, null, 2));
+        console.log('=== FIN GET VALIDATED EQUIPES ===\n');
+        
+        res.json({
+            success: true,
+            data: equipesFormatted,
+            count: equipesFormatted.length
+        });
+        
+    } catch (error) {
+        console.error('❌ Erreur dans getValidatedEquipes:', error);
+        next(error);
+    }
+};
+
+/**
+ * Récupérer les membres d'une équipe par son nom (public)
+ */
+const getEquipeMembres = async (req, res, next) => {
+    try {
+        const { nom } = req.params;
+        
+        // Désactiver le cache
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+        
+        // Récupérer l'équipe et ses membres
+        const query = `
+            SELECT 
+                e.id,
+                e.nom,
+                json_agg(
+                    json_build_object(
+                        'id', p.id,
+                        'prenom', p.prenom,
+                        'nom', p.nom,
+                        'etablissement', p.etablissement,
+                        'niveau_coranique', p.niveau_coranique,
+                        'memorisation_sourate', p.memorisation_sourate,
+                        'est_capitaine', me.est_capitaine
+                    ) ORDER BY me.est_capitaine DESC, p.prenom
+                ) FILTER (WHERE p.id IS NOT NULL) as membres
+            FROM equipes e
+            LEFT JOIN membres_equipe me ON e.id = me.equipe_id
+            LEFT JOIN participants p ON me.participant_id = p.id
+            WHERE e.nom = $1 AND e.code_acces IS NOT NULL
+            GROUP BY e.id
+        `;
+        
+        const result = await db.query(query, [nom]);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Equipe non trouvee ou non validee'
+            });
+        }
+        
+        res.json({
+            success: true,
+            data: result.rows[0]
+        });
+        
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getAllEquipes,
     getEquipeById,
@@ -472,5 +637,7 @@ module.exports = {
     setCapitaine,
     setRoles,
     sendAccessCode,
-    validateAllEquipes
+    validateAllEquipes,
+    getValidatedEquipes,
+    getEquipeMembres
 };

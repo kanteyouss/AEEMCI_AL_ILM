@@ -56,13 +56,20 @@ async function apiRequest(endpoint, options = {}) {
         headers['Authorization'] = `Bearer ${token}`;
     }
     
+    // Add cache busting for GET requests
+    let url = `${API_BASE_URL}${endpoint}`;
+    if (!options.method || options.method.toUpperCase() === 'GET') {
+        const separator = url.includes('?') ? '&' : '?';
+        url = `${url}${separator}_t=${Date.now()}`;
+    }
+
     const config = {
         ...options,
         headers
     };
     
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+        const response = await fetch(url, config);
         const data = await response.json();
         
         if (!response.ok) {

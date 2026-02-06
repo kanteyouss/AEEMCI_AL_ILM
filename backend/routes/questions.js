@@ -11,6 +11,12 @@ const { validateQuestion } = require('../middleware/validator');
 router.get('/', verifyJWT, questionController.getAllQuestions);
 
 /**
+ * GET /api/questions/random
+ * Récupérer UNE question aléatoire (SANS JWT - pour notation)
+ */
+router.get('/random', questionController.getRandomQuestion);
+
+/**
  * GET /api/questions/:id
  * Récupérer une question par ID
  */

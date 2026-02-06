@@ -16,6 +16,8 @@ const evaluationsRoutes = require('./routes/evaluations');
 const scoresRoutes = require('./routes/scores');
 const classementRoutes = require('./routes/classement');
 const uploadRoutes = require('./routes/upload');
+const notationRoutes = require('./routes/notation');
+const jeuRoutes = require('./routes/jeu');
 
 // Import du middleware d'erreur
 const errorHandler = require('./middleware/errorHandler');
@@ -78,7 +80,47 @@ app.use('/api/soumissions', soumissionsRoutes);
 app.use('/api/evaluations', evaluationsRoutes);
 app.use('/api/scores', scoresRoutes);
 app.use('/api/classement', classementRoutes);
+app.use('/api/classement-config', require('./routes/classement-config'));
+app.use('/api/notation', notationRoutes);
+app.use('/api/jeu', jeuRoutes);
 app.use('/api/upload', uploadRoutes);
+
+// ============================================
+// ENDPOINT TEMPORAIRE DE MIGRATION
+// ============================================
+app.get('/api/migrate-etapes', async (req, res) => {
+    const db = require('./config/database');
+    const client = await db.pool.connect();
+    try {
+        // 1. Ajouter colonne etape
+        await client.query(`ALTER TABLE manches ADD COLUMN IF NOT EXISTS etape VARCHAR(50) DEFAULT 'preliminaire'`);
+        
+        // 2. Mettre à jour les manches existantes selon leur type
+        await client.query(`UPDATE manches SET etape = type WHERE type IN ('preliminaire', 'quart', 'demi', 'finale')`);
+        
+        // 3. Ajouter config etape_publiee
+        await client.query(`
+            INSERT INTO classement_config (cle, valeur, type, description) 
+            VALUES ('etape_publiee', '', 'text', 'Code de l''étape actuellement publiée')
+            ON CONFLICT (cle) DO NOTHING
+        `);
+        
+        // 4. Vérifier
+        const manchesResult = await client.query(`SELECT id, nom, numero, type, etape FROM manches ORDER BY numero`);
+        const configResult = await client.query(`SELECT * FROM classement_config WHERE cle = 'etape_publiee'`);
+        
+        res.json({
+            success: true,
+            message: 'Migration réussie !',
+            manches: manchesResult.rows,
+            config: configResult.rows[0]
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    } finally {
+        client.release();
+    }
+});
 
 // ============================================
 // ROUTE RACINE (Pour tester le serveur)

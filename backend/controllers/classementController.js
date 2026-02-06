@@ -15,11 +15,11 @@ const getClassementGeneral = async (req, res, next) => {
                 e.symbole,
                 COALESCE(SUM(s.points_obtenus), 0) AS score_total,
                 COUNT(DISTINCT s.manche_id) AS nombre_manches,
-                COUNT(DISTINCT p.id) AS nombre_participants,
+                COUNT(DISTINCT me.participant_id) AS nombre_participants,
                 RANK() OVER (ORDER BY COALESCE(SUM(s.points_obtenus), 0) DESC) AS rang
             FROM equipes e
             LEFT JOIN scores s ON e.id = s.equipe_id
-            LEFT JOIN participants p ON e.id = p.equipe_id
+            LEFT JOIN membres_equipe me ON e.id = me.equipe_id
         `;
         
         const params = [];
@@ -65,26 +65,59 @@ const getClassementGeneral = async (req, res, next) => {
 const getClassementManche = async (req, res, next) => {
     try {
         const { mancheId } = req.params;
+
+        // Récupérer les infos de la manche
+        const mancheQuery = 'SELECT * FROM manches WHERE id = $1';
+        const mancheResult = await db.query(mancheQuery, [mancheId]);
+        const manche = mancheResult.rows[0];
         
         const query = `
+            WITH EquipeScores AS (
+                SELECT 
+                    s.equipe_id,
+                    jsonb_object_agg(r.nom, s.points_obtenus) as details,
+                    SUM(s.points_obtenus) as total
+                FROM scores s
+                JOIN rubriques r ON s.rubrique_id = r.id
+                WHERE s.manche_id = $1
+                GROUP BY s.equipe_id
+            )
             SELECT 
                 e.id,
-                e.nom AS equipe,
+                e.nom AS nom_equipe,
                 e.couleur,
                 e.symbole,
-                SUM(s.points_obtenus) AS points_totaux,
-                RANK() OVER (ORDER BY SUM(s.points_obtenus) DESC) AS rang
+                COALESCE(es.total, 0) AS score_total,
+                es.details AS details_rubriques,
+                RANK() OVER (ORDER BY COALESCE(es.total, 0) DESC) AS rang
             FROM equipes e
-            LEFT JOIN scores s ON e.id = s.equipe_id AND s.manche_id = $1
-            GROUP BY e.id, e.nom, e.couleur, e.symbole
-            ORDER BY points_totaux DESC
+            LEFT JOIN EquipeScores es ON e.id = es.equipe_id
+            WHERE e.id IN (
+                SELECT DISTINCT equipe_id FROM equipes_manche WHERE manche_id = $1
+                UNION
+                SELECT DISTINCT equipe_id FROM scores WHERE manche_id = $1
+            )
+            ORDER BY score_total DESC
         `;
         
-        const result = await db.query(query, [mancheId]);
+        // Récupérer les points max des rubriques de cette manche spécifique
+        const rubriquesQuery = `
+            SELECT r.nom, r.points_max
+            FROM rubriques r
+            JOIN rubriques_manche rm ON r.id = rm.rubrique_id
+            WHERE rm.manche_id = $1
+        `;
+        
+        const [result, rubriquesResult] = await Promise.all([
+            db.query(query, [mancheId]),
+            db.query(rubriquesQuery, [mancheId])
+        ]);
         
         res.json({
             success: true,
-            data: result.rows
+            classement: result.rows,
+            rubriques: rubriquesResult.rows,
+            manche: manche // Inclut note_bas_page
         });
         
     } catch (error) {
@@ -124,8 +157,106 @@ const getScoresEquipe = async (req, res, next) => {
     }
 };
 
+/**
+ * Récupérer le classement par étape (cumulé des manches de l'étape)
+ */
+const getClassementEtape = async (req, res, next) => {
+    try {
+        const { etape } = req.params; // 'preliminaire', 'quart', 'demi', 'finale'
+        
+        // Récupérer les IDs des manches de cette étape
+        const manchesResult = await db.query(
+            'SELECT id FROM manches WHERE etape = $1 ORDER BY numero',
+            [etape]
+        );
+        
+        if (manchesResult.rows.length === 0) {
+            return res.json({
+                success: true,
+                etape,
+                classement: [],
+                message: 'Aucune manche pour cette étape'
+            });
+        }
+        
+        const mancheIds = manchesResult.rows.map(m => m.id);
+        
+        // Calculer le classement cumulé pour cette étape avec détails par rubrique
+        const query = `
+            WITH EquipeRubriques AS (
+                SELECT 
+                    s.equipe_id, 
+                    r.nom, 
+                    SUM(s.points_obtenus) as score
+                FROM scores s
+                JOIN rubriques r ON s.rubrique_id = r.id
+                WHERE s.manche_id = ANY($1)
+                GROUP BY s.equipe_id, r.nom
+            ),
+            EquipeDetails AS (
+                SELECT 
+                    equipe_id,
+                    SUM(score) as total,
+                    jsonb_object_agg(nom, score) as details
+                FROM EquipeRubriques
+                GROUP BY equipe_id
+            )
+            SELECT 
+                e.id,
+                e.nom AS nom_equipe,
+                e.couleur,
+                e.symbole,
+                COALESCE(ed.total, 0) AS score_total,
+                ed.details AS details_rubriques,
+                COUNT(DISTINCT me.participant_id) AS nombre_participants,
+                RANK() OVER (ORDER BY COALESCE(ed.total, 0) DESC) AS rang
+            FROM equipes e
+            LEFT JOIN EquipeDetails ed ON e.id = ed.equipe_id
+            LEFT JOIN membres_equipe me ON e.id = me.equipe_id
+            WHERE e.id IN (
+                SELECT DISTINCT equipe_id FROM equipes_manche WHERE manche_id = ANY($1)
+                UNION
+                SELECT DISTINCT equipe_id FROM scores WHERE manche_id = ANY($1)
+            )
+            GROUP BY e.id, e.nom, e.couleur, e.symbole, ed.total, ed.details
+            ORDER BY score_total DESC
+        `;
+        
+        const result = await db.query(query, [mancheIds]);
+
+        // Récupérer les points max par rubrique pour cette étape
+        // On prend le max des points_max (car c'est le même pour une rubrique donnée)
+        // On évite de sommer car les équipes ne participent généralement qu'à une seule manche de la phase
+        const rubriquesQuery = `
+            SELECT r.nom, r.points_max
+            FROM rubriques r
+            JOIN rubriques_manche rm ON r.id = rm.rubrique_id
+            WHERE rm.manche_id = ANY($1)
+            GROUP BY r.nom, r.points_max
+        `;
+        const rubriquesResult = await db.query(rubriquesQuery, [mancheIds]);
+        
+        // Calculer le total possible (somme des points max des rubriques * nombre d'occurences si nécessaire, 
+        // mais ici on simplifie en prenant la somme des points max distincts présents, 
+        // attention si une rubrique revient plusieurs fois dans des manches différentes elle pourrait compter double ?)
+        // Pour l'instant on envoie juste la map des points max.
+        
+        res.json({
+            success: true,
+            etape,
+            manches: manchesResult.rows,
+            classement: result.rows,
+            rubriques: rubriquesResult.rows
+        });
+        
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getClassementGeneral,
     getClassementManche,
-    getScoresEquipe
+    getScoresEquipe,
+    getClassementEtape
 };

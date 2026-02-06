@@ -85,6 +85,9 @@ function initNavigation() {
                 section.classList.add('active');
                 console.log('✅ Section affichée:', targetSection);
                 
+                // Mettre à jour l'URL avec le hash
+                window.location.hash = targetSection;
+                
                 // Charger les données de la section
                 loadSectionData(targetSection);
             } else {
@@ -92,6 +95,27 @@ function initNavigation() {
             }
         });
     });
+    
+    // Détecter le hash dans l'URL au chargement
+    const hash = window.location.hash.substring(1); // Enlever le #
+    if (hash) {
+        console.log('🔗 Hash détecté dans l\'URL:', hash);
+        const targetSection = document.getElementById(hash);
+        const targetNavItem = document.querySelector(`[data-section="${hash}"]`);
+        
+        if (targetSection && targetNavItem) {
+            // Désactiver toutes les sections et nav items
+            sections.forEach(section => section.classList.remove('active'));
+            navItems.forEach(nav => nav.classList.remove('active'));
+            
+            // Activer la section ciblée
+            targetSection.classList.add('active');
+            targetNavItem.classList.add('active');
+            
+            console.log('✅ Section activée depuis hash:', hash);
+            loadSectionData(hash);
+        }
+    }
 }
 
 /**
@@ -112,9 +136,6 @@ async function loadSectionData(section) {
             break;
         case 'questions':
             await loadQuestions();
-            break;
-        case 'classement':
-            await loadClassement();
             break;
     }
 }
@@ -225,11 +246,104 @@ async function loadQuestions() {
 async function loadClassement() {
     console.log('🏆 Chargement du classement...');
     try {
-        const response = await apiRequest('/classement');
-        console.log('✅ Classement chargé');
-        // TODO: Afficher le classement
+        // Charger les manches pour le filtre
+        const manchesResponse = await apiRequest('/manches');
+        const filterSelect = document.getElementById('filterMancheClassement');
+        if (filterSelect && manchesResponse.data) {
+            filterSelect.innerHTML = '<option value="">Toutes les manches (Classement général)</option>';
+            manchesResponse.data.forEach(manche => {
+                const option = document.createElement('option');
+                option.value = manche.id;
+                option.textContent = `Manche ${manche.numero} - ${new Date(manche.date_debut).toLocaleDateString('fr-FR')}`;
+                filterSelect.appendChild(option);
+            });
+            
+            // Event listener pour le filtre
+            filterSelect.addEventListener('change', () => loadClassement());
+        }
+        
+        // Récupérer le filtre sélectionné
+        const mancheId = filterSelect?.value || '';
+        const queryParam = mancheId ? `?manche_id=${mancheId}` : '';
+        
+        const response = await apiRequest(`/classement/general${queryParam}`);
+        console.log('✅ Classement chargé:', response);
+        
+        const container = document.getElementById('classementTable');
+        if (!container) return;
+        
+        if (!response.classement || response.classement.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: #718096;">
+                    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">📊 Aucune donnée de classement</p>
+                    <p style="font-size: 0.9rem;">Les scores apparaîtront après la notation des équipes</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Créer le tableau HTML
+        container.innerHTML = `
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <th style="padding: 1rem; text-align: center; font-weight: 600;">Rang</th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600;">Équipe</th>
+                            <th style="padding: 1rem; text-align: center; font-weight: 600;">Manches</th>
+                            <th style="padding: 1rem; text-align: center; font-weight: 600;">Participants</th>
+                            <th style="padding: 1rem; text-align: center; font-weight: 600;">Score Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${response.classement.map((equipe, index) => {
+                            const isTop3 = index < 3;
+                            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                            const bgColor = index % 2 === 0 ? '#f9fafb' : 'white';
+                            
+                            return `
+                                <tr style="background: ${bgColor}; border-bottom: 1px solid #e5e7eb;">
+                                    <td style="padding: 1rem; text-align: center; font-size: ${isTop3 ? '1.5rem' : '1rem'}; font-weight: ${isTop3 ? 'bold' : 'normal'};">
+                                        ${medal || equipe.rang}
+                                    </td>
+                                    <td style="padding: 1rem;">
+                                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                            <div style="width: 40px; height: 40px; background: ${equipe.couleur || '#667eea'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">
+                                                ${equipe.symbole || equipe.nom_equipe.charAt(0)}
+                                            </div>
+                                            <span style="font-weight: 600; color: #2d3748;">${equipe.nom_equipe}</span>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 1rem; text-align: center; color: #4b5563;">
+                                        ${equipe.nombre_manches || 0}
+                                    </td>
+                                    <td style="padding: 1rem; text-align: center; color: #4b5563;">
+                                        ${equipe.nombre_participants || 0}
+                                    </td>
+                                    <td style="padding: 1rem; text-align: center;">
+                                        <span style="font-size: 1.25rem; font-weight: bold; color: ${isTop3 ? '#10b981' : '#2d3748'};">
+                                            ${parseFloat(equipe.score_total).toFixed(1)} pts
+                                        </span>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
     } catch (error) {
         console.error('❌ Erreur:', error);
+        const container = document.getElementById('classementTable');
+        if (container) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: #dc2626;">
+                    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">❌ Erreur de chargement</p>
+                    <p style="font-size: 0.9rem;">${error.message}</p>
+                </div>
+            `;
+        }
     }
 }
 
@@ -431,6 +545,7 @@ const MANCHE_TYPES = {
  * Variables globales pour la création de manche
  */
 let rubriquesDisponibles = [];
+let equipesDisponibles = [];
 let currentMancheData = null;
 
 /**
@@ -493,10 +608,10 @@ function initMancheCreation() {
 /**
  * Créer ou modifier une manche
  */
-async function createManche(type, numero, date, time, button, rubriques = [], isEdit = false, mancheId = null) {
+async function createManche(type, numero, date, time, button, rubriques = [], equipes = [], isEdit = false, mancheId = null, note = '') {
     try {
         console.log(`🎯 === DÉBUT ${isEdit ? 'MODIFICATION' : 'CRÉATION'} MANCHE ===`);
-        console.log('📋 Paramètres reçus:', { type, numero, date, time, rubriques, isEdit, mancheId });
+        console.log('📋 Paramètres reçus:', { type, numero, date, time, rubriques, equipes, isEdit, mancheId, note });
         
         // En mode création SEULEMENT, vérifier si la manche n'existe pas déjà
         if (!isEdit) {
@@ -533,17 +648,19 @@ async function createManche(type, numero, date, time, button, rubriques = [], is
         
         // Préparer les données de la manche
         const mancheData = {
-            nom: `${MANCHE_TYPES[type]} - Jour ${getJourByNumero(numero)}`,
-            type: type,
+            type,
             numero: parseInt(numero),
+            nom: `Manche ${numero}`, // Nom par défaut
             date_manche: date,
-            heure_debut: time || '19:00',
-            heure_fin: calculateEndTime(time || '19:00'),
-            description: `Manche ${numero} - ${MANCHE_TYPES[type]}`,
-            rubriques: rubriques // IDs des rubriques sélectionnées
+            heure_debut: time,
+            heure_fin: calculateEndTime(time), // +2h par défaut
+            statut: isEdit ? undefined : 'brouillon', // Statut par défaut à la création
+            rubriques: rubriques,
+            equipes: equipes,
+            note_bas_page: note
         };
         
-        console.log('📦 Données de la manche préparées:', mancheData);
+        console.log('📦 Données prêtes à envoyer:', mancheData);
         
         // Envoyer la requête au backend
         let response;
@@ -778,10 +895,12 @@ async function editManche(mancheId) {
             date: manche.date_manche,
             time: manche.heure_debut,
             isEdit: true, // Mode édition
-            existingRubriques: manche.rubriques ? manche.rubriques.map(r => r.id) : []
+            existingRubriques: manche.rubriques ? manche.rubriques.map(r => r.id) : [],
+            existingEquipes: manche.equipes ? manche.equipes.map(e => e.id) : [],
+            note: manche.note_bas_page
         };
         
-        console.log('📦 currentMancheData pour édition:', currentMancheData);
+        console.log('📦 Données de la manche stockées:', currentMancheData);
         
         // Charger les rubriques et afficher le modal
         await loadRubriquesAndShowModal();
@@ -922,7 +1041,15 @@ function initRubriquesModal() {
         console.log('🚪 Fermeture du modal');
         closeModal();
         
-        // Créer ou modifier la manche avec les rubriques sélectionnées
+        // Récupérer les équipes sélectionnées
+        const selectedEquipes = getSelectedEquipes();
+        console.log(`👥 ${selectedEquipes.length} équipe(s) sélectionnée(s):`, selectedEquipes);
+        
+        // Récupérer la note
+        const noteInput = document.getElementById('mancheNoteInput');
+        const note = noteInput ? noteInput.value : '';
+
+        // Créer ou modifier la manche avec les rubriques et équipes sélectionnées
         console.log(`🎯 Appel de createManche (mode: ${mancheData.isEdit ? 'édition' : 'création'})`);
         await createManche(
             mancheData.type,
@@ -931,8 +1058,10 @@ function initRubriquesModal() {
             finalTime,
             mancheData.button || null, // null en mode édition
             selectedRubriques,
+            selectedEquipes, // Ajouter les équipes sélectionnées
             mancheData.isEdit, // Passer le mode explicitement
-            mancheData.id // Passer l'ID explicitement
+            mancheData.id, // Passer l'ID explicitement
+            note // Passer la note
         );
     });
 }
@@ -954,6 +1083,9 @@ async function loadRubriquesAndShowModal() {
             console.log(`ℹ️ ${rubriquesDisponibles.length} rubriques déjà en cache`);
         }
         
+        // Charger les équipes si ce n'est pas déjà fait
+        await loadEquipesIfNeeded();
+        
         // Afficher le modal
         console.log('🎭 Affichage du modal...');
         showRubriquesModal();
@@ -962,6 +1094,20 @@ async function loadRubriquesAndShowModal() {
         console.error('❌ Erreur lors du chargement des rubriques:', error);
         console.error('📋 Détails de l\'erreur:', error.message, error.stack);
         alert('Erreur lors du chargement des rubriques: ' + error.message);
+    }
+}
+
+/**
+ * Charger les équipes si nécessaire
+ */
+async function loadEquipesIfNeeded() {
+    if (equipesDisponibles.length === 0) {
+        console.log('📡 Requête API pour récupérer les équipes...');
+        const response = await apiRequest('/equipes');
+        equipesDisponibles = response.data || [];
+        console.log(`✅ ${equipesDisponibles.length} équipes chargées:`, equipesDisponibles);
+    } else {
+        console.log(`ℹ️ ${equipesDisponibles.length} équipes déjà en cache`);
     }
 }
 
@@ -999,6 +1145,12 @@ function showRubriquesModal() {
     const deleteBtn = document.getElementById('btnDeleteManche');
     const confirmBtn = document.getElementById('btnConfirmRubriques');
     
+    // Remplir le champ note s'il existe
+    const noteInput = document.getElementById('mancheNoteInput');
+    if (noteInput) {
+        noteInput.value = currentMancheData.note || '';
+    }
+
     if (currentMancheData.isEdit) {
         // Mode édition : afficher la section date/heure et le bouton supprimer
         editDateSection.style.display = 'block';
@@ -1048,6 +1200,9 @@ function showRubriquesModal() {
         });
     });
     
+    // Afficher les équipes
+    displayEquipesSelection();
+    
     // Afficher le modal
     console.log('👁️ Affichage du modal (ajout classe show)');
     modal.classList.add('show');
@@ -1058,6 +1213,57 @@ function showRubriquesModal() {
     // Réinitialiser le compteur
     updateSelectionCount();
     console.log('✅ Modal affiché avec succès');
+}
+
+/**
+ * Afficher la sélection des équipes
+ */
+function displayEquipesSelection() {
+    const equipesSelection = document.getElementById('equipesSelection');
+    if (!equipesSelection) {
+        console.error('❌ Element equipesSelection non trouvé');
+        return;
+    }
+    
+    const existingEquipes = currentMancheData.existingEquipes || [];
+    console.log(`📋 Affichage de ${equipesDisponibles.length} équipes, ${existingEquipes.length} pré-sélectionnées`);
+    
+    // Créer les boutons "Tout sélectionner" / "Tout désélectionner"
+    const selectionButtons = `
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <button type="button" onclick="selectAllEquipes(true)" class="btn-secondary" style="flex: 1; padding: 0.5rem; font-size: 0.9rem;">
+                ✅ Toutes
+            </button>
+            <button type="button" onclick="selectAllEquipes(false)" class="btn-secondary" style="flex: 1; padding: 0.5rem; font-size: 0.9rem;">
+                ❌ Aucune
+            </button>
+        </div>
+    `;
+    
+    // Créer la grille d'équipes
+    const equipesGrid = `
+        <div class="equipes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; max-height: 300px; overflow-y: auto;">
+            ${equipesDisponibles.map(equipe => {
+                const isChecked = existingEquipes.includes(equipe.id);
+                return `
+                    <label class="equipe-checkbox ${isChecked ? 'selected' : ''}" 
+                           style="display: flex; align-items: center; padding: 0.75rem; background: white; border: 2px solid ${isChecked ? 'var(--primary-color)' : '#e0e6ed'}; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        <input type="checkbox" 
+                               value="${equipe.id}" 
+                               ${isChecked ? 'checked' : ''}
+                               onchange="updateEquipeSelection()"
+                               style="margin-right: 0.5rem;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #1e293b;">${equipe.nom}</div>
+                            ${equipe.couleur ? `<div style="font-size: 0.8rem; color: ${equipe.couleur};">●</div>` : ''}
+                        </div>
+                    </label>
+                `;
+            }).join('')}
+        </div>
+    `;
+    
+    equipesSelection.innerHTML = selectionButtons + equipesGrid;
 }
 
 /**
@@ -1109,6 +1315,45 @@ function formatRubriqueType(type) {
         'hadith': 'Hadith'
     };
     return types[type] || type;
+}
+
+/**
+ * Mettre à jour l'apparence de la sélection d'équipes
+ */
+window.updateEquipeSelection = function() {
+    const labels = document.querySelectorAll('.equipe-checkbox');
+    
+    labels.forEach(label => {
+        const checkbox = label.querySelector('input[type="checkbox"]');
+        if (checkbox.checked) {
+            label.classList.add('selected');
+            label.style.borderColor = 'var(--primary-color)';
+            label.style.background = '#f0f9ff';
+        } else {
+            label.classList.remove('selected');
+            label.style.borderColor = '#e0e6ed';
+            label.style.background = 'white';
+        }
+    });
+};
+
+/**
+ * Sélectionner toutes les équipes ou aucune
+ */
+window.selectAllEquipes = function(selectAll) {
+    const checkboxes = document.querySelectorAll('.equipes-grid input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll;
+    });
+    updateEquipeSelection();
+};
+
+/**
+ * Obtenir les IDs des équipes sélectionnées
+ */
+function getSelectedEquipes() {
+    const checkboxes = document.querySelectorAll('.equipes-grid input[type="checkbox"]:checked');
+    return Array.from(checkboxes).map(cb => parseInt(cb.value));
 }
 
 // Initialiser la gestion des manches au chargement

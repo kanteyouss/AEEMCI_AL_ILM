@@ -8,6 +8,22 @@ let currentFilters = {
     rubrique: ''
 };
 
+// Configuration de l'affichage (chargée depuis le serveur)
+let displayConfig = {
+    afficher_podium: true,
+    afficher_statistiques: true,
+    afficher_classement_complet: true,
+    afficher_filtres: true,
+    nombre_equipes_affichees: 0,
+    classement_publie: false,
+    etape_publiee: null, // 'preliminaire', 'quart', 'demi', 'finale'
+    message_personnalise: '',
+    message_preliminaire: '',
+    message_quart: '',
+    message_demi: '',
+    message_finale: ''
+};
+
 // État du carrousel de podiums
 let podiumCarousel = {
     manches: [], // Liste des manches avec leurs podiums
@@ -29,12 +45,104 @@ const equipesSymboles = {
     'AL-IMAN': '🕋'
 };
 
+const etapesNoms = {
+    'preliminaire': 'Phase Préliminaire',
+    'quart': 'Quart de Finale',
+    'demi': 'Demi-Finale',
+    'finale': 'Finale'
+};
+
+let currentPhase = 'preliminaire'; // Default phase
+
 document.addEventListener('DOMContentLoaded', async () => {
+    await loadDisplayConfig(); // Charger la config d'abord
+    
+    // Initialiser la phase courante basée sur la config ou par défaut
+    if (displayConfig.etape_publiee) {
+        currentPhase = displayConfig.etape_publiee;
+    }
+    updateActiveTab(currentPhase);
+    initPhaseTabs();
+    
     await initClassement();
     initFilters();
     initPodiumCarousel();
     startAutoRefresh();
 });
+
+/**
+ * Charger la configuration d'affichage
+ */
+async function loadDisplayConfig() {
+    try {
+        const response = await fetch('/api/classement-config');
+        if (!response.ok) throw new Error('Erreur chargement config');
+        
+        const result = await response.json();
+        displayConfig = { ...displayConfig, ...result.data };
+        
+        console.log('✅ Configuration chargée:', displayConfig);
+        
+        // Appliquer la configuration
+        applyDisplayConfig();
+    } catch (error) {
+        console.error('❌ Erreur chargement configuration:', error);
+        // Continuer avec la config par défaut
+    }
+}
+
+/**
+ * Appliquer la configuration d'affichage
+ */
+function applyDisplayConfig() {
+    // Masquer/Afficher le podium
+    const podiumSection = document.querySelector('.podium-section');
+    if (podiumSection) {
+        podiumSection.style.display = displayConfig.afficher_podium ? 'block' : 'none';
+    }
+    
+    // Masquer/Afficher les filtres
+    const filtersSection = document.querySelector('.filters-section');
+    if (filtersSection) {
+        filtersSection.style.display = displayConfig.afficher_filtres ? 'block' : 'none';
+    }
+    
+    // Masquer/Afficher les statistiques
+    const statsSection = document.querySelector('.stats-section');
+    if (statsSection) {
+        statsSection.style.display = displayConfig.afficher_statistiques ? 'block' : 'none';
+    }
+    
+    // Afficher le message personnalisé si présent
+    updateCustomMessage(currentPhase);
+
+    // Gestion de l'affichage des onglets de phases
+    document.querySelectorAll('.phase-tab').forEach(tab => {
+        const phase = tab.dataset.phase;
+        const configKey = `afficher_phase_${phase}`;
+        // Si la config est explicitement false, on cache, sinon on affiche (par défaut true)
+        if (displayConfig[configKey] === false) {
+            tab.style.display = 'none';
+        } else {
+            tab.style.display = 'inline-block';
+        }
+    });
+
+    // Mettre à jour le titre en fonction de l'étape publiée
+    if (displayConfig.etape_publiee) {
+        const titleElement = document.querySelector('.hero-classement h1');
+        const subtitleElement = document.querySelector('.hero-classement .subtitle');
+        
+        if (titleElement) {
+            const etapeNom = etapesNoms[displayConfig.etape_publiee] || 'Compétition';
+            titleElement.textContent = `🏆 Classement - ${etapeNom}`;
+        }
+        
+        if (subtitleElement) {
+            subtitleElement.textContent = 'Résultats officiels en temps réel';
+        }
+    }
+}
 
 /**
  * Initialiser la page classement
@@ -55,23 +163,120 @@ async function initClassement() {
 }
 
 /**
+ * Initialiser les onglets de phases
+ */
+function initPhaseTabs() {
+    const tabs = document.querySelectorAll('.phase-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const phase = e.target.dataset.phase;
+            if (phase && phase !== currentPhase) {
+                switchPhase(phase);
+            }
+        });
+    });
+}
+
+/**
+ * Changer de phase active
+ */
+async function switchPhase(phase) {
+    currentPhase = phase;
+    updateActiveTab(phase);
+    
+    // Mettre à jour la config d'affichage locale pour refléter le changement
+    displayConfig.etape_publiee = phase;
+    
+    // Recharger les données
+    showLoader();
+    await loadClassement();
+    
+    // Mettre à jour le titre
+    updateEtapeTitle(phase);
+    
+    // Mettre à jour le message personnalisé
+    updateCustomMessage(phase);
+}
+
+/**
+ * Mettre à jour le message personnalisé en fonction de la phase
+ */
+function updateCustomMessage(phase) {
+    // Nettoyer les messages existants
+    const heroSection = document.querySelector('.hero-classement .container');
+    const existingMessage = document.querySelector('.custom-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // Déterminer le message à afficher
+    let messageToDisplay = displayConfig.message_personnalise; // Fallback ou message général
+    
+    // Si une phase est active, chercher un message spécifique
+    if (phase) {
+        const specificMessage = displayConfig[`message_${phase}`];
+        if (specificMessage) {
+            messageToDisplay = specificMessage;
+        }
+    }
+    
+    if (messageToDisplay && heroSection) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'custom-message';
+        messageDiv.style.cssText = `
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        `;
+        messageDiv.textContent = messageToDisplay;
+        heroSection.appendChild(messageDiv);
+    }
+}
+
+function updateActiveTab(phase) {
+    document.querySelectorAll('.phase-tab').forEach(tab => {
+        if (tab.dataset.phase === phase) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+}
+
+function showLoader() {
+    // Simple loader feedback if needed
+    const tbody = document.getElementById('classement-body');
+    if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><div class="loader"></div>Chargement...</td></tr>';
+    }
+}
+
+/**
  * Charger le classement
  */
 async function loadClassement() {
     try {
-        // Construire l'URL avec les filtres
-        let url = '/api/classement';
-        const params = new URLSearchParams();
+        let url = null;
         
-        if (currentFilters.manche) {
-            params.append('manche_id', currentFilters.manche);
-        }
-        if (currentFilters.rubrique) {
-            params.append('rubrique_id', currentFilters.rubrique);
-        }
-        
-        if (params.toString()) {
-            url += '?' + params.toString();
+        // Use currentPhase instead of displayConfig directly to allow overriding
+        const phaseToLoad = currentPhase || displayConfig.etape_publiee;
+
+        if (phaseToLoad) {
+            url = `/api/classement/etape/${phaseToLoad}`;
+        } else if (currentFilters.manche) {
+            // Si une manche est sélectionnée manuellement
+            url = `/api/classement/manche/${currentFilters.manche}`;
+        } else {
+            // Aucun classement à afficher
+            displayTableau([]);
+            displayCharts([]);
+            showError('Aucun classement publié pour le moment');
+            return;
         }
 
         const response = await fetch(url);
@@ -79,9 +284,26 @@ async function loadClassement() {
         
         const data = await response.json();
         
+        // Afficher le titre de l'étape si publiée
+        updateEtapeTitle(displayConfig.etape_publiee);
+        
         // Le podium est géré par le carrousel maintenant
-        displayTableau(data.classement);
+        displayTableau(data.classement, data.rubriques);
         displayCharts(data.classement);
+
+        // Afficher la note de bas de page si disponible (spécifique à une manche)
+        const noteContainer = document.getElementById('noteBasPage');
+        const noteContent = document.getElementById('noteBasPageContent');
+        
+        if (noteContainer && noteContent) {
+            if (data.manche && data.manche.note_bas_page) {
+                noteContent.textContent = data.manche.note_bas_page;
+                noteContainer.style.display = 'block';
+            } else {
+                noteContainer.style.display = 'none';
+                noteContent.textContent = '';
+            }
+        }
         
     } catch (error) {
         console.error('Erreur lors du chargement du classement:', error);
@@ -90,9 +312,36 @@ async function loadClassement() {
 }
 
 /**
- * Charger les manches pour le carrousel de podiums
+ * Mettre à jour le titre avec l'étape publiée
+ */
+function updateEtapeTitle(etapeCode) {
+    const heroTitle = document.querySelector('.hero-section h1');
+    if (!heroTitle) return;
+    
+    const etapeNoms = {
+        'preliminaire': '🎯 Phase Préliminaire',
+        'quart': '⚡ Quart de Finale',
+        'demi': '🔥 Demi-Finale',
+        'finale': '👑 Grande Finale'
+    };
+    
+    if (etapeCode && etapeNoms[etapeCode]) {
+        heroTitle.textContent = `Classement - ${etapeNoms[etapeCode]}`;
+    } else {
+        heroTitle.textContent = 'Classement Général AL-ILM 2026';
+    }
+}
+
+/**
+ * Charger les manches disponibles pour le carrousel de podiums
  */
 async function loadManches() {
+    // Ne pas charger si le podium est désactivé
+    if (!displayConfig.afficher_podium) {
+        console.log('Podium désactivé, chargement annulé');
+        return;
+    }
+    
     try {
         const response = await fetch('/api/manches');
         if (!response.ok) throw new Error('Erreur réseau');
@@ -380,14 +629,15 @@ function updatePodiumInfo() {
 /**
  * Afficher le tableau complet
  */
-function displayTableau(classement) {
-    const tbody = document.getElementById('classementTableBody');
-    if (!tbody) return;
+function displayTableau(classement, rubriquesData = []) {
+    const tableContainer = document.querySelector('.table-container');
+    if (!tableContainer) return;
 
+    let table = document.querySelector('.classement-table');
     if (!classement || classement.length === 0) {
-        tbody.innerHTML = `
+        if(table) table.querySelector('tbody').innerHTML = `
             <tr>
-                <td colspan="6" style="text-align: center; padding: 2rem;">
+                <td colspan="10" style="text-align: center; padding: 2rem;">
                     Aucune donnée de classement disponible
                 </td>
             </tr>
@@ -395,28 +645,115 @@ function displayTableau(classement) {
         return;
     }
 
-    tbody.innerHTML = classement.map((equipe, index) => {
+    // Préparer la map des points max
+    const rubriquesMap = {};
+    let totalMaxScore = 0;
+    if (Array.isArray(rubriquesData)) {
+        rubriquesData.forEach(r => {
+            const max = parseFloat(r.points_max) || 0;
+            rubriquesMap[r.nom] = max;
+            totalMaxScore += max;
+        });
+    }
+
+    // Configuration des rubriques à afficher (Ordre et filtrage)
+    const rubriquesConf = [
+        { key: 'Coran ouvert', label: 'Coran ouvert' },
+        { key: 'Coran fermé', label: 'Coran fermé' },
+        { key: 'Adhan', label: 'Adhan' },
+        { key: 'Jurisprudence', label: 'Jurisprudence' },
+        { key: 'Questions relais', label: 'Questions relais' },
+        { key: 'Vie du Prophète', label: 'Vie du Prophète (ﷺ) et des Compagnons' },
+        { key: 'Culture générale', label: 'Culture générale' },
+        { key: 'Hadith', label: 'Hadith' }
+    ];
+
+    // Récupérer les rubriques affichables
+    // On utilise rubriquesData pour savoir quelles colonnes existent réellement dans la manche/étape,
+    // même s'il n'y a pas encore de notes (scores).
+    let availableRubrics = new Set();
+    if (rubriquesData && rubriquesData.length > 0) {
+        rubriquesData.forEach(r => availableRubrics.add(r.nom));
+    } else {
+        // Fallback: regarder dans les données de classement si rubriquesData est vide
+        classement.forEach(eq => {
+            if(eq.details_rubriques) {
+                Object.keys(eq.details_rubriques).forEach(r => availableRubrics.add(r));
+            }
+        });
+    }
+    
+    // Filtrer et trier selon la configuration
+    const rubriquesList = rubriquesConf
+        .filter(conf => availableRubrics.has(conf.key))
+        .map(conf => conf.key);
+
+    // Ajuster le total max score pour ne compter que les rubriques affichées
+    // (Optionnel : si le client veut que le TOTAL affiché soit la somme des colonnes affichées uniquement)
+    // Mais le score_total de l'équipe vient de la DB et inclut tout.
+    // On laisse le scoreTotalHeader tel quel pour l'instant ou on le recalcule ?
+    // Pour la cohérence, si on cache une colonne, le total / Max doit peut-être s'ajuster ?
+    // Recalculons le totalMaxScore basé sur les rubriques affichées uniquement
+    totalMaxScore = 0;
+    rubriquesList.forEach(r => {
+        if (rubriquesMap[r]) {
+            totalMaxScore += rubriquesMap[r];
+        }
+    });
+    
+    // Header Score Total
+    let scoreTotalHeader = 'Score Total';
+    if (totalMaxScore > 0) {
+        scoreTotalHeader += ` <span style="font-size: 0.8em; color: #718096;">/ ${totalMaxScore}</span>`;
+    }
+
+    // Reconstruire le header du tableau dynamiquement
+    let theadHtml = `
+        <thead>
+            <tr>
+                <th class="col-rank">Rang</th>
+                <th>Équipe</th>
+                <th class="col-score">${scoreTotalHeader}</th>
+                ${rubriquesList.map(r => {
+                    // Trouver le label personnalisé
+                    const conf = rubriquesConf.find(c => c.key === r);
+                    let headerLabel = conf ? conf.label : r;
+                    
+                    if (rubriquesMap[r]) {
+                        headerLabel += ` <span style="font-size: 0.8em; color: #718096;">/ ${rubriquesMap[r]}</span>`;
+                    }
+                    return `<th class="col-rubrique" style="text-align:center; font-size:0.8rem;">${headerLabel}</th>`;
+                }).join('')}
+            </tr>
+        </thead>
+    `;
+
+    // Limiter le nombre d'équipes affichées selon la config
+    let equipesAffichees = classement;
+    if (!displayConfig.afficher_classement_complet && displayConfig.nombre_equipes_affichees > 0) {
+        equipesAffichees = classement.slice(0, displayConfig.nombre_equipes_affichees);
+    }
+
+    const tbodyHtml = equipesAffichees.map((equipe, index) => {
+        // Recalculer le total basé uniquement sur les rubriques affichées
+        let displayedTotal = 0;
+        const rubriquesCells = rubriquesList.map(rubrique => {
+            const score = equipe.details_rubriques ? (equipe.details_rubriques[rubrique] || 0) : 0;
+            displayedTotal += score;
+            return `<td style="text-align: center; color: #4a5568;">${score}</td>`;
+        }).join('');
+        
+        // Nous trions l'affichage par le total recalculé, mais l'ordre du tableau (classement) 
+        // est basé sur le score total DB. Si on veut être cohérent, on affiche le total recalculé.
+        // Si le classement change à cause de ce filtrage, c'est plus complexe (il faudrait re-trier le tableau).
+        // Supposons que "Questions sur le Coran" est négligeable ou 0 pour l'instant, 
+        // ou que le client accepte que le rang soit basé sur le vrai total mais que l'affichage montre le sous-total.
+        // Pour l'instant, on affiche le total recalculé pour que la somme soit correcte visuellement.
+
         const position = index + 1;
         const rankClass = position <= 3 ? `rank-${position}` : '';
         const rowClass = position <= 3 ? 'top-3' : '';
         const symbol = equipesSymboles[equipe.nom_equipe] || '⭐';
-        const moyenne = equipe.nombre_manches > 0 
-            ? (equipe.score_total / equipe.nombre_manches).toFixed(1)
-            : '0.0';
-        
-        // Tendance (simulée pour l'instant)
-        let trendIcon = '➡️';
-        let trendClass = 'trend-stable';
-        
-        if (equipe.evolution) {
-            if (equipe.evolution > 0) {
-                trendIcon = '⬆️';
-                trendClass = 'trend-up';
-            } else if (equipe.evolution < 0) {
-                trendIcon = '⬇️';
-                trendClass = 'trend-down';
-            }
-        }
 
         return `
             <tr class="${rowClass}">
@@ -432,148 +769,66 @@ function displayTableau(classement) {
                         </div>
                     </div>
                 </td>
-                <td class="score-cell">${equipe.score_total || 0}</td>
-                <td class="manches-cell">${equipe.nombre_manches || 0}</td>
-                <td class="moyenne-cell">${moyenne}</td>
-                <td class="trend-cell ${trendClass}">${trendIcon}</td>
+                <td class="score-cell">${displayedTotal}</td>
+                ${rubriquesCells}
             </tr>
         `;
     }).join('');
+
+    // Reconstruire la table entière pour mettre à jour les headers
+    table.innerHTML = `${theadHtml}<tbody id="classementTableBody">${tbodyHtml}</tbody>`;
+    
+    // Ajouter un message de fin si nécessaire
+    if (!displayConfig.afficher_classement_complet && displayConfig.nombre_equipes_affichees > 0 && classement.length > displayConfig.nombre_equipes_affichees) {
+        const infoRow = document.createElement('tr');
+        infoRow.innerHTML = `
+            <td colspan="${3 + rubriquesList.length}" style="text-align: center; padding: 1rem; background: #f3f4f6; font-style: italic; color: #6b7280;">
+                Top ${displayConfig.nombre_equipes_affichees} équipes affichées sur ${classement.length} au total
+            </td>
+        `;
+        document.querySelector('#classementTableBody').appendChild(infoRow);
+    }
 }
 
 /**
  * Afficher les graphiques
+ * (Fonctionnalité désactivée)
  */
 function displayCharts(classement) {
-    if (!classement || classement.length === 0) return;
-
-    // Graphique 1 : Évolution du Top 5
-    drawEvolutionChart(classement.slice(0, 5));
-    
-    // Graphique 2 : Performance par rubrique (Top 3)
-    drawRubriqueChart(classement.slice(0, 3));
-    
-    // Graphique 3 : Comparaison des équipes
-    drawCompareChart(classement);
+    // Les graphiques ont été supprimés de l'interface
+    return;
 }
 
 /**
- * Graphique d'évolution (simulé avec barres pour l'instant)
+ * Graphique d'évolution (Désactivé)
  */
 function drawEvolutionChart(top5) {
-    const canvas = document.getElementById('evolutionCanvas');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = 300;
-    
-    const colors = ['#FFD700', '#C0C0C0', '#CD7F32', '#2C5F2D', '#4A7C59'];
-    const maxScore = Math.max(...top5.map(e => e.score_total || 0));
-    const barWidth = canvas.width / (top5.length * 2);
-    const barSpacing = barWidth / 2;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    top5.forEach((equipe, index) => {
-        const score = equipe.score_total || 0;
-        const barHeight = (score / maxScore) * (canvas.height - 60);
-        const x = (barWidth + barSpacing) * index + barSpacing;
-        const y = canvas.height - barHeight - 40;
-        
-        // Barre
-        ctx.fillStyle = colors[index];
-        ctx.fillRect(x, y, barWidth, barHeight);
-        
-        // Score en haut de la barre
-        ctx.fillStyle = '#2C5F2D';
-        ctx.font = 'bold 14px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(score, x + barWidth / 2, y - 5);
-        
-        // Nom de l'équipe en bas
-        ctx.fillStyle = '#4a5568';
-        ctx.font = '11px Arial';
-        ctx.save();
-        ctx.translate(x + barWidth / 2, canvas.height - 10);
-        ctx.rotate(-Math.PI / 6);
-        ctx.fillText(equipe.nom_equipe, 0, 0);
-        ctx.restore();
-    });
+    // Supprimé
 }
 
 /**
- * Graphique par rubrique (radar/barres horizontales)
+ * Graphique par rubrique (Désactivé)
  */
 function drawRubriqueChart(top3) {
-    const canvas = document.getElementById('rubriqueCanvas');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = 300;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Placeholder - à compléter avec les données réelles
-    ctx.fillStyle = '#2C5F2D';
-    ctx.font = '16px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('Graphique des performances par rubrique', canvas.width / 2, canvas.height / 2);
-    ctx.font = '12px Arial';
-    ctx.fillStyle = '#718096';
-    ctx.fillText('Nécessite les données détaillées par rubrique', canvas.width / 2, canvas.height / 2 + 25);
+    // Supprimé
 }
 
 /**
- * Graphique de comparaison (barres empilées)
+ * Graphique de comparaison (Désactivé)
  */
 function drawCompareChart(classement) {
-    const canvas = document.getElementById('compareCanvas');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = 350;
-    
-    const maxScore = Math.max(...classement.map(e => e.score_total || 0));
-    const barHeight = 25;
-    const barSpacing = 10;
-    const leftMargin = 150;
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    classement.forEach((equipe, index) => {
-        const score = equipe.score_total || 0;
-        const barWidth = (score / maxScore) * (canvas.width - leftMargin - 100);
-        const y = index * (barHeight + barSpacing) + 10;
-        
-        // Nom de l'équipe
-        ctx.fillStyle = '#2C5F2D';
-        ctx.font = 'bold 12px Arial';
-        ctx.textAlign = 'right';
-        ctx.fillText(equipe.nom_equipe, leftMargin - 10, y + barHeight / 2 + 4);
-        
-        // Barre de progression
-        const gradient = ctx.createLinearGradient(leftMargin, 0, leftMargin + barWidth, 0);
-        gradient.addColorStop(0, '#2C5F2D');
-        gradient.addColorStop(1, '#4A7C59');
-        
-        ctx.fillStyle = gradient;
-        ctx.fillRect(leftMargin, y, barWidth, barHeight);
-        
-        // Score
-        ctx.fillStyle = '#2C5F2D';
-        ctx.font = 'bold 14px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(score, leftMargin + barWidth + 10, y + barHeight / 2 + 5);
-    });
+   // Supprimé
 }
 
 /**
- * Charger les données des filtres
+ * Charger les données pour les filtres
  */
 async function loadFiltersData() {
+    // Ne pas charger si les filtres sont désactivés
+    if (!displayConfig.afficher_filtres) {
+        return;
+    }
+    
     try {
         // Charger les manches
         const manchesRes = await fetch('/api/manches');
@@ -615,6 +870,11 @@ async function loadFiltersData() {
  * Charger les statistiques globales
  */
 async function loadStats() {
+    // Ne pas charger si les stats sont désactivées
+    if (!displayConfig.afficher_statistiques) {
+        return;
+    }
+    
     try {
         // Charger les statistiques
         const [manchesRes, scoresRes] = await Promise.all([

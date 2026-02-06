@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu en Direct - AL ILM 2026</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .jeu-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .jeu-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        .progression-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .progression-panel h3 {
+            margin: 0 0 1rem 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .rubrique-progress {
+            margin-bottom: 1.5rem;
+        }
+
+        .rubrique-nom {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .equipe-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.4rem 0.6rem;
+            margin-bottom: 0.25rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .equipe-status.termine {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .equipe-status.en-cours {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .equipe-status.en-attente {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .main-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .select-card {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .select-card.active {
+            border-color: var(--primary-color);
+            background: #f0f9ff;
+        }
+
+        .select-card label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+
+        .select-card select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .question-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            min-height: 200px;
+            display: none;
+        }
+
+        .question-display.visible {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-numero {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .chronometre {
+            font-size: 3rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .chronometre.urgent {
+            color: #fef08a;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .question-texte {
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-points {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .option-card.selected {
+            border-color: var(--primary-color);
+            background: #f0f9ff;
+        }
+
+        .option-lettre {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 0.75rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-generer {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-generer:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-generer:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-valider {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-valider.correcte {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-valider.incorrecte {
+            background: #ef4444;
+            color: white;
+        }
+
+        .score-panel {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            color: #1e40af;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .resultat-reponse {
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .resultat-reponse.visible {
+            display: block;
+        }
+
+        .resultat-reponse.correcte {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+
+        .resultat-reponse.incorrecte {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <header class="header-admin">
+        <div class="container">
+            <h1>🎮 AL ILM 2026 - Jeu en Direct</h1>
+            <div class="user-info">
+                <span id="userName"></span>
+                <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="jeu-container">
+        <!-- Alerte initiale -->
+        <div id="alerteDemarrage" class="alert-info">
+            📋 Sélectionnez une manche pour démarrer la session de jeu.
+        </div>
+
+        <!-- Sélection de manche -->
+        <div style="margin-bottom: 2rem;">
+            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Manche</label>
+            <select id="mancheSelect" class="form-control" style="max-width: 400px;">
+                <option value="">-- Sélectionnez une manche --</option>
+            </select>
+        </div>
+
+        <!-- Grille principale -->
+        <div class="jeu-grid" style="display: none;" id="jeuGrid">
+            <!-- Panneau de progression -->
+            <div class="progression-panel">
+                <h3>📊 Progression</h3>
+                <div id="progressionContent"></div>
+            </div>
+
+            <!-- Panneau principal -->
+            <div class="main-panel">
+                <!-- Sélection Rubrique / Équipe / Membre -->
+                <div class="selection-grid">
+                    <div class="select-card">
+                        <label>Rubrique</label>
+                        <select id="rubriqueSelect" class="form-control">
+                            <option value="">-- Sélectionnez --</option>
+                        </select>
+                    </div>
+
+                    <div class="select-card">
+                        <label>Équipe</label>
+                        <select id="equipeSelect" class="form-control">
+                            <option value="">-- Sélectionnez --</option>
+                        </select>
+                    </div>
+
+                    <div class="select-card">
+                        <label>Membre qui répond</label>
+                        <select id="membreSelect" class="form-control" disabled>
+                            <option value="">-- Sélectionnez --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Affichage de la question -->
+                <div id="questionDisplay" class="question-display">
+                    <div class="question-header">
+                        <div class="question-numero" id="questionNumero"></div>
+                        <div class="chronometre" id="chronometre">--</div>
+                    </div>
+                    <div class="question-texte" id="questionTexte"></div>
+                    <div class="question-points" id="questionPoints"></div>
+                </div>
+
+                <!-- Options QCM -->
+                <div id="optionsContainer" class="options-grid" style="display: none;"></div>
+
+                <!-- Résultat -->
+                <div id="resultatReponse" class="resultat-reponse"></div>
+
+                <!-- Boutons d'action -->
+                <div class="action-buttons">
+                    <button id="btnGenerer" class="btn-generer" disabled>
+                        🎲 Générer la Question
+                    </button>
+                    <button id="btnCorrect" class="btn-valider correcte" style="display: none;">
+                        ✅ Bonne Réponse
+                    </button>
+                    <button id="btnIncorrect" class="btn-valider incorrecte" style="display: none;">
+                        ❌ Mauvaise Réponse
+                    </button>
+                </div>
+
+                <!-- Panneau de score -->
+                <div class="score-panel" style="display: none;" id="scorePanel">
+                    <div class="score-grid">
+                        <div class="score-item">
+                            <div class="score-label">Questions répondues</div>
+                            <div class="score-value" id="scoreRepondues">0</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label">Score rubrique</div>
+                            <div class="score-value" id="scoreRubrique">0</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-label">Questions restantes</div>
+                            <div class="score-value" id="scoreRestantes">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/admin/jeu.js"></script>
+</body>
+</html>

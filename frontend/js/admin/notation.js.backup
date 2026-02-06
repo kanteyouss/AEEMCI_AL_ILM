@@ -1,0 +1,485 @@
+// ============================================
+// NOTATION - AL ILM 2026
+// ============================================
+
+let manches = [];
+let rubriques = [];
+let equipes = [];
+let currentManche = null;
+let currentRubrique = null;
+let currentEquipe = null;
+let criteres = {};
+let totalScore = 0;
+
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🚀 Initialisation page notation');
+    
+    const user = getUser();
+    if (!user || (user.role !== 'admin' && user.role !== 'jury')) {
+        window.location.href = '/login.html';
+        return;
+    }
+    
+    document.getElementById('userName').textContent = `${user.prenom} ${user.nom}`;
+    
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        clearAuthToken();
+        window.location.href = '/login.html';
+    });
+    
+    await loadManches();
+    initEventListeners();
+});
+
+/**
+ * Charger les manches disponibles
+ */
+async function loadManches() {
+    try {
+        const response = await fetch('/api/manches');
+        
+        if (!response.ok) {
+            throw new Error('Erreur chargement manches');
+        }
+        
+        const result = await response.json();
+        manches = result.data || [];
+        
+        const select = document.getElementById('mancheSelect');
+        
+        if (manches.length === 0) {
+            select.innerHTML = '<option value="">Aucune manche programmée</option>';
+            document.getElementById('noSessionAlert').style.display = 'block';
+            return;
+        }
+        
+        select.innerHTML = '<option value="">-- Sélectionnez une manche --</option>';
+        
+        manches.forEach(manche => {
+            const option = document.createElement('option');
+            option.value = manche.id;
+            const date = new Date(manche.date_manche).toLocaleDateString('fr-FR', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long' 
+            });
+            option.textContent = `${manche.nom} - ${date}`;
+            option.dataset.manche = JSON.stringify(manche);
+            select.appendChild(option);
+        });
+        
+        console.log(`✅ ${manches.length} manche(s) chargée(s)`);
+        
+    } catch (error) {
+        console.error('❌ Erreur:', error);
+        showNotification('Erreur lors du chargement des manches', 'error');
+    }
+}
+
+/**
+ * Charger les rubriques pour une manche
+ */
+async function loadRubriques(mancheId) {
+    try {
+        const response = await fetch(`/api/notation/sessions?manche_id=${mancheId}`);
+        
+        if (!response.ok) throw new Error('Erreur chargement rubriques');
+        
+        const result = await response.json();
+        const sessions = result.data || [];
+        
+        // Extraire les rubriques uniques avec leur session_id
+        const rubriquesMap = new Map();
+        sessions.forEach(session => {
+            if (!rubriquesMap.has(session.rubrique_id)) {
+                rubriquesMap.set(session.rubrique_id, {
+                    id: session.rubrique_id,
+                    session_id: session.session_id,
+                    nom: session.rubrique_nom,
+                    type: session.rubrique_type,
+                    points_max: session.points_max,
+                    criteres_evaluation: session.criteres_evaluation
+                });
+            }
+        });
+        
+        rubriques = Array.from(rubriquesMap.values());
+        
+        const select = document.getElementById('rubriqueSelect');
+        select.disabled = false;
+        select.innerHTML = '<option value="">-- Sélectionnez une rubrique --</option>';
+        
+        rubriques.forEach(rubrique => {
+            const option = document.createElement('option');
+            option.value = rubrique.id;
+            option.textContent = `${rubrique.nom} (${rubrique.points_max} pts)`;
+            option.dataset.rubrique = JSON.stringify(rubrique);
+            select.appendChild(option);
+        });
+        
+        console.log(`✅ ${rubriques.length} rubrique(s) chargée(s)`);
+        
+    } catch (error) {
+        console.error('❌ Erreur:', error);
+        showNotification('Erreur lors du chargement des rubriques', 'error');
+    }
+}
+
+/**
+ * Charger les équipes pour la session sélectionnée
+ */
+async function loadEquipes(mancheId) {
+    try {
+        const response = await fetch(`/api/notation/equipes/${mancheId}`);
+        
+        if (!response.ok) throw new Error('Erreur chargement équipes');
+        
+        const result = await response.json();
+        equipes = result.data || [];
+        
+        const select = document.getElementById('equipeSelect');
+        select.disabled = false;
+        select.innerHTML = '<option value="">-- Sélectionnez une équipe --</option>';
+        
+        equipes.forEach(equipe => {
+            const option = document.createElement('option');
+            option.value = equipe.id;
+            option.textContent = `${equipe.nom} (${equipe.nb_membres} membres)`;
+            option.dataset.equipe = JSON.stringify(equipe);
+            select.appendChild(option);
+        });
+        
+        console.log(`✅ ${equipes.length} équipe(s) chargée(s)`);
+        
+    } catch (error) {
+        console.error('❌ Erreur:', error);
+        showNotification('Erreur lors du chargement des équipes', 'error');
+    }
+}
+
+/**
+ * Initialiser les écouteurs d'événements
+ */
+function initEventListeners() {
+    // Changement de manche
+    document.getElementById('mancheSelect').addEventListener('change', async (e) => {
+        const option = e.target.options[e.target.selectedIndex];
+        
+        if (!option.dataset.manche) {
+            currentManche = null;
+            document.getElementById('rubriqueSelect').disabled = true;
+            document.getElementById('equipeSelect').disabled = true;
+            document.getElementById('notationForm').classList.remove('visible');
+            return;
+        }
+        
+        currentManche = JSON.parse(option.dataset.manche);
+        
+        // Réinitialiser les selects suivants
+        document.getElementById('rubriqueSelect').innerHTML = '<option value="">Chargement...</option>';
+        document.getElementById('equipeSelect').disabled = true;
+        document.getElementById('notationForm').classList.remove('visible');
+        
+        // Charger les rubriques
+        await loadRubriques(currentManche.id);
+        
+        // Charger les équipes
+        await loadEquipes(currentManche.id);
+    });
+    
+    // Changement de rubrique
+    document.getElementById('rubriqueSelect').addEventListener('change', async (e) => {
+        const option = e.target.options[e.target.selectedIndex];
+        
+        if (!option.dataset.rubrique) {
+            currentRubrique = null;
+            document.getElementById('notationForm').classList.remove('visible');
+            document.getElementById('equipeSelect').disabled = true;
+            return;
+        }
+        
+        currentRubrique = JSON.parse(option.dataset.rubrique);
+        
+        // Activer le select équipe
+        document.getElementById('equipeSelect').disabled = false;
+        
+        // Si une équipe est déjà sélectionnée, recharger le formulaire
+        if (currentEquipe) {
+            await checkNotationExistante();
+            await displayNotationForm();
+        }
+    });
+    
+    // Changement d'équipe
+    document.getElementById('equipeSelect').addEventListener('change', async (e) => {
+        const option = e.target.options[e.target.selectedIndex];
+        
+        if (!option.dataset.equipe) {
+            currentEquipe = null;
+            document.getElementById('notationForm').classList.remove('visible');
+            return;
+        }
+        
+        currentEquipe = JSON.parse(option.dataset.equipe);
+        
+        // Vérifier si notation existe déjà
+        await checkNotationExistante();
+        
+        // Afficher le formulaire
+        await displayNotationForm();
+    });
+    
+    // Bouton sauvegarder
+    document.getElementById('saveBtn').addEventListener('click', saveNotation);
+    
+    // Bouton réinitialiser
+    document.getElementById('resetBtn').addEventListener('click', resetForm);
+}
+
+/**
+ * Vérifier si une notation existe déjà
+ */
+async function checkNotationExistante() {
+    try {
+        const response = await fetch(
+            `/api/notation/check?equipe_id=${currentEquipe.id}&manche_id=${currentManche.id}&rubrique_id=${currentRubrique.id}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`
+                }
+            }
+        );
+        
+        const result = await response.json();
+        
+        if (result.existe) {
+            if (confirm(`Une notation existe déjà pour cette équipe (${result.notation.note_totale}/${currentRubrique.points_max} pts).\n\nVoulez-vous la modifier ?`)) {
+                await loadNotationExistante(result.notation);
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Erreur vérification:', error);
+    }
+}
+
+/**
+ * Charger une notation existante
+ */
+async function loadNotationExistante(notation) {
+    try {
+        const response = await fetch(
+            `/api/notation/${currentEquipe.id}/${currentManche.id}/${currentRubrique.id}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`
+                }
+            }
+        );
+        
+        const result = await response.json();
+        
+        if (result.data.criteres_notes) {
+            criteres = JSON.parse(result.data.criteres_notes);
+        }
+        
+        if (result.data.commentaire) {
+            document.getElementById('commentaire').value = result.data.commentaire;
+        }
+        
+    } catch (error) {
+        console.error('❌ Erreur chargement notation:', error);
+    }
+}
+
+/**
+ * Afficher le formulaire de notation
+ */
+async function displayNotationForm() {
+    const container = document.getElementById('criteresContainer');
+    container.innerHTML = '';
+    
+    // Afficher le nom de l'équipe
+    const badge = document.getElementById('equipeNom');
+    badge.textContent = currentEquipe.nom;
+    badge.style.background = currentEquipe.couleur || 'var(--primary-color)';
+    badge.style.color = 'white';
+    
+    // Récupérer les critères depuis la session
+    const criteresEval = currentRubrique.criteres_evaluation;
+    
+    if (criteresEval && typeof criteresEval === 'object') {
+        // Notation par critères (Adhan, Coran, etc.)
+        Object.entries(criteresEval).forEach(([nom, max]) => {
+            const value = criteres[nom] || 0;
+            
+            const critereDiv = document.createElement('div');
+            critereDiv.className = 'critere-item';
+            critereDiv.innerHTML = `
+                <div class="critere-header">
+                    <span class="critere-nom">${nom}</span>
+                    <span class="critere-max">Max: ${max} pts</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" 
+                           class="critere-slider" 
+                           data-critere="${nom}"
+                           min="0" 
+                           max="${max}" 
+                           value="${value}"
+                           step="0.5">
+                    <span class="critere-value">${value} pts</span>
+                </div>
+            `;
+            
+            container.appendChild(critereDiv);
+            
+            // Écouter les changements
+            const slider = critereDiv.querySelector('.critere-slider');
+            const valueSpan = critereDiv.querySelector('.critere-value');
+            
+            slider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                valueSpan.textContent = `${val} pts`;
+                criteres[nom] = val;
+                updateTotalScore();
+            });
+        });
+    } else {
+        // Notation simple (score direct)
+        const value = criteres['score'] || 0;
+        
+        const critereDiv = document.createElement('div');
+        critereDiv.className = 'critere-item';
+        critereDiv.innerHTML = `
+            <div class="critere-header">
+                <span class="critere-nom">Score</span>
+                <span class="critere-max">Max: ${currentRubrique.points_max} pts</span>
+            </div>
+            <div class="slider-container">
+                <input type="range" 
+                       class="critere-slider" 
+                       data-critere="score"
+                       min="0" 
+                       max="${currentRubrique.points_max}" 
+                       value="${value}"
+                       step="1">
+                <span class="critere-value">${value} pts</span>
+            </div>
+        `;
+        
+        container.appendChild(critereDiv);
+        
+        const slider = critereDiv.querySelector('.critere-slider');
+        const valueSpan = critereDiv.querySelector('.critere-value');
+        
+        slider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            valueSpan.textContent = `${val} pts`;
+            criteres['score'] = val;
+            updateTotalScore();
+        });
+    }
+    
+    document.getElementById('maxScore').textContent = currentRubrique.points_max;
+    updateTotalScore();
+    
+    document.getElementById('notationForm').classList.add('visible');
+}
+
+/**
+ * Mettre à jour le score total
+ */
+function updateTotalScore() {
+    totalScore = Object.values(criteres).reduce((sum, val) => sum + val, 0);
+    document.getElementById('totalScore').textContent = totalScore;
+}
+
+/**
+ * Sauvegarder la notation
+ */
+async function saveNotation() {
+    if (!currentManche || !currentRubrique || !currentEquipe) {
+        showNotification('Veuillez sélectionner une session et une équipe', 'error');
+        return;
+    }
+    
+    if (totalScore === 0 && !confirm('Le score total est 0. Voulez-vous vraiment enregistrer ?')) {
+        return;
+    }
+    
+    try {
+        const data = {
+            session_id: currentRubrique.session_id,
+            equipe_id: currentEquipe.id,
+            manche_id: currentManche.id,
+            rubrique_id: currentRubrique.id,
+            criteres: criteres,
+            note_totale: totalScore,
+            commentaire: document.getElementById('commentaire').value || null
+        };
+        
+        console.log('📤 Envoi des données:', data);
+        console.log('📋 currentRubrique:', currentRubrique);
+        
+        const response = await fetch('/api/notation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAuthToken()}`
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.message || 'Erreur lors de l\'enregistrement');
+        }
+        
+        showNotification('✅ Notation enregistrée avec succès', 'success');
+        
+        // Réinitialiser pour prochaine équipe
+        setTimeout(() => {
+            document.getElementById('equipeSelect').value = '';
+            resetForm();
+        }, 1500);
+        
+    } catch (error) {
+        console.error('❌ Erreur:', error);
+        showNotification(`Erreur: ${error.message}`, 'error');
+    }
+}
+
+/**
+ * Réinitialiser le formulaire
+ */
+function resetForm() {
+    criteres = {};
+    totalScore = 0;
+    document.getElementById('commentaire').value = '';
+    
+    // Réinitialiser les sliders
+    document.querySelectorAll('.critere-slider').forEach(slider => {
+        slider.value = 0;
+        slider.nextElementSibling.textContent = '0 pts';
+    });
+    
+    updateTotalScore();
+}
+
+/**
+ * Afficher une notification
+ */
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type}`;
+    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 4000);
+}

@@ -11,20 +11,31 @@ const getAllParticipants = async (req, res, next) => {
     try {
         const { etablissement, disponibilite } = req.query;
         
-        let query = 'SELECT * FROM participants WHERE 1=1';
+        let query = `
+            SELECT 
+                p.*,
+                e.id AS equipe_id,
+                e.nom AS equipe_nom,
+                e.couleur AS equipe_couleur,
+                me.est_capitaine
+            FROM participants p
+            LEFT JOIN membres_equipe me ON p.id = me.participant_id
+            LEFT JOIN equipes e ON me.equipe_id = e.id
+            WHERE 1=1
+        `;
         const params = [];
         
         if (etablissement) {
             params.push(etablissement);
-            query += ` AND etablissement = $${params.length}`;
+            query += ` AND p.etablissement = $${params.length}`;
         }
         
         if (disponibilite !== undefined) {
             params.push(disponibilite === 'true');
-            query += ` AND disponibilite = $${params.length}`;
+            query += ` AND p.disponibilite = $${params.length}`;
         }
         
-        query += ' ORDER BY nom, prenom';
+        query += ' ORDER BY p.nom, p.prenom';
         
         const result = await db.query(query, params);
         

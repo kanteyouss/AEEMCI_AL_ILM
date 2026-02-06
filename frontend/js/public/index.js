@@ -8,7 +8,114 @@ document.addEventListener('DOMContentLoaded', async () => {
     initCountdown();
     await loadEquipes();
     initRubriquesModal();
+    initHeroAnimation();
 });
+
+/**
+ * Initialiser l'animation Three.js dans le hero
+ */
+function initHeroAnimation() {
+    const canvas = document.getElementById('heroCanvas');
+    if (!canvas || !window.THREE) return;
+    
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 400, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ 
+        canvas: canvas, 
+        alpha: true,
+        antialias: true 
+    });
+    
+    renderer.setSize(window.innerWidth, 400);
+    renderer.setClearColor(0x000000, 0);
+    
+    // Créer un champ d'étoiles
+    const starsGeometry = new THREE.BufferGeometry();
+    const starsMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.7,
+        transparent: true,
+        opacity: 0.8
+    });
+    
+    const starsVertices = [];
+    for (let i = 0; i < 200; i++) {
+        const x = (Math.random() - 0.5) * 2000;
+        const y = (Math.random() - 0.5) * 2000;
+        const z = (Math.random() - 0.5) * 2000;
+        starsVertices.push(x, y, z);
+    }
+    
+    starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+    const stars = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(stars);
+    
+    // Créer des formes géométriques islamiques (étoile à 8 branches simplifiée)
+    const shape = new THREE.Shape();
+    const outerRadius = 2;
+    const innerRadius = 1;
+    const points = 8;
+    
+    for (let i = 0; i < points * 2; i++) {
+        const radius = i % 2 === 0 ? outerRadius : innerRadius;
+        const angle = (Math.PI / points) * i;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        
+        if (i === 0) {
+            shape.moveTo(x, y);
+        } else {
+            shape.lineTo(x, y);
+        }
+    }
+    shape.closePath();
+    
+    const extrudeSettings = {
+        depth: 0.3,
+        bevelEnabled: true,
+        bevelThickness: 0.1,
+        bevelSize: 0.1,
+        bevelSegments: 2
+    };
+    
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    const material = new THREE.MeshBasicMaterial({ 
+        color: 0xffd700,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.4
+    });
+    const star = new THREE.Mesh(geometry, material);
+    scene.add(star);
+    
+    camera.position.z = 15;
+    
+    // Animation
+    let rotation = 0;
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        rotation += 0.001;
+        
+        // Rotation de l'étoile
+        star.rotation.x += 0.005;
+        star.rotation.y += 0.01;
+        
+        // Rotation des étoiles
+        stars.rotation.y += 0.0005;
+        
+        renderer.render(scene, camera);
+    }
+    
+    animate();
+    
+    // Responsive
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / 400;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, 400);
+    });
+}
 
 /**
  * Effet machine à écrire pour le titre hero
@@ -140,7 +247,7 @@ async function loadEquipes() {
     if (!equipesGrid) return;
     
     // Équipes prédéfinies (10 équipes officielles)
-    const equipes = [
+    const equipesData = [
         { nom: 'AL-FURQAN', signification: 'Le discernement', couleur: '#FF5733', symbole: '⚖️' },
         { nom: 'AS-SABIQUN', signification: 'Les devanciers', couleur: '#3498DB', symbole: '🏃' },
         { nom: 'AL-MUJAHIDUN', signification: 'Les combattants', couleur: '#28A745', symbole: '⚔️' },
@@ -153,18 +260,125 @@ async function loadEquipes() {
         { nom: 'AL-IMAN', signification: 'La foi', couleur: '#8E44AD', symbole: '🕋' }
     ];
     
-    equipesGrid.innerHTML = equipes.map(equipe => `
-        <div class="equipe-card" style="border-left: 5px solid ${equipe.couleur}">
-            <div class="equipe-logo">
-                <img src="/assets/images/equipes/${equipe.nom.toLowerCase().replace('-', '_')}.png" 
-                     alt="Logo ${equipe.nom}" 
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div class="equipe-symbole" style="color: ${equipe.couleur}; display:none;">${equipe.symbole}</div>
-            </div>
-            <h3>${equipe.nom}</h3>
-            <p class="equipe-signification">${equipe.signification}</p>
-        </div>
-    `).join('');
+    try {
+        console.log('\n🔄 === CHARGEMENT DES ÉQUIPES ===');
+        console.log('⏰ Timestamp:', new Date().toLocaleTimeString());
+        
+        // Ajouter un timestamp pour éviter le cache
+        const timestamp = new Date().getTime();
+        const url = `/api/equipes/public/validated?t=${timestamp}`;
+        
+        console.log('📡 Requête:', url);
+        
+        // Récupérer les équipes validées depuis l'API
+        const response = await fetch(url, {
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        });
+        
+        console.log('📥 Status:', response.status);
+        
+        const result = await response.json();
+        
+        console.log('📊 Résultat API:', result);
+        
+        let equipesValidees = {};
+        if (result.success && result.data) {
+            console.log(`✅ ${result.data.length} équipe(s) validée(s)`);
+            result.data.forEach(eq => {
+                console.log(`   - ${eq.nom}: ${eq.nb_membres} membre(s)`);
+                equipesValidees[eq.nom] = eq;
+            });
+        } else {
+            console.log('⚠️  Aucune équipe validée');
+        }
+        
+        // Afficher toutes les équipes avec indication si validée ou non
+        equipesGrid.innerHTML = equipesData.map(equipe => {
+            const validated = equipesValidees[equipe.nom];
+            const hasMembers = validated && validated.nb_membres > 0;
+            const isValidated = !!validated; // A un code d'accès
+            
+            console.log(`\n🏆 ${equipe.nom}:`);
+            console.log(`   Validée:`, isValidated);
+            console.log(`   Membres:`, validated ? validated.nb_membres : 0);
+            console.log(`   A des membres:`, hasMembers);
+            
+            return `
+                <a href="/public/equipe-details.html?equipe=${encodeURIComponent(equipe.nom)}" 
+                   class="equipe-card ${hasMembers ? 'equipe-validated' : ''}" 
+                   style="border-left: 5px solid ${equipe.couleur}; text-decoration: none; color: inherit;">
+                    <div class="equipe-logo">
+                        <img src="/assets/images/equipes/${equipe.nom.toLowerCase().replace('-', '_')}.png" 
+                             alt="Logo ${equipe.nom}" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="equipe-symbole" style="color: ${equipe.couleur}; display:none;">${equipe.symbole}</div>
+                    </div>
+                    <h3>${equipe.nom}</h3>
+                    <p class="equipe-signification">${equipe.signification}</p>
+                    ${hasMembers ? `
+                        <div class="equipe-status">
+                            <span class="badge-validated">Equipe constituee</span>
+                            <p class="equipe-info">
+                                <strong>${validated.nb_membres} membre${validated.nb_membres > 1 ? 's' : ''}</strong>
+                            </p>
+                            ${validated.capitaine ? `
+                                <p class="equipe-capitaine">
+                                    <span class="capitaine-label">Capitaine:</span><br>
+                                    ${validated.capitaine.prenom} ${validated.capitaine.nom}
+                                </p>
+                            ` : ''}
+                        </div>
+                    ` : isValidated ? `
+                        <div class="equipe-status">
+                            <span class="badge-pending">Validée - 0 membre</span>
+                            <p class="equipe-info" style="font-size: 0.9rem; color: #6c757d; margin-top: 0.5rem;">
+                                L'équipe est créée mais n'a pas encore de membres
+                            </p>
+                        </div>
+                    ` : `
+                        <div class="equipe-status">
+                            <span class="badge-pending">En attente de formation</span>
+                        </div>
+                    `}
+                    <div class="equipe-link">
+                        Voir les details →
+                    </div>
+                </a>
+            `;
+        }).join('');
+        
+        console.log('✅ Affichage mis à jour');
+        console.log('=== FIN CHARGEMENT ===\n');
+        
+        // Auto-refresh toutes les 10 secondes pour le debug
+        setTimeout(loadEquipes, 10000);
+        
+    } catch (error) {
+        console.error('❌ Erreur lors du chargement des équipes:', error);
+        
+        // Afficher les équipes sans statut en cas d'erreur
+        equipesGrid.innerHTML = equipesData.map(equipe => `
+            <a href="/public/equipe-details.html?equipe=${encodeURIComponent(equipe.nom)}" 
+               class="equipe-card" 
+               style="border-left: 5px solid ${equipe.couleur}; text-decoration: none; color: inherit;">
+                <div class="equipe-logo">
+                    <img src="/assets/images/equipes/${equipe.nom.toLowerCase().replace('-', '_')}.png" 
+                         alt="Logo ${equipe.nom}" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="equipe-symbole" style="color: ${equipe.couleur}; display:none;">${equipe.symbole}</div>
+                </div>
+                <h3>${equipe.nom}</h3>
+                <p class="equipe-signification">${equipe.signification}</p>
+                <div class="equipe-link">
+                    Voir les details →
+                </div>
+            </a>
+        `).join('');
+    }
 }
 
 /**

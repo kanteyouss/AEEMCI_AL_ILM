@@ -1,0 +1,505 @@
+/* ============================================
+   PAGE DETAILS EQUIPE - AL ILM 2026
+   ============================================ */
+
+.back-navigation {
+    margin: 2rem 0 1rem;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateX(-5px);
+}
+
+/* Header de l'équipe */
+.equipe-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1d4e1f 100%);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.header-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.3;
+}
+
+.equipe-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.equipe-header-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.equipe-symbole-large {
+    font-size: 5rem;
+    background: rgba(255, 255, 255, 0.2);
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.equipe-header-info h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.equipe-signification {
+    font-size: 1.3rem;
+    opacity: 0.9;
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+.equipe-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.stat-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.75rem 1.5rem;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-badge strong {
+    font-size: 1.5rem;
+}
+
+/* Verset/Slogan */
+.equipe-verset {
+    background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%);
+    padding: 2.5rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    border-left: 5px solid var(--secondary-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards;
+    animation-delay: 0.3s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.verset-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.verset-arabe {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    direction: rtl;
+    line-height: 1.8;
+    font-family: 'Traditional Arabic', serif;
+}
+
+.verset-traduction {
+    font-size: 1.2rem;
+    color: #4a5568;
+    font-style: italic;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+
+.verset-reference {
+    font-size: 0.95rem;
+    color: #718096;
+    font-weight: 600;
+}
+
+.equipe-slogan {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    font-weight: 700;
+    font-style: italic;
+    text-align: center;
+}
+
+/* Description */
+.equipe-description {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.equipe-description h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+.equipe-description p {
+    color: #4a5568;
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+/* Section Capitaine */
+.capitaine-section {
+    background: linear-gradient(135deg, #fff7ed 0%, #fff 100%);
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    border: 3px solid #fbbf24;
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.2);
+}
+
+.capitaine-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.capitaine-card {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.capitaine-card::before {
+    content: '👑';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    font-size: 8rem;
+    opacity: 0.05;
+    transform: rotate(-15deg);
+}
+
+.capitaine-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(251, 191, 36, 0.2);
+}
+
+.capitaine-avatar {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    flex-shrink: 0;
+    position: relative;
+    animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 25px rgba(251, 191, 36, 0.6), 0 0 30px rgba(251, 191, 36, 0.3);
+    }
+}
+
+.capitaine-avatar::after {
+    content: '👑';
+    position: absolute;
+    top: -10px;
+    right: -5px;
+    font-size: 1.5rem;
+    animation: floatCrown 2s ease-in-out infinite;
+}
+
+@keyframes floatCrown {
+    0%, 100% {
+        transform: translateY(0) rotate(-10deg);
+    }
+    50% {
+        transform: translateY(-5px) rotate(-15deg);
+    }
+}
+
+.capitaine-info h3 {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.capitaine-info p {
+    color: #4a5568;
+    margin: 0.25rem 0;
+    font-size: 1rem;
+}
+
+.capitaine-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+/* Membres */
+.membres-section {
+    margin-bottom: 3rem;
+}
+
+.membres-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.membres-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.membre-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--secondary-color);
+    opacity: 0;
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.membre-card:nth-child(1) { animation-delay: 0.1s; }
+.membre-card:nth-child(2) { animation-delay: 0.2s; }
+.membre-card:nth-child(3) { animation-delay: 0.3s; }
+.membre-card:nth-child(4) { animation-delay: 0.4s; }
+.membre-card:nth-child(5) { animation-delay: 0.5s; }
+.membre-card:nth-child(6) { animation-delay: 0.6s; }
+.membre-card:nth-child(7) { animation-delay: 0.7s; }
+.membre-card:nth-child(8) { animation-delay: 0.8s; }
+.membre-card:nth-child(9) { animation-delay: 0.9s; }
+.membre-card:nth-child(10) { animation-delay: 1s; }
+
+.membre-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.membre-card.is-capitaine {
+    border-left-color: #fbbf24;
+    background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);
+}
+
+.membre-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.membre-avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1d4e1f 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.membre-card.is-capitaine .membre-avatar {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.membre-name {
+    flex: 1;
+}
+
+.membre-name h3 {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.membre-role {
+    font-size: 0.8rem;
+    color: #718096;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.membre-info {
+    padding-left: 1rem;
+}
+
+.membre-info p {
+    color: #4a5568;
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.membre-info p strong {
+    color: var(--primary-color);
+}
+
+/* Équipe en attente */
+.equipe-pending {
+    margin: 3rem 0;
+}
+
+.pending-message {
+    background: linear-gradient(135deg, #fff7ed 0%, #fff 100%);
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    text-align: center;
+    border: 3px dashed #f59e0b;
+}
+
+.pending-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.pending-message h3 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.pending-message p {
+    color: #4a5568;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .equipe-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .equipe-header-info h1 {
+        font-size: 2rem;
+    }
+    
+    .equipe-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .capitaine-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .membres-grid {
+        grid-template-columns: 1fr;
+    }
+}

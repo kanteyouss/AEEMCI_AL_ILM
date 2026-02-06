@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails Équipe - AL ILM 2026</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/equipe-details.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>🕌 AL ILM 2026</h1>
+                <p class="tagline">Pour une identité islamique !</p>
+            </div>
+            <nav class="nav">
+                <a href="/index.html" class="btn-secondary">🏠 Accueil</a>
+                <a href="/public/calendrier.html" class="btn-secondary">🌙 Calendrier</a>
+                <a href="/public/classement.html" class="btn-secondary">🏆 Classement</a>
+                <a href="/login.html" class="btn-secondary">Connexion</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Bouton retour -->
+            <div class="back-navigation">
+                <a href="/index.html#equipes" class="btn-back">← Retour aux équipes</a>
+            </div>
+
+            <!-- Header de l'équipe -->
+            <div id="equipeHeader" class="equipe-header">
+                <canvas id="headerCanvas" class="header-canvas"></canvas>
+                <!-- Chargé dynamiquement -->
+            </div>
+
+            <!-- Verset/Slogan de l'équipe -->
+            <div id="equipeVerset" class="equipe-verset">
+                <!-- Chargé dynamiquement -->
+            </div>
+
+            <!-- Description de l'équipe -->
+            <div id="equipeDescription" class="equipe-description">
+                <!-- Chargé dynamiquement -->
+            </div>
+
+            <!-- Section Capitaine -->
+            <div id="capitaineSection" class="capitaine-section">
+                <!-- Chargé dynamiquement -->
+            </div>
+
+            <!-- Liste des membres -->
+            <div id="membresSection" class="membres-section">
+                <h2>Membres de l'equipe</h2>
+                <div id="membresList" class="membres-grid">
+                    <!-- Chargé dynamiquement -->
+                </div>
+            </div>
+
+            <!-- Message si équipe non constituée -->
+            <div id="equipePending" class="equipe-pending" style="display: none;">
+                <div class="pending-message">
+                    <span class="pending-icon">⏳</span>
+                    <h3>Equipe en cours de formation</h3>
+                    <p>Cette equipe n'a pas encore ete constituee. Les inscriptions sont en cours.</p>
+                    <a href="/public/inscription.html" class="btn-primary">S'inscrire maintenant</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 AEEMCI - Association des Eleves et Etudiants Musulmans de Cote d'Ivoire</p>
+            <p>Section ESATIC - "Pour une identite islamique !"</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="/js/public/equipe-details.js"></script>
+</body>
+</html>

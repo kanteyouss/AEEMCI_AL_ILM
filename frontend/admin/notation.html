@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notation - AL ILM 2026</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .notation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .select-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .select-box label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .select-box select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .critere-item {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .critere-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .critere-nom {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .critere-max {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .slider-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .critere-slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e2e8f0;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .critere-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .critere-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .critere-value {
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .total-score {
+            background: linear-gradient(135deg, var(--primary-color), #2a5298);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .total-score h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2.5rem;
+        }
+
+        .total-score p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .notation-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .notation-form.visible {
+            display: block;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            color: #92400e;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+
+        .session-info {
+            background: #f0f9ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .session-info h3 {
+            margin: 0 0 1rem 0;
+            color: var(--primary-color);
+        }
+
+        .session-detail {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .session-detail strong {
+            color: #4a5568;
+        }
+
+        .equipe-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .question-box {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .question-number {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .question-timer {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f59e0b;
+        }
+
+        .question-timer.warning {
+            color: #ef4444;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .question-content {
+            background: #f7fafc;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            min-height: 120px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            color: #2d3748;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .answer-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .answer-btn {
+            padding: 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .answer-btn.correct {
+            background: #10b981;
+            color: white;
+        }
+
+        .answer-btn.correct:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .answer-btn.incorrect {
+            background: #ef4444;
+            color: white;
+        }
+
+        .answer-btn.incorrect:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--primary-color), #10b981);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .score-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .score-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .score-card h4 {
+            margin: 0 0 0.5rem 0;
+            color: #718096;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .score-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .questions-list {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .question-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .question-item:last-child {
+            border-bottom: none;
+        }
+
+        .question-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .question-status.correct {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .question-status.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <header class="header-admin">
+        <div class="container">
+            <h1>🕌 AL ILM 2026 - Notation</h1>
+            <div class="user-info">
+                <span id="userName"></span>
+                <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    Vue d'ensemble
+                </a>
+                <a href="participants.html" class="nav-item">
+                    Participants
+                </a>
+                <a href="equipes.html" class="nav-item">
+                    Former les Équipes
+                </a>
+                <a href="dashboard.html#manches" class="nav-item">
+                    Manches
+                </a>
+                <a href="questions.html" class="nav-item">
+                    Banque de Questions
+                </a>
+                <a href="jeu.html" class="nav-item">
+                    🎮 Jeu en Direct
+                </a>
+                <a href="notation.html" class="nav-item active">
+                    📝 Notation
+                </a>
+                <a href="resultats.html" class="nav-item">
+                    🏆 Résultats et Classement
+                </a>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <div class="notation-container">
+                <h2>📝 Notation des Équipes</h2>
+                <p style="color: #718096; margin-bottom: 2rem;">
+                    Sélectionnez une manche, une rubrique et une équipe pour commencer la notation.
+                </p>
+
+                <!-- Sélection de la session -->
+                <div class="selection-grid">
+                    <div class="select-box">
+                        <label for="mancheSelect">Manche</label>
+                        <select id="mancheSelect" class="form-control">
+                            <option value="">Chargement...</option>
+                        </select>
+                    </div>
+
+                    <div class="select-box">
+                        <label for="rubriqueSelect">Rubrique</label>
+                        <select id="rubriqueSelect" class="form-control" disabled>
+                            <option value="">Sélectionnez d'abord une manche</option>
+                        </select>
+                    </div>
+
+                    <div class="select-box">
+                        <label for="equipeSelect">Équipe</label>
+                        <select id="equipeSelect" class="form-control" disabled>
+                            <option value="">Sélectionnez une manche et rubrique</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Alerte si aucune session -->
+                <div id="noSessionAlert" class="alert alert-warning" style="display: none;">
+                    ⚠️ Aucune manche programmée. Veuillez configurer le calendrier des manches.
+                </div>
+
+                <!-- Info session sélectionnée -->
+                <div id="sessionInfo" class="session-info" style="display: none;">
+                    <h3>📋 Détails de la session</h3>
+                    <div class="session-detail">
+                        <strong>Phase :</strong>
+                        <span id="infoPhase"></span>
+                    </div>
+                    <div class="session-detail">
+                        <strong>Rubrique :</strong>
+                        <span id="infoRubrique"></span>
+                    </div>
+                    <div class="session-detail">
+                        <strong>Date :</strong>
+                        <span id="infoDate"></span>
+                    </div>
+                    <div class="session-detail">
+                        <strong>Points max :</strong>
+                        <span id="infoPointsMax"></span>
+                    </div>
+                </div>
+
+                <!-- Formulaire de notation -->
+                <div id="notationForm" class="notation-form">
+                    <h3>Noter : <span id="equipeNom" class="equipe-badge"></span></h3>
+                    
+                    <!-- Progression -->
+                    <div style="margin: 2rem 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Progression : <strong id="progressText">0/0</strong></span>
+                            <span>Score : <strong id="currentScore">0</strong> / <span id="maxScore">0</span> pts</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Résumé des scores -->
+                    <div id="scoreSummary" class="score-summary" style="display: none;">
+                        <div class="score-card">
+                            <h4>Questions réussies</h4>
+                            <div class="value" id="correctCount">0</div>
+                        </div>
+                        <div class="score-card">
+                            <h4>Questions ratées</h4>
+                            <div class="value" id="incorrectCount">0</div>
+                        </div>
+                        <div class="score-card">
+                            <h4>Score final</h4>
+                            <div class="value" id="finalScore">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Zone de question -->
+                    <div id="questionBox" class="question-box" style="display: none;">
+                        <div class="question-header">
+                            <span class="question-number">Question <span id="questionNum">1</span></span>
+                            <span class="question-timer" id="timer">--</span>
+                        </div>
+
+                        <div class="question-content">
+                            <div class="question-text" id="questionText">Cliquez sur "Générer la question" pour commencer</div>
+                        </div>
+
+                        <div id="answerButtons" class="answer-buttons" style="display: none;">
+                            <button class="answer-btn correct" id="correctBtn">
+                                ✓ Bonne réponse
+                            </button>
+                            <button class="answer-btn incorrect" id="incorrectBtn">
+                                ✗ Mauvaise réponse
+                            </button>
+                        </div>
+
+                        <button id="generateBtn" class="btn-generate">
+                            🎲 Générer la question
+                        </button>
+                    </div>
+
+                    <!-- Liste des questions traitées -->
+                    <div id="questionsList" class="questions-list" style="display: none;">
+                        <h4 style="margin-bottom: 1rem;">Récapitulatif des réponses</h4>
+                        <div id="questionsHistory"></div>
+                    </div>
+
+                    <!-- Commentaire et validation finale -->
+                    <div id="finalSection" style="display: none; margin-top: 2rem;">
+                        <div class="form-group">
+                            <label for="commentaire">Commentaire du jury (optionnel)</label>
+                            <textarea id="commentaire" rows="3" class="form-control" placeholder="Remarques générales sur la prestation de l'équipe..."></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                            <button id="saveBtn" class="btn-primary" style="flex: 1;">
+                                💾 Valider et enregistrer
+                            </button>
+                            <button id="resetBtn" class="btn-secondary">
+                                🔄 Recommencer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/admin/notation.js"></script>
+</body>
+</html>

@@ -21,7 +21,30 @@
             padding: 1.5rem;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             max-height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .participants-pool #participantsList {
             overflow-y: auto;
+            flex: 1;
+            padding-right: 0.5rem;
+        }
+        
+        .participants-pool #participantsList::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .participants-pool #participantsList::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .participants-pool #participantsList::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
         }
 
         .pool-header {
@@ -446,10 +469,10 @@
     <div class="admin-layout">
         <aside class="sidebar">
             <nav class="sidebar-nav">
-                <a href="dashboard.html#overview" class="nav-item">
+                <a href="dashboard.html" class="nav-item">
                     Vue d'ensemble
                 </a>
-                <a href="dashboard.html#participants" class="nav-item">
+                <a href="participants.html" class="nav-item">
                     Participants
                 </a>
                 <a href="equipes.html" class="nav-item active">
@@ -458,8 +481,8 @@
                 <a href="dashboard.html#manches" class="nav-item">
                     Manches
                 </a>
-                <a href="dashboard.html#questions" class="nav-item">
-                    Questions
+                <a href="questions.html" class="nav-item">
+                    Banque de Questions
                 </a>
                 <a href="dashboard.html#classement" class="nav-item">
                     Classement
@@ -567,6 +590,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="../js/api.js"></script>
     <script src="../js/admin/equipes.js"></script>
 </body>
 </html>

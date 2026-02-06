@@ -5,6 +5,7 @@ const { verifyJWT, isAdmin } = require('../middleware/auth');
 const { validateManche } = require('../middleware/validator');
 
 // Route publique pour consulter les manches (utilisée par le calendrier public)
+router.get('/par-etape', mancheController.getManchesParEtape);
 router.get('/', mancheController.getAllManches);
 router.get('/:id', mancheController.getMancheById);
 

@@ -148,6 +148,39 @@ const markQuestionAsUsed = async (req, res, next) => {
 };
 
 /**
+ * Récupérer UNE question aléatoire pour une rubrique (SANS JWT)
+ */
+const getRandomQuestion = async (req, res, next) => {
+    try {
+        const { rubrique_id } = req.query;
+        
+        if (!rubrique_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'rubrique_id est requis'
+            });
+        }
+        
+        // Récupérer une question aléatoire non utilisée
+        const questions = await QuestionModel.getRandomUnused(rubrique_id, 1);
+        
+        if (questions.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Aucune question disponible pour cette rubrique'
+            });
+        }
+        
+        res.json({
+            success: true,
+            data: questions[0]
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
  * Récupérer des questions aléatoires non utilisées
  */
 const getRandomUnusedQuestions = async (req, res, next) => {
@@ -174,5 +207,6 @@ module.exports = {
     updateQuestion,
     deleteQuestion,
     markQuestionAsUsed,
+    getRandomQuestion,
     getRandomUnusedQuestions
 };

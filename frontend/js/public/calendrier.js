@@ -276,7 +276,7 @@ function renderManchesList() {
                     </div>
                     <div class="manche-details">
                         <div class="manche-detail-item">
-                            <span class="detail-icon">📅</span>
+                            <span class="detail-icon"></span>
                             <span class="detail-text">${dateStr}</span>
                         </div>
                         <div class="manche-detail-item">

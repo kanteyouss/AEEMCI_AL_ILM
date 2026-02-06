@@ -21,10 +21,10 @@
     <div class="admin-layout">
         <aside class="sidebar">
             <nav class="sidebar-nav">
-                <a href="#" data-section="overview" class="nav-item active">
+                <a href="dashboard.html" class="nav-item active">
                     Vue d'ensemble
                 </a>
-                <a href="#" data-section="participants" class="nav-item">
+                <a href="participants.html" class="nav-item">
                     Participants
                 </a>
                 <a href="equipes.html" class="nav-item">
@@ -33,11 +33,17 @@
                 <a href="#" data-section="manches" class="nav-item">
                     Manches
                 </a>
-                <a href="#" data-section="questions" class="nav-item">
-                    Questions
+                <a href="questions.html" class="nav-item">
+                    Banque de Questions
                 </a>
-                <a href="#" data-section="classement" class="nav-item">
-                    Classement
+                <a href="jeu.html" class="nav-item">
+                    🎮 Jeu en Direct
+                </a>
+                <a href="notation.html" class="nav-item">
+                    📝 Notation
+                </a>
+                <a href="resultats.html" class="nav-item">
+                    🏆 Résultats et Classement
                 </a>
             </nav>
         </aside>
@@ -358,11 +364,6 @@
                 <div id="questionsTable"></div>
             </section>
 
-            <!-- Section Classement -->
-            <section id="classement" class="content-section">
-                <h2>Classement général</h2>
-                <div id="classementTable"></div>
-            </section>
         </main>
     </div>
 
@@ -378,7 +379,7 @@
                 
                 <!-- Section Date/Heure (affichée en mode édition) -->
                 <div id="editDateSection" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
-                    <h4 style="margin: 0 0 1rem 0; color: var(--primary-color);">📅 Date et heure</h4>
+                    <h4 style="margin: 0 0 1rem 0; color: var(--primary-color);"> Date et heure</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div>
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date</label>
@@ -388,6 +389,37 @@
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Heure de début</label>
                             <input type="time" id="editTimeInput" class="form-input" style="width: 100%; padding: 0.5rem; border: 2px solid #e0e6ed; border-radius: 8px;">
                         </div>
+                    </div>
+                </div>
+
+                <!-- Section Options (NB) -->
+                <div id="optionsSection" style="margin-bottom: 1.5rem; padding: 1rem; background: #fffbf0; border-radius: 8px;">
+                    <h4 style="margin: 0 0 1rem 0; color: #d97706;">📝 Note de bas de page (Optionnel)</h4>
+                    <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #64748b;">
+                        Ce texte s'affichera en gras en bas du tableau de classement (NB : ...)
+                    </label>
+                    <input type="text" id="mancheNoteInput" class="form-input" placeholder="Ex: Les résultats sont provisoires..." style="width: 100%; padding: 0.5rem; border: 2px solid #e0e6ed; border-radius: 8px;">
+                </div>
+
+                <!-- Section Sélection des Équipes -->
+                <div id="equipesSection" style="margin-bottom: 1.5rem; padding: 1rem; background: #f0f9ff; border-radius: 8px;">
+                    <h4 style="margin: 0 0 1rem 0; color: var(--primary-color);">👥 Équipes participantes</h4>
+                    <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #64748b;">
+                        Sélectionnez les équipes qui participeront à cette manche
+                    </p>
+                    <div class="equipes-selection" id="equipesSelection">
+                        <div style="text-align: center; padding: 2rem; color: #94a3b8;">
+                            <div class="loader"></div>
+                            <p>Chargement des équipes...</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: white; border-radius: 6px; border-left: 4px solid var(--primary-color);">
+                        <p style="margin: 0; font-size: 0.9rem;">
+                            <strong style="color: var(--primary-color);">💡 Astuce :</strong>
+                            <span style="color: #64748b;">
+                                Cliquez sur "Toutes" pour sélectionner toutes les équipes rapidement
+                            </span>
+                        </p>
                     </div>
                 </div>
                 

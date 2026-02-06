@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Participants - AL ILM 2026</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <header class="header-admin">
+        <div class="container">
+            <h1>🕌 AL ILM 2026 - Administration</h1>
+            <div class="user-info">
+                <span id="userName"></span>
+                <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    Vue d'ensemble
+                </a>
+                <a href="participants.html" class="nav-item active">
+                    Participants
+                </a>
+                <a href="equipes.html" class="nav-item">
+                    Former les Équipes
+                </a>
+                <a href="dashboard.html#manches" class="nav-item">
+                    Manches
+                </a>
+                <a href="questions.html" class="nav-item">
+                    Banque de Questions
+                </a>
+                <a href="jeu.html" class="nav-item">
+                    🎮 Jeu en Direct
+                </a>
+                <a href="notation.html" class="nav-item">
+                    📝 Notation
+                </a>
+                <a href="dashboard.html#classement" class="nav-item">
+                    Classement
+                </a>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <div class="section-header">
+                <div>
+                    <h2>👥 Gestion des Participants</h2>
+                    <p style="color: #718096; font-size: 0.9rem; margin: 0.5rem 0 0 0;">
+                        Liste complète des participants inscrits au concours
+                    </p>
+                </div>
+                <button class="btn-primary" id="importCSVBtn">
+                    📥 Importer CSV
+                </button>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <h3 id="totalParticipants">0</h3>
+                    <p>Total Participants</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="participantsAssignes">0</h3>
+                    <p>Assignés à une équipe</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="participantsLibres">0</h3>
+                    <p>Non assignés</p>
+                </div>
+            </div>
+
+            <!-- Filtres -->
+            <div class="filters" style="margin-bottom: 2rem;">
+                <input type="text" id="searchParticipant" placeholder="🔍 Rechercher par nom, prénom..." style="flex: 2;">
+                <select id="filterEtablissement">
+                    <option value="">Tous les établissements</option>
+                    <option value="ESATIC">ESATIC</option>
+                    <option value="EMSP">EMSP</option>
+                </select>
+                <select id="filterEquipe">
+                    <option value="">Toutes les équipes</option>
+                    <option value="assigne">Assignés</option>
+                    <option value="libre">Non assignés</option>
+                </select>
+                <select id="filterSexe">
+                    <option value="">Tous les genres</option>
+                    <option value="M">Frères</option>
+                    <option value="F">Sœurs</option>
+                </select>
+            </div>
+
+            <!-- Table des participants -->
+            <div class="table-container">
+                <table id="participantsTable">
+                    <thead>
+                        <tr>
+                            <th>Photo</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Genre</th>
+                            <th>Établissement</th>
+                            <th>Téléphone</th>
+                            <th>Email</th>
+                            <th>Équipe</th>
+                            <th>Rôle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="participantsTableBody">
+                        <tr>
+                            <td colspan="10" style="text-align: center; padding: 3rem; color: #718096;">
+                                Chargement des participants...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Import CSV -->
+    <div id="csvImportModal" class="modal">
+        <div class="modal-content">
+            <h3>📥 Importer des participants depuis CSV</h3>
+            <p style="color: #718096; margin-bottom: 1rem;">
+                Le fichier CSV doit contenir les colonnes : nom, prenom, sexe, etablissement, telephone, email, niveau_coranique, memorisation_sourate
+            </p>
+            <input type="file" id="csvFileInput" accept=".csv">
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn-secondary" onclick="closeCsvModal()">Annuler</button>
+                <button class="btn-primary" id="uploadCsvBtn">Importer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/admin/participants.js"></script>
+</body>
+</html>

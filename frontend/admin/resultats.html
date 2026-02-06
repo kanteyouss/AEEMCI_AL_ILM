@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats et Classement - AL ILM 2026</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .result-card h3 {
+            margin: 0 0 1rem 0;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-card .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .status.complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status.incomplete {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .status.published {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .actions-grid {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .btn-publish {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-publish:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-publish:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .btn-export:hover {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-preview {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-preview:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .verification-list {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .verification-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            color: #4b5563;
+        }
+
+        .verification-item.ok::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .verification-item.error::before {
+            content: "✗";
+            color: #ef4444;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .classement-preview {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .classement-preview table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .classement-preview th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .classement-preview td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .classement-preview tr:hover {
+            background: #f9fafb;
+        }
+
+        .medal {
+            font-size: 1.5rem;
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            transition: width 0.3s ease;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-box .value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-box .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            background: #10b981;
+        }
+
+        .notification.error {
+            background: #ef4444;
+        }
+
+        .notification.info {
+            background: #3b82f6;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <header class="header-admin">
+        <div class="container">
+            <h1>🏆 AL ILM 2026 - Résultats et Classement</h1>
+            <div class="user-info">
+                <span id="userName"></span>
+                <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    Vue d'ensemble
+                </a>
+                <a href="participants.html" class="nav-item">
+                    Participants
+                </a>
+                <a href="equipes.html" class="nav-item">
+                    Former les Équipes
+                </a>
+                <a href="dashboard.html#manches" class="nav-item">
+                    Manches
+                </a>
+                <a href="questions.html" class="nav-item">
+                    Banque de Questions
+                </a>
+                <a href="jeu.html" class="nav-item">
+                    🎮 Jeu en Direct
+                </a>
+                <a href="notation.html" class="nav-item">
+                    📝 Notation
+                </a>
+                <a href="resultats.html" class="nav-item active">
+                    🏆 Résultats et Classement
+                </a>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <!-- Indicateur de progression masqué (ancien système) -->
+            <div class="progress-indicator" style="display: none;">
+                <div style="min-width: 200px;">
+                    <strong>Complétude globale</strong>
+                    <p style="margin: 0; color: #6b7280; font-size: 0.9rem;" id="progressText">0/0 équipes notées</p>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <strong id="progressPercent">0%</strong>
+            </div>
+
+            <!-- Statistiques globales -->
+            <div id="etapesContainer">
+                <!-- Rempli dynamiquement par JavaScript -->
+            </div>
+
+            <!-- Section Configuration Page Publique -->
+            <section style="margin-bottom: 2rem;">
+                <h2 style="margin-bottom: 1.5rem;">⚙️ Configuration Affichage Public</h2>
+                <div class="result-card">
+                    <h3>
+                        <span>👁️</span>
+                        Paramètres de la page publique
+                    </h3>
+                    <p style="color: #6b7280; margin-bottom: 1.5rem;">
+                        Contrôlez ce qui s'affiche sur <a href="/public/classement.html" target="_blank" style="color: var(--primary-color);">la page classement public</a>
+                    </p>
+                    
+                    <div style="display: grid; gap: 1rem; background: #f9fafb; padding: 1.5rem; border-radius: 8px;">
+                        <!-- Phases affichées -->
+                        <div style="margin: 1rem 0; padding-top: 1rem; border-top: 1px solid #e0e6ed;">
+                            <strong style="display: block; margin-bottom: 0.5rem; color: #1e40af;">Onglets de Phases affichés :</strong>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="configAfficherPhasePreliminaire" class="config-checkbox" style="width: 18px; height: 18px;">
+                                    <span>Phase Préliminaire</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="configAfficherPhaseQuart" class="config-checkbox" style="width: 18px; height: 18px;">
+                                    <span>Quart de Finale</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="configAfficherPhaseDemi" class="config-checkbox" style="width: 18px; height: 18px;">
+                                    <span>Demi-Finale</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="configAfficherPhaseFinale" class="config-checkbox" style="width: 18px; height: 18px;">
+                                    <span>Finale</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Afficher le podium -->
+                        <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer;">
+                            <input type="checkbox" id="configAfficherPodium" class="config-checkbox" 
+                                   style="width: 20px; height: 20px; cursor: pointer;">
+                            <div style="flex: 1;">
+                                <strong>Afficher le podium (Top 3)</strong>
+                                <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.9rem;">
+                                    Section avec médailles d'or, argent et bronze
+                                </p>
+                            </div>
+                        </label>
+
+                        <!-- Afficher les statistiques -->
+                        <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer;">
+                            <input type="checkbox" id="configAfficherStatistiques" class="config-checkbox"
+                                   style="width: 20px; height: 20px; cursor: pointer;">
+                            <div style="flex: 1;">
+                                <strong>Afficher les statistiques générales</strong>
+                                <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.9rem;">
+                                    Nombre d'équipes, manches jouées, etc.
+                                </p>
+                            </div>
+                        </label>
+
+                        <!-- Afficher les filtres -->
+                        <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer;">
+                            <input type="checkbox" id="configAfficherFiltres" class="config-checkbox"
+                                   style="width: 20px; height: 20px; cursor: pointer;">
+                            <div style="flex: 1;">
+                                <strong>Afficher les filtres</strong>
+                                <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.9rem;">
+                                    Filtres par manche et rubrique
+                                </p>
+                            </div>
+                        </label>
+
+                        <!-- Classement complet ou limité -->
+                        <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer;">
+                            <input type="checkbox" id="configAfficherClassementComplet" class="config-checkbox"
+                                   style="width: 20px; height: 20px; cursor: pointer;">
+                            <div style="flex: 1;">
+                                <strong>Afficher toutes les équipes</strong>
+                                <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.9rem;">
+                                    Décoché = affiche seulement le top 10
+                                </p>
+                            </div>
+                        </label>
+
+                        <!-- Messages personnalisés par phase -->
+                        <div style="margin-top: 1rem; border-top: 1px solid #e0e6ed; padding-top: 1rem;">
+                            <h4 style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--primary-color);">Messages spécifiques par phase</h4>
+                            <p style="margin: 0 0 1rem 0; color: #6b7280; font-size: 0.85rem;">
+                                Ces messages s'afficheront en haut de la page publique pour chaque onglet spécifique
+                            </p>
+                            
+                            <div style="display: grid; gap: 1rem;">
+                                <!-- Phase Préliminaire -->
+                                <div style="display: grid; gap: 0.5rem;">
+                                    <label style="font-weight: 600; font-size: 0.9rem;">Phase Préliminaire</label>
+                                    <textarea id="configMessagePreliminaire" 
+                                            placeholder="Message pour la phase préliminaire..."
+                                            style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+                                </div>
+
+                                <!-- Quart de Finale -->
+                                <div style="display: grid; gap: 0.5rem;">
+                                    <label style="font-weight: 600; font-size: 0.9rem;">Quart de Finale</label>
+                                    <textarea id="configMessageQuart" 
+                                            placeholder="Message pour les quarts de finale..."
+                                            style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+                                </div>
+
+                                <!-- Demi-Finale -->
+                                <div style="display: grid; gap: 0.5rem;">
+                                    <label style="font-weight: 600; font-size: 0.9rem;">Demi-Finale</label>
+                                    <textarea id="configMessageDemi" 
+                                            placeholder="Message pour les demi-finales..."
+                                            style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+                                </div>
+
+                                <!-- Finale -->
+                                <div style="display: grid; gap: 0.5rem;">
+                                    <label style="font-weight: 600; font-size: 0.9rem;">Grande Finale</label>
+                                    <textarea id="configMessageFinale" 
+                                            placeholder="Message pour la finale..."
+                                            style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="actions-grid" style="margin-top: 1.5rem;">
+                        <button class="btn-publish" onclick="sauvegarderConfiguration()">
+                            💾 Sauvegarder la configuration
+                        </button>
+                        <button class="btn-publish btn-preview" onclick="window.open('/public/classement.html', '_blank')">
+                            🌐 Ouvrir la page publique
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Prévisualisation Classement -->
+            <div id="classementPreview" class="classement-preview" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Rang</th>
+                            <th>Équipe</th>
+                            <th style="text-align: center;">Manches</th>
+                            <th style="text-align: center;">Score Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="classementPreviewBody">
+                        <!-- Rempli dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de confirmation -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="margin-top: 0; color: var(--primary-color);"></h3>
+            <p id="modalMessage" style="color: #4b5563; line-height: 1.6;"></p>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+                <button class="btn-primary" id="modalConfirm">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js?v=6"></script>
+    <script src="/js/admin/resultats.js?v=7"></script>
+</body>
+</html>

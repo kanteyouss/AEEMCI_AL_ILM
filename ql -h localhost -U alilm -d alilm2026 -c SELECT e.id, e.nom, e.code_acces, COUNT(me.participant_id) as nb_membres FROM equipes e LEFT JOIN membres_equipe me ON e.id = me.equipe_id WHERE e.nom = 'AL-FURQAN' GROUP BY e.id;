@@ -1,0 +1,13 @@
+ id |          nom           |       type        | points  |  temps  |                                          description                                          
+----+------------------------+-------------------+---------+---------+-----------------------------------------------------------------------------------------------
+  1 | Adhan                  | recitation        | 10 pts  | 180 sec | Récitation de l'Adhan avec Tajwid. 1 participant par équipe. 3 min max pour l'exécution.
+  2 | Coran ouvert           | recitation        | 15 pts  | N/A     | Lecture d'une partie imposée (Juz Amma). Voix: 5 pts, Prononciation: 10 pts.
+  3 | Coran fermé            | recitation        | 15 pts  | N/A     | Lecture sans consultation (Sabi). Voix: 5 pts, Prononciation: 10 pts.
+  4 | Questions sur le Coran | questions_ecrites | 10 pts  | 15 sec  | 2 questions. 5 pts par bonne réponse. 15 sec par question.
+  5 | Vie du Prophète        | questions_ecrites | 30 pts  | 15 sec  | 2 questions sur le Prophète (ﷺ) et Compagnons. 15 pts par bonne réponse. 15 sec par question.
+  6 | Jurisprudence          | questions_ecrites | 50 pts  | 15 sec  | 2 questions. 25 pts par bonne réponse. 15 sec par question.
+  7 | Culture générale       | questions_ecrites | 100 pts | 15 sec  | 4 questions. 25 pts par bonne réponse. 15 sec par question.
+  8 | Hadith                 | hadith            | 20 pts  | 20 sec  | 1 question. 20 pts par bonne réponse. 20 sec par question.
+  9 | Questions relais       | relais            | 10 pts  | 15 sec  | Série de 2 questions rapides en relais. 5 pts par bonne réponse. 15 sec par question.
+(9 rows)
+

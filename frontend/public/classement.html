@@ -39,6 +39,18 @@
             </div>
         </section>
 
+        <!-- Navigation des Phases -->
+        <div class="phases-nav-container">
+            <div class="container">
+                <nav class="phases-nav" id="phasesNav">
+                    <button class="phase-tab active" data-phase="preliminaire">Phase Préliminaire</button>
+                    <button class="phase-tab" data-phase="quart">Quart de Finale</button>
+                    <button class="phase-tab" data-phase="demi">Demi-Finale</button>
+                    <button class="phase-tab" data-phase="finale">Finale</button>
+                </nav>
+            </div>
+        </div>
+
         <!-- Filtres -->
         <section class="filters-section">
             <div class="container">
@@ -191,41 +203,19 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </section>
 
-        <!-- Graphiques de Performance -->
-        <section class="charts-section">
-            <div class="container">
-                <h2 class="section-title">📈 Graphiques de Performance</h2>
-                
-                <div class="charts-grid">
-                    <!-- Graphique 1 : Évolution des scores -->
-                    <div class="chart-card">
-                        <h3 class="chart-title">📊 Évolution du Top 5</h3>
-                        <div id="evolutionChart" class="chart-placeholder">
-                            <canvas id="evolutionCanvas"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Graphique 2 : Répartition par rubrique -->
-                    <div class="chart-card">
-                        <h3 class="chart-title">🎯 Performance par Rubrique</h3>
-                        <div id="rubriqueChart" class="chart-placeholder">
-                            <canvas id="rubriqueCanvas"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Graphique 3 : Comparaison équipes -->
-                    <div class="chart-card full-width">
-                        <h3 class="chart-title">⚖️ Comparaison des Équipes</h3>
-                        <div id="compareChart" class="chart-placeholder">
-                            <canvas id="compareCanvas"></canvas>
-                        </div>
-                    </div>
+                <!-- Note de bas de page (Masquée par défaut) -->
+                <div id="noteBasPage" style="display: none; margin-top: 1.5rem; padding: 1rem; border-radius: 8px; background-color: #fffbeb; border-left: 4px solid #d97706; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    <p style="margin: 0; font-family: system-ui, -apple-system, sans-serif;">
+                        <span style="font-weight: 800; color: #b45309; text-transform: uppercase; margin-right: 0.5rem; letter-spacing: 0.05em;">NB :</span>
+                        <span id="noteBasPageContent" style="font-weight: 700; color: #92400e; font-size: 1rem;"></span>
+                    </p>
                 </div>
+
             </div>
         </section>
+
+        <!-- Graphiques de Performance (Supprimé) -->
 
         <!-- Statistiques Globales -->
         <section class="stats-section">
@@ -264,7 +254,7 @@
         </div>
     </footer>
 
-    <script src="/js/api.js"></script>
-    <script src="/js/public/classement.js"></script>
+    <script src="/js/api.js?v=6"></script>
+    <script src="/js/public/classement.js?v=7"></script>
 </body>
 </html>
