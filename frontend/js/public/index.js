@@ -222,20 +222,47 @@ function initCountdown() {
             // Message de bienvenue
             countdownEl.innerHTML = '<div style="font-size: 3rem; font-weight: bold; text-shadow: 0 4px 6px rgba(0,0,0,0.3);">🌙 Ramadan Mubarak ! 🕌</div>';
             
-            // Ajuster le style pour enlever la grille (grid) et centrer le message
-            countdownEl.style.display = 'flex';
-            countdownEl.style.justifyContent = 'center';
-            countdownEl.style.alignItems = 'center';
-            countdownEl.style.maxWidth = '100%';
-
-            // Mettre à jour le titre de la section et cacher la date
+            // Afficher le verset du jour (remplace la date)
             const section = document.querySelector('.countdown-section');
             if (section) {
                 const title = section.querySelector('h2');
                 const dateText = section.querySelector('.countdown-date');
-                
                 if (title) title.textContent = "Le mois sacré est arrivé !";
-                if (dateText) dateText.style.display = 'none';
+                if (dateText) {
+                    // Liste de 20 versets (exemple, peut être étendue)
+                    const ramadanVersets = [
+                        { arabe: "شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ", traduction: "Le mois de Ramadan au cours duquel le Coran a été révélé", reference: "Sourate Al-Baqara (2:185)" },
+                        { arabe: "إِنَّ هَذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ", traduction: "Ce Coran guide vers ce qu'il y a de plus droit", reference: "Sourate Al-Isra (17:9)" },
+                        { arabe: "وَأَقِمِ الصَّلَاةَ إِنَّ الصَّلَاةَ تَنْهَى عَنِ الْفَحْشَاءِ وَالْمُنكَرِ", traduction: "Accomplis la prière, car la prière éloigne de la turpitude et du blâmable", reference: "Sourate Al-Ankabut (29:45)" },
+                        { arabe: "يَا أَيُّهَا الَّذِينَ آمَنُوا كُتِبَ عَلَيْكُمُ الصِّيَامُ", traduction: "Ô vous qui avez cru! Le jeûne vous a été prescrit", reference: "Sourate Al-Baqara (2:183)" },
+                        { arabe: "وَذَكِّرْ فَإِنَّ الذِّكْرَى تَنْفَعُ الْمُؤْمِنِينَ", traduction: "Rappelle, car le rappel profite aux croyants", reference: "Sourate Adh-Dhariyat (51:55)" },
+                        { arabe: "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", traduction: "Allah est avec les endurants", reference: "Sourate Al-Baqara (2:153)" },
+                        { arabe: "وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَى", traduction: "Aidez-vous dans la bonté et la piété", reference: "Sourate Al-Maida (5:2)" },
+                        { arabe: "إِنَّ اللَّهَ يُحِبُّ الْمُحْسِنِينَ", traduction: "Allah aime les bienfaisants", reference: "Sourate Al-Baqara (2:195)" },
+                        { arabe: "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ", traduction: "Quand Mes serviteurs t'interrogent à Mon sujet... Je suis tout proche", reference: "Sourate Al-Baqara (2:186)" },
+                        { arabe: "وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا", traduction: "Tenez fermement ensemble à la corde d'Allah", reference: "Sourate Al-Imran (3:103)" },
+                        { arabe: "إِنَّ اللَّهَ غَفُورٌ رَحِيمٌ", traduction: "Allah est Pardonneur et Miséricordieux", reference: "Sourate Al-Baqara (2:199)" },
+                        { arabe: "وَأَنفِقُوا مِمَّا رَزَقْنَاكُم", traduction: "Dépensez de ce que Nous vous avons octroyé", reference: "Sourate Al-Baqara (2:254)" },
+                        { arabe: "إِنَّ اللَّهَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", traduction: "Allah est capable de toute chose", reference: "Sourate Al-Baqara (2:284)" },
+                        { arabe: "وَإِنَّ رَبَّكَ لَذُو فَضْلٍ عَلَى النَّاسِ", traduction: "Ton Seigneur est plein de grâce envers les gens", reference: "Sourate An-Naml (27:73)" },
+                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ الْغَنِيُّ الْحَمِيدُ", traduction: "Allah est le Riche, le Digne de louange", reference: "Sourate Al-Baqara (2:267)" },
+                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ الْقَوِيُّ الْعَزِيزُ", traduction: "Allah est le Fort, le Puissant", reference: "Sourate Al-Baqara (2:220)" },
+                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ الْحَلِيمُ الْغَفُورُ", traduction: "Allah est le Doux, le Pardonneur", reference: "Sourate Al-Baqara (2:225)" },
+                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ الْعَلِيمُ الْحَكِيمُ", traduction: "Allah est le Savant, le Sage", reference: "Sourate Al-Baqara (2:228)" },
+                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ السَّمِيعُ الْبَصِيرُ", traduction: "Allah est l'Audient, le Clairvoyant", reference: "Sourate Al-Baqara (2:233)" },
+                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ الرَّؤُوفُ الرَّحِيمُ", traduction: "Allah est le Compatissant, le Miséricordieux", reference: "Sourate Al-Baqara (2:143)" }
+                    ];
+                    // Verset du jour (change toutes les 10 heures)
+                    const now = new Date();
+                    const dayIndex = Math.floor(now.getTime() / (1000 * 60 * 60 * 10)) % ramadanVersets.length;
+                    const v = ramadanVersets[dayIndex];
+                    dateText.style.display = 'block';
+                    dateText.innerHTML = `<div style="margin-top:1rem; padding:1rem; background:#f3f4f6; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+                        <div style="font-size:1.3rem; color:#2C5F2D; font-weight:700;">${v.arabe}</div>
+                        <div style="font-size:1.1rem; color:#2C3E50; margin-top:0.5rem;">${v.traduction}</div>
+                        <div style="font-size:0.95rem; color:#718096; margin-top:0.5rem;">${v.reference}</div>
+                    </div>`;
+                }
             }
             return;
         }
