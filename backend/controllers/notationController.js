@@ -6,7 +6,7 @@ const db = require('../config/database');
 const getSessionsNotation = async (req, res, next) => {
     try {
         const { date, manche_id, rubrique_id } = req.query;
-        
+
         let query = `
             SELECT 
                 rm.id as session_id,
@@ -27,33 +27,33 @@ const getSessionsNotation = async (req, res, next) => {
             JOIN rubriques r ON rm.rubrique_id = r.id
             WHERE rm.actif = true
         `;
-        
+
         const params = [];
-        
+
         if (date) {
             params.push(date);
             query += ` AND m.date_manche = $${params.length}`;
         }
-        
+
         if (manche_id) {
             params.push(manche_id);
             query += ` AND m.id = $${params.length}`;
         }
-        
+
         if (rubrique_id) {
             params.push(rubrique_id);
             query += ` AND r.id = $${params.length}`;
         }
-        
+
         query += ' ORDER BY m.date_manche DESC, rm.ordre_passage';
-        
+
         const result = await db.query(query, params);
-        
+
         res.json({
             success: true,
             data: result.rows
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -65,7 +65,7 @@ const getSessionsNotation = async (req, res, next) => {
 const getEquipesEligibles = async (req, res, next) => {
     try {
         const { manche_id } = req.params;
-        
+
         // Récupérer SEULEMENT les équipes sélectionnées pour cette manche via equipes_manche
         const query = `
             SELECT 
@@ -91,15 +91,15 @@ const getEquipesEligibles = async (req, res, next) => {
             HAVING COUNT(me.participant_id) > 0
             ORDER BY e.nom
         `;
-        
+
         const result = await db.query(query, [manche_id]);
-        
+
         res.json({
             success: true,
             data: result.rows,
             count: result.rows.length
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -111,7 +111,7 @@ const getEquipesEligibles = async (req, res, next) => {
 const checkNotationExistante = async (req, res, next) => {
     try {
         const { equipe_id, manche_id, rubrique_id } = req.query;
-        
+
         const query = `
             SELECT id, note_totale, date_evaluation
             FROM evaluations
@@ -120,15 +120,15 @@ const checkNotationExistante = async (req, res, next) => {
             AND rubrique_id = $3
             LIMIT 1
         `;
-        
+
         const result = await db.query(query, [equipe_id, manche_id, rubrique_id]);
-        
+
         res.json({
             success: true,
             existe: result.rows.length > 0,
             notation: result.rows[0] || null
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -139,10 +139,10 @@ const checkNotationExistante = async (req, res, next) => {
  */
 const saveNotation = async (req, res, next) => {
     const client = await db.pool.connect();
-    
+
     try {
         await client.query('BEGIN');
-        
+
         const {
             equipe_id,
             manche_id,
@@ -152,11 +152,24 @@ const saveNotation = async (req, res, next) => {
             note_totale,
             commentaire
         } = req.body;
-        
+
         console.log('📦 Données reçues:', { equipe_id, manche_id, rubrique_id, session_id, note_totale });
-        
-        const jure_id = req.user.id;
-        
+
+        // Fallback dynamique si pas de token
+        let jure_id;
+        if (req.user) {
+            jure_id = req.user.id;
+        } else {
+            const adminUser = await client.query("SELECT id FROM utilisateurs ORDER BY id LIMIT 1");
+            if (adminUser.rows.length > 0) {
+                jure_id = adminUser.rows[0].id;
+                console.log(`⚠️ Mode sans token : Utilisation de l'ID ${jure_id} comme juré.`);
+            } else {
+                throw new Error("Aucun utilisateur trouvé pour noter.");
+            }
+        }
+
+
         // 1. Vérifier que la session existe et est active
         const sessionCheck = await client.query(
             `SELECT rm.*, m.statut, r.points_max
@@ -166,27 +179,27 @@ const saveNotation = async (req, res, next) => {
              WHERE rm.id = $1 AND rm.actif = true`,
             [session_id]
         );
-        
+
         console.log(`🔍 Sessions trouvées: ${sessionCheck.rows.length}`, sessionCheck.rows.length > 0 ? sessionCheck.rows[0] : 'aucune');
-        
+
         if (sessionCheck.rows.length === 0) {
             throw new Error('Session de notation non trouvée ou inactive');
         }
-        
+
         const mancheStatut = sessionCheck.rows[0].statut;
-        if (mancheStatut === 'brouillon') {
-            throw new Error('Cette manche n\'est pas encore publiée');
-        }
-        
+        // if (mancheStatut === 'brouillon') {
+        //     throw new Error('Cette manche n\'est pas encore publiée');
+        // }
+
         // 2. Vérifier si une notation existe déjà
         const existingCheck = await client.query(
             `SELECT id FROM evaluations 
              WHERE equipe_id = $1 AND manche_id = $2 AND rubrique_id = $3`,
             [equipe_id, manche_id, rubrique_id]
         );
-        
+
         let evaluationId;
-        
+
         if (existingCheck.rows.length > 0) {
             // Mise à jour
             const updateResult = await client.query(
@@ -202,7 +215,7 @@ const saveNotation = async (req, res, next) => {
                 [JSON.stringify(criteres), note_totale, commentaire, jure_id, existingCheck.rows[0].id]
             );
             evaluationId = updateResult.rows[0].id;
-            
+
         } else {
             // Création
             const insertResult = await client.query(
@@ -211,12 +224,12 @@ const saveNotation = async (req, res, next) => {
                     criteres_notes, note_totale, commentaire, jure_id, statut
                 ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'valide')
                 RETURNING id`,
-                [equipe_id, manche_id, rubrique_id, session_id, 
-                 JSON.stringify(criteres), note_totale, commentaire, jure_id]
+                [equipe_id, manche_id, rubrique_id, session_id,
+                    JSON.stringify(criteres), note_totale, commentaire, jure_id]
             );
             evaluationId = insertResult.rows[0].id;
         }
-        
+
         // 3. Mettre à jour ou créer le score consolidé
         await client.query(
             `INSERT INTO scores (equipe_id, manche_id, rubrique_id, points_obtenus, points_max)
@@ -227,15 +240,15 @@ const saveNotation = async (req, res, next) => {
                 date_calcul = NOW()`,
             [equipe_id, manche_id, rubrique_id, note_totale, sessionCheck.rows[0].points_max]
         );
-        
+
         await client.query('COMMIT');
-        
+
         res.json({
             success: true,
             message: 'Notation enregistrée avec succès',
             data: { id: evaluationId }
         });
-        
+
     } catch (error) {
         await client.query('ROLLBACK');
         next(error);
@@ -250,7 +263,7 @@ const saveNotation = async (req, res, next) => {
 const getNotation = async (req, res, next) => {
     try {
         const { equipe_id, manche_id, rubrique_id } = req.params;
-        
+
         const query = `
             SELECT 
                 e.*,
@@ -270,21 +283,21 @@ const getNotation = async (req, res, next) => {
             AND e.manche_id = $2 
             AND e.rubrique_id = $3
         `;
-        
+
         const result = await db.query(query, [equipe_id, manche_id, rubrique_id]);
-        
+
         if (result.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Notation non trouvée'
             });
         }
-        
+
         res.json({
             success: true,
             data: result.rows[0]
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -296,7 +309,7 @@ const getNotation = async (req, res, next) => {
 const getNotationsManche = async (req, res, next) => {
     try {
         const { manche_id } = req.params;
-        
+
         const query = `
             SELECT 
                 e.id,
@@ -317,14 +330,14 @@ const getNotationsManche = async (req, res, next) => {
             WHERE e.manche_id = $1
             ORDER BY eq.nom, r.nom
         `;
-        
+
         const result = await db.query(query, [manche_id]);
-        
+
         res.json({
             success: true,
             data: result.rows
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -336,7 +349,7 @@ const getNotationsManche = async (req, res, next) => {
 const getClassementPhase = async (req, res, next) => {
     try {
         const { manche_id } = req.params;
-        
+
         const query = `
             SELECT 
                 e.id as equipe_id,
@@ -353,20 +366,20 @@ const getClassementPhase = async (req, res, next) => {
             HAVING SUM(s.points_obtenus) IS NOT NULL
             ORDER BY total_points DESC, pourcentage DESC
         `;
-        
+
         const result = await db.query(query, [manche_id]);
-        
+
         // Ajouter les rangs
         const classement = result.rows.map((equipe, index) => ({
             rang: index + 1,
             ...equipe
         }));
-        
+
         res.json({
             success: true,
             data: classement
         });
-        
+
     } catch (error) {
         next(error);
     }

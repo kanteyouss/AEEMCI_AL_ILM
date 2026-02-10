@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,23 +8,10 @@
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/login.css">
 </head>
+
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="logo">
-                <a href="/" style="text-decoration: none; color: inherit;">
-                    <h1>🕌 AL ILM 2026</h1>
-                </a>
-            </div>
-            <nav class="nav">
-                <a href="/" class="btn-secondary">Accueil</a>
-                <a href="/public/calendrier.html" class="btn-secondary">🌙 Calendrier</a>
-                <a href="/public/classement.html" class="btn-secondary">🏆 Classement</a>
-                <a href="/public/inscription.html" class="btn-primary">S'inscrire</a>
-                <a href="/login.html" class="btn-secondary">Connexion</a>
-            </nav>
-        </div>
-    </header>
+    <div id="navbar-root"></div>
+    <script src="/js/init-navbar.js"></script>
 
     <div class="login-container">
         <div class="login-card">
@@ -41,14 +29,12 @@
             <form id="adminForm" class="login-form active">
                 <div class="form-group">
                     <label for="adminEmail">Email</label>
-                    <input type="email" id="adminEmail" name="email" required 
-                           placeholder="votre.email@example.com">
+                    <input type="email" id="adminEmail" name="email" required placeholder="votre.email@example.com">
                 </div>
 
                 <div class="form-group">
                     <label for="adminPassword">Mot de passe</label>
-                    <input type="password" id="adminPassword" name="password" required
-                           placeholder="••••••••">
+                    <input type="password" id="adminPassword" name="password" required placeholder="••••••••">
                 </div>
 
                 <button type="submit" class="btn-primary btn-full">
@@ -60,8 +46,7 @@
             <form id="equipeForm" class="login-form">
                 <div class="form-group">
                     <label for="codeAcces">Code d'accès de l'équipe</label>
-                    <input type="text" id="codeAcces" name="code_acces" required
-                           placeholder="Ex: FURQAN2026">
+                    <input type="text" id="codeAcces" name="code_acces" required placeholder="Ex: FURQAN2026">
                     <small>Entrez le code d'accès fourni à votre capitaine</small>
                 </div>
 
@@ -78,7 +63,9 @@
         </div>
     </div>
 
+
     <script src="/js/api.js"></script>
     <script src="/js/public/login.js"></script>
 </body>
+
 </html>

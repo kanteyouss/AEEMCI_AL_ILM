@@ -511,8 +511,8 @@ Horodateur,Nom,Prénom,Numéro de téléphone,Établissement,Niveau coranique,Ha
 - Visualiser tous les inscrits
 - Créer les 10 équipes (drag & drop)
 - Attribuer un nom à chaque équipe
-- Désigner le capitaine
-- Valider la composition finale
+- "Désigner le capitaine
+- Valider la composition finale"
 - Générer automatiquement les codes d'accès par équipe
 
 #### Profil équipe

@@ -94,21 +94,21 @@ app.get('/api/migrate-etapes', async (req, res) => {
     try {
         // 1. Ajouter colonne etape
         await client.query(`ALTER TABLE manches ADD COLUMN IF NOT EXISTS etape VARCHAR(50) DEFAULT 'preliminaire'`);
-        
+
         // 2. Mettre à jour les manches existantes selon leur type
         await client.query(`UPDATE manches SET etape = type WHERE type IN ('preliminaire', 'quart', 'demi', 'finale')`);
-        
+
         // 3. Ajouter config etape_publiee
         await client.query(`
             INSERT INTO classement_config (cle, valeur, type, description) 
             VALUES ('etape_publiee', '', 'text', 'Code de l''étape actuellement publiée')
             ON CONFLICT (cle) DO NOTHING
         `);
-        
+
         // 4. Vérifier
         const manchesResult = await client.query(`SELECT id, nom, numero, type, etape FROM manches ORDER BY numero`);
         const configResult = await client.query(`SELECT * FROM classement_config WHERE cle = 'etape_publiee'`);
-        
+
         res.json({
             success: true,
             message: 'Migration réussie !',
@@ -160,7 +160,16 @@ app.use(errorHandler);
 // ============================================
 // DÉMARRAGE DU SERVEUR
 // ============================================
-app.listen(PORT, () => {
+// ============================================
+// DÉMARRAGE DU SERVEUR
+// ============================================
+const server = require('http').createServer(app);
+const io = require('./socket/gameHandler')(server);
+
+// Rendre io accessible dans les routes via req.app.get('io')
+app.set('io', io);
+
+server.listen(PORT, () => {
     console.log('\n🕌 ========================================');
     console.log(`   JEU CONCOURS AL ILM 2026`);
     console.log(`   AEEMCI - Section ESATIC`);

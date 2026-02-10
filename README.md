@@ -134,3 +134,265 @@ http://localhost:3000
 
 🌙 **Ramadan Mubarak** 🌙
 # AEEMCI_AL_ILM
+
+
+
+
+
+Parfait, je comprends maintenant **où le scénario IA est faux** et **quelle est ta vraie logique**.
+Je vais **tout corriger** et te donner **un scénario propre, cohérent et fidèle à ton idée**, sans invention inutile.
+
+---
+
+# ✅ SCÉNARIO CORRIGÉ — LOGIQUE RÉELLE DU SYSTÈME
+
+**Interaction entre `jeu.html` (candidat) et `notation.html` (jury)**
+
+---
+
+## 🎯 PRINCIPE CLÉ (CORRECTION MAJEURE)
+
+❌ **Ancienne logique (fausse)**
+
+> Le jury ou l’animateur génère la question et la montre au candidat.
+
+✅ **Nouvelle logique (la bonne)**
+
+> 👉 **C’est le candidat qui clique sur “Générer la question” dans `jeu.html`.**
+> 👉 La question :
+
+* s’affiche **chez le candidat SANS la réponse**
+* s’affiche **en même temps chez le jury AVEC la réponse**
+* la notation se fait **uniquement dans `notation.html`**
+* **pas de fiche de notation visible dans `jeu.html`**
+
+⚠️ **Important**
+Toutes les rubriques **ne génèrent pas de questions**
+(ex : Adhan, récitation → pas de génération)
+
+---
+
+## 📋 CONTEXTE DU CONCOURS
+
+* **Événement** : Concours AL ILM 2026
+* **Phase** : Quart de finale
+* **Équipes** : AL-FURQAN vs AS-SABIQUN
+* **Pages utilisées** :
+
+  * `jeu.html` → **page du candidat**
+  * `notation.html` → **page du jury**
+
+---
+
+## 🧩 RÔLES CLAIRS
+
+### 🎮 `jeu.html` — CANDIDAT
+
+* Clique sur **Générer la question**
+* Voit la **question uniquement**
+* Donne sa réponse oralement
+* Ne voit **jamais la bonne réponse**
+* Ne note rien
+
+### 📝 `notation.html` — JURY
+
+* Voit la **même question en temps réel**
+* Voit la **bonne réponse**
+* Évalue la réponse du candidat
+* Attribue les points
+* Certaines rubriques → sliders
+* D’autres → boutons Bonne / Mauvaise réponse
+
+---
+
+## 🎬 SCÉNARIO RÉEL — DÉROULEMENT
+
+---
+
+## 🏁 PHASE 1 : PRÉPARATION
+
+### 19h00
+
+* Le jury ouvre `notation.html`
+* Sélection :
+
+  * Manche : Quart de finale
+  * Rubrique : (en attente)
+* Statut : **Aucune question active**
+
+### 19h05
+
+* Les candidats sont installés
+* Chaque équipe a accès à `jeu.html`
+* Bouton **“Générer la question”** désactivé tant que la rubrique n’est pas active
+
+---
+
+## 🎯 PHASE 2 : RUBRIQUE À QUESTIONS
+
+(ex : Culture générale, Fiqh, Coran, Hadith)
+
+---
+
+### 🟢 Étape 1 — Activation de la rubrique
+
+* Le jury choisit la rubrique dans `notation.html`
+* Le système autorise la génération
+
+---
+
+### 🟢 Étape 2 — Génération par le candidat
+
+👉 **Dans `jeu.html` (candidat)**
+Le candidat clique sur :
+
+```
+[ 🎲 Générer la question ]
+```
+
+---
+
+### 🟢 Étape 3 — Synchronisation automatique
+
+🖥️ **jeu.html (candidat)**
+
+```
+Question :
+Quel est le premier calife de l’Islam ?
+⏱️ Temps : 15 secondes
+```
+
+❌ **Aucune réponse affichée**
+
+---
+
+📝 **notation.html (jury)**
+
+```
+Question :
+Quel est le premier calife de l’Islam ?
+
+✔ Réponse correcte :
+Abu Bakr As-Siddiq
+```
+
+⏱️ Timer synchronisé
+
+---
+
+### 🟢 Étape 4 — Réponse du candidat
+
+* Le candidat répond oralement
+* Le jury écoute
+
+---
+
+### 🟢 Étape 5 — Notation par le jury
+
+Dans `notation.html` :
+
+```
+[ ✅ Bonne réponse ]   [ ❌ Mauvaise réponse ]
+```
+
+➡️ Le score est enregistré
+➡️ La progression se met à jour
+➡️ Le candidat ne voit que le résultat final, pas la correction
+
+---
+
+## 🔁 PHASE 3 : RUBRIQUES SANS QUESTIONS
+
+(ex : Adhan, récitation)
+
+### ⚠️ Règle
+
+* ❌ Aucun bouton “Générer la question”
+* ❌ Aucune synchronisation question/réponse
+
+---
+
+### 📝 `notation.html` (jury)
+
+```
+Rubrique : Adhan
+Critères :
+- Voix ( /3 )
+- Prononciation ( /7 )
+```
+
+🎚️ Sliders uniquement
+📝 Commentaire facultatif
+
+---
+
+### 🎮 `jeu.html` (candidat)
+
+* Page passive
+* Aucun bouton actif
+* Attend la fin de la notation
+
+---
+
+## 🧠 LOGIQUE TECHNIQUE (SIMPLIFIÉE)
+
+### 📡 Quand le candidat clique sur “Générer”
+
+```
+jeu.html
+   ↓
+API : /generate-question
+   ↓
+Base de données
+   ↓
+notation.html reçoit :
+- question
+- réponse
+```
+
+---
+
+### 🔒 Sécurité
+
+* `jeu.html` → **jamais la réponse**
+* `notation.html` → **toujours la réponse**
+* Une seule génération par question
+
+---
+
+## 🏁 FIN DE RUBRIQUE
+
+* Quand le nombre de questions est atteint :
+
+  * Bouton désactivé dans `jeu.html`
+  * Rubrique marquée comme **terminée**
+* Passage à la rubrique suivante
+
+---
+
+## 🏆 AVANTAGES DE TA LOGIQUE
+
+✅ Le candidat est **acteur**, pas passif
+✅ Aucun risque de triche
+✅ Jury totalement indépendant
+✅ Synchronisation propre
+✅ Logique claire pour le développement
+✅ UX simple et fluide
+
+---
+
+## 🎯 CONCLUSION CORRIGÉE
+
+> **`jeu.html` ne contrôle rien sauf la génération.**
+> **`notation.html` contrôle l’évaluation.**
+> **La vérité (bonne réponse) n’est visible que par le jury.**
+> **Toutes les rubriques ne génèrent pas des questions.**
+
+Si tu veux, au prochain message je peux :
+
+* transformer ce scénario en **diagramme UML**
+* écrire le **prompt IA parfait** pour générer ce scénario correctement
+* te donner la **logique backend/API exacte**
+* ou écrire les **règles métier formelles**
+
+Dis-moi 👍

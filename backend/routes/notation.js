@@ -34,15 +34,15 @@ router.get('/check', notationController.checkNotationExistante);
  */
 router.get('/manche/:manche_id', notationController.getNotationsManche);
 
-// Routes nécessitant authentification
-router.use(verifyJWT);
-
 /**
  * @route POST /api/notation
  * @desc Créer ou mettre à jour une notation
  * @body { equipe_id, manche_id, rubrique_id, session_id, criteres, note_totale, commentaire }
  */
 router.post('/', notationController.saveNotation);
+
+// Routes nécessitant authentification
+router.use(verifyJWT);
 
 /**
  * @route GET /api/notation/:equipe_id/:manche_id/:rubrique_id

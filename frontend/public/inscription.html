@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,28 +8,15 @@
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/inscription.css">
 </head>
+
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="logo">
-                <a href="/" style="text-decoration: none; color: inherit;">
-                    <h1>🕌 AL ILM 2026</h1>
-                    <p class="tagline">Pour une identité islamique !</p>
-                </a>
-            </div>
-            <nav class="nav">
-                <a href="/" class="btn-secondary">Accueil</a>
-                <a href="/public/calendrier.html" class="btn-secondary">🌙 Calendrier</a>
-                <a href="/public/classement.html" class="btn-secondary">🏆 Classement</a>
-                <a href="/public/inscription.html" class="btn-primary">S'inscrire</a>
-                <a href="/login.html" class="btn-secondary">Connexion</a>
-            </nav>
-        </div>
-    </header>
+    <div id="navbar-root"></div>
+    <script src="/js/init-navbar.js"></script>
 
     <main class="container">
         <div class="inscription-card">
-            <div style="background: var(--primary-color); padding: 2rem; border-radius: 10px; margin-bottom: 2rem; text-align: center;">
+            <div
+                style="background: var(--primary-color); padding: 2rem; border-radius: 10px; margin-bottom: 2rem; text-align: center;">
                 <h2 style="color: white; margin: 0 0 1rem 0;">📝 Inscription au Jeu Concours AL ILM 2026</h2>
                 <p style="color: white; opacity: 0.9; margin: 0; font-size: 1.1rem;">
                     Vous allez être redirigé vers le formulaire Google Forms officiel
@@ -37,17 +25,18 @@
 
             <div style="text-align: center; padding: 2rem;">
                 <p style="font-size: 1.1rem; color: #333; margin-bottom: 2rem;">
-                    Pour vous inscrire au Jeu Concours AL ILM 2026, veuillez remplir le formulaire officiel Google Forms.
+                    Pour vous inscrire au Jeu Concours AL ILM 2026, veuillez remplir le formulaire officiel Google
+                    Forms.
                 </p>
 
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSdWgstxIP64GJvmC8uo2UIhUjHk58TD98FaVpOG36oLa4nKpQ/viewform" 
-                   target="_blank"
-                   class="btn-primary" 
-                   style="display: inline-block; padding: 1.2rem 3rem; font-size: 1.2rem; text-decoration: none; margin-bottom: 2rem;">
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSdWgstxIP64GJvmC8uo2UIhUjHk58TD98FaVpOG36oLa4nKpQ/viewform"
+                    target="_blank" class="btn-primary"
+                    style="display: inline-block; padding: 1.2rem 3rem; font-size: 1.2rem; text-decoration: none; margin-bottom: 2rem;">
                     📋 Accéder au formulaire d'inscription
                 </a>
 
-                <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary-color);">
+                <div
+                    style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary-color);">
                     <h3 style="color: var(--primary-color); margin-top: 0;">ℹ️ Informations importantes</h3>
                     <ul style="text-align: left; color: #333; line-height: 1.8;">
                         <li>Le formulaire s'ouvrira dans un nouvel onglet</li>
@@ -62,7 +51,8 @@
                         ⚠️ Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :
                     </p>
                     <p style="margin: 0.5rem 0 0 0; word-break: break-all; font-size: 0.9rem;">
-                        <code style="background: white; padding: 0.3rem 0.5rem; border-radius: 3px; display: inline-block;">
+                        <code
+                            style="background: white; padding: 0.3rem 0.5rem; border-radius: 3px; display: inline-block;">
                             https://docs.google.com/forms/d/e/1FAIpQLSdWgstxIP64GJvmC8uo2UIhUjHk58TD98FaVpOG36oLa4nKpQ/viewform
                         </code>
                     </p>
@@ -83,6 +73,8 @@
         // }, 3000);
     </script>
 
+
     <script src="/js/public/inscription.js"></script>
 </body>
+
 </html>

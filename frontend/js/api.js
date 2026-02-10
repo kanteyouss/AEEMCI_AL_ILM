@@ -46,16 +46,16 @@ function getUser() {
  */
 async function apiRequest(endpoint, options = {}) {
     const token = getAuthToken();
-    
+
     const headers = {
         'Content-Type': 'application/json',
         ...options.headers
     };
-    
+
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     // Add cache busting for GET requests
     let url = `${API_BASE_URL}${endpoint}`;
     if (!options.method || options.method.toUpperCase() === 'GET') {
@@ -67,15 +67,15 @@ async function apiRequest(endpoint, options = {}) {
         ...options,
         headers
     };
-    
+
     try {
         const response = await fetch(url, config);
         const data = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(data.message || 'Une erreur est survenue');
         }
-        
+
         return data;
     } catch (error) {
         console.error('API Error:', error);
@@ -88,11 +88,11 @@ async function apiRequest(endpoint, options = {}) {
  */
 async function checkAuth() {
     const token = getAuthToken();
-    
+
     if (!token) {
         return false;
     }
-    
+
     try {
         await apiRequest('/auth/verify');
         return true;
@@ -124,7 +124,7 @@ function showError(elementId, message) {
     if (element) {
         element.textContent = message;
         element.classList.add('show');
-        
+
         setTimeout(() => {
             element.classList.remove('show');
         }, 5000);
@@ -139,7 +139,7 @@ function showSuccess(elementId, message) {
     if (element) {
         element.textContent = message;
         element.classList.add('show');
-        
+
         setTimeout(() => {
             element.classList.remove('show');
         }, 5000);
@@ -190,16 +190,16 @@ async function applyGlobalNavConfig() {
     try {
         const response = await fetch(`${API_BASE_URL}/classement-config`);
         if (!response.ok) return;
-        
+
         const result = await response.json();
         const config = result.data;
-        
+
         // Mettre à jour le cache
         localStorage.setItem('navConfig', JSON.stringify(config));
-        
+
         // Appliquer
         applyNavVisibility(config);
-            
+
     } catch (error) {
         console.error('Erreur chargement config navigation:', error);
     }
@@ -212,23 +212,23 @@ function applyNavVisibility(config) {
     // Sélecteurs pour les liens de navigation (basés sur les attributs href standards)
     // On cible spécifiquement les liens dans la barre de navigation (.nav)
     const navLinks = {
-        calendrier: document.querySelector('.nav a[href*="calendrier.html"]'),
-        classement: document.querySelector('.nav a[href*="classement.html"]'),
-        inscription: document.querySelector('.nav a[href*="inscription.html"]'),
-        connexion: document.querySelector('.nav a[href*="login.html"]')
+        calendrier: document.querySelector('#alilm-nav a[href*="calendrier.html"]'),
+        classement: document.querySelector('#alilm-nav a[href*="classement.html"]'),
+        inscription: document.querySelector('#alilm-nav a[href*="inscription.html"]'),
+        connexion: document.querySelector('#alilm-nav a[href*="login.html"]')
     };
-    
+
     // Appliquer la visibilité
-    if (navLinks.calendrier) 
+    if (navLinks.calendrier)
         navLinks.calendrier.style.display = (config.afficher_nav_calendrier !== false) ? '' : 'none';
-    
-    if (navLinks.classement) 
+
+    if (navLinks.classement)
         navLinks.classement.style.display = (config.afficher_nav_classement !== false) ? '' : 'none';
-    
-    if (navLinks.inscription) 
+
+    if (navLinks.inscription)
         navLinks.inscription.style.display = (config.afficher_nav_inscription !== false) ? '' : 'none';
-        
-    if (navLinks.connexion) 
+
+    if (navLinks.connexion)
         navLinks.connexion.style.display = (config.afficher_nav_connexion !== false) ? '' : 'none';
 }
 
