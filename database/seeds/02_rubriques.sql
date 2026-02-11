@@ -30,14 +30,6 @@ INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, c
     '{"voix": 5, "prononciation": 10}'::jsonb
 ),
 (
-    'Questions sur le Coran',
-    'questions_ecrites',
-    10,
-    15,
-    '2 questions. 5 pts par bonne réponse. 15 sec par question.',
-    '{"exactitude": 10}'::jsonb
-),
-(
     'Vie du Prophète',
     'questions_ecrites',
     30,
@@ -89,13 +81,12 @@ BEGIN
     RAISE NOTICE '   1️⃣  Adhan (10 pts - 3 min)';
     RAISE NOTICE '   2️⃣  Coran ouvert (15 pts - N/A)';
     RAISE NOTICE '   3️⃣  Coran fermé (15 pts - N/A)';
-    RAISE NOTICE '   4️⃣  Questions sur le Coran (10 pts - 2x 15 sec)';
-    RAISE NOTICE '   5️⃣  Vie du Prophète (30 pts - 2x 15 sec)';
-    RAISE NOTICE '   6️⃣  Jurisprudence (50 pts - 2x 15 sec)';
-    RAISE NOTICE '   7️⃣  Culture générale (100 pts - 4x 15 sec)';
-    RAISE NOTICE '   8️⃣  Hadith (20 pts - 1x 20 sec)';
-    RAISE NOTICE '   9️⃣  Questions relais (40 pts max - 4 participants - 10 pts/question - arrêt si erreur)';
+    RAISE NOTICE '   4️⃣  Vie du Prophète (30 pts - 2x 15 sec)';
+    RAISE NOTICE '   5️⃣  Jurisprudence (50 pts - 2x 15 sec)';
+    RAISE NOTICE '   6️⃣  Culture générale (100 pts - 4x 15 sec)';
+    RAISE NOTICE '   7️⃣  Hadith (20 pts - 1x 20 sec)';
+    RAISE NOTICE '   8️⃣  Questions relais (40 pts max - 4 participants - 10 pts/question - arrêt si erreur)';
     RAISE NOTICE '';
     RAISE NOTICE '💯 Total maximum possible : 280 points par manche';
-    RAISE NOTICE '   (10 + 15 + 15 + 10 + 30 + 50 + 100 + 20 + 40 = 280)';
+    RAISE NOTICE '   (10 + 15 + 15 + 30 + 50 + 100 + 20 + 40 = 280)';
 END $$;

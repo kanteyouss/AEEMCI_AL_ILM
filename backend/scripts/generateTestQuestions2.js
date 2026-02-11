@@ -8,25 +8,14 @@ const { Client } = require('pg');
 const questionsData = [
     // Adhan (1 question)
     { rubrique: 'Adhan', question: 'Récitez l\'Adhan complet', reponse_correcte: 'Allahu Akbar...', points: 10, difficulte: 'moyen' },
-    
+
     // Coran ouvert (1 question)
     { rubrique: 'Coran ouvert', question: 'Récitez Sourate Al-Fatiha', reponse_correcte: 'Bismillah...', points: 15, difficulte: 'facile' },
-    
+
     // Coran fermé (1 question)  
     { rubrique: 'Coran fermé', question: 'Récitez Sourate Al-Ikhlas', reponse_correcte: 'Qul huwa Allahu ahad...', points: 15, difficulte: 'moyen' },
-    
-    // Questions sur le Coran (10 questions)
-    { rubrique: 'Questions sur le Coran', question: 'Combien de sourates compte le Coran ?', reponse_correcte: '114 sourates', points: 5, difficulte: 'facile' },
-    { rubrique: 'Questions sur le Coran', question: 'Quelle est la plus longue sourate du Coran ?', reponse_correcte: 'Sourate Al-Baqara', points: 5, difficulte: 'facile' },
-    { rubrique: 'Questions sur le Coran', question: 'Quelle sourate ne commence pas par Bismillah ?', reponse_correcte: 'Sourate At-Tawba', points: 5, difficulte: 'moyen' },
-    { rubrique: 'Questions sur le Coran', question: 'Quel est le premier verset révélé du Coran ?', reponse_correcte: 'Iqra (Sourate Al-Alaq)', points: 5, difficulte: 'moyen' },
-    { rubrique: 'Questions sur le Coran', question: 'Combien de fois le mot "Allah" apparaît-il dans le Coran ?', reponse_correcte: '2699 fois', points: 5, difficulte: 'difficile' },
-    { rubrique: 'Questions sur le Coran', question: 'Quelle sourate est appelée "le cœur du Coran" ?', reponse_correcte: 'Sourate Yasin', points: 5, difficulte: 'moyen' },
-    { rubrique: 'Questions sur le Coran', question: 'En combien d\'années le Coran a-t-il été révélé ?', reponse_correcte: '23 ans', points: 5, difficulte: 'facile' },
-    { rubrique: 'Questions sur le Coran', question: 'Quelle sourate protège contre le mauvais œil ?', reponse_correcte: 'Sourate Al-Falaq et An-Nas', points: 5, difficulte: 'facile' },
-    { rubrique: 'Questions sur le Coran', question: 'Combien de Juz compte le Coran ?', reponse_correcte: '30 Juz', points: 5, difficulte: 'facile' },
-    { rubrique: 'Questions sur le Coran', question: 'Quelle est la plus courte sourate ?', reponse_correcte: 'Sourate Al-Kawthar', points: 5, difficulte: 'facile' },
-    
+
+
     // Vie du Prophète (10 questions)
     { rubrique: 'Vie du Prophète', question: 'En quelle année est né le Prophète Muhammad (PSL) ?', reponse_correcte: '570 après J.C. (Année de l\'Éléphant)', points: 15, difficulte: 'moyen' },
     { rubrique: 'Vie du Prophète', question: 'Comment s\'appelait la mère du Prophète ?', reponse_correcte: 'Amina bint Wahb', points: 15, difficulte: 'facile' },
@@ -38,7 +27,7 @@ const questionsData = [
     { rubrique: 'Vie du Prophète', question: 'Qui était le premier homme à embrasser l\'Islam ?', reponse_correcte: 'Abu Bakr As-Siddiq', points: 15, difficulte: 'facile' },
     { rubrique: 'Vie du Prophète', question: 'Dans quelle grotte le Prophète recevait-il la révélation ?', reponse_correcte: 'Grotte de Hira', points: 15, difficulte: 'facile' },
     { rubrique: 'Vie du Prophète', question: 'Quelle bataille est appelée "la bataille décisive" ?', reponse_correcte: 'Bataille de Badr', points: 15, difficulte: 'moyen' },
-    
+
     // Jurisprudence (10 questions)
     { rubrique: 'Jurisprudence', question: 'Combien de prières obligatoires par jour ?', reponse_correcte: '5 prières', points: 25, difficulte: 'facile' },
     { rubrique: 'Jurisprudence', question: 'Quel est le premier pilier de l\'Islam ?', reponse_correcte: 'La Shahada (attestation de foi)', points: 25, difficulte: 'facile' },
@@ -50,7 +39,7 @@ const questionsData = [
     { rubrique: 'Jurisprudence', question: 'Quel est le mois du pèlerinage (Hajj) ?', reponse_correcte: 'Dhul Hijja', points: 25, difficulte: 'moyen' },
     { rubrique: 'Jurisprudence', question: 'Combien de Rakaates compte la prière du Dhuhr ?', reponse_correcte: '4 Rakaates', points: 25, difficulte: 'facile' },
     { rubrique: 'Jurisprudence', question: 'Quelle prière n\'a pas de Sunna avant ?', reponse_correcte: 'Prière du Asr', points: 25, difficulte: 'moyen' },
-    
+
     // Culture générale (20 questions)
     { rubrique: 'Culture générale', question: 'Combien de prophètes sont mentionnés dans le Coran ?', reponse_correcte: '25 prophètes', points: 25, difficulte: 'moyen' },
     { rubrique: 'Culture générale', question: 'Quelle est la ville sainte de l\'Islam ?', reponse_correcte: 'La Mecque', points: 25, difficulte: 'facile' },
@@ -72,7 +61,7 @@ const questionsData = [
     { rubrique: 'Culture générale', question: 'Combien de califes bien guidés (Rashidun) y a-t-il eu ?', reponse_correcte: '4 califes', points: 25, difficulte: 'moyen' },
     { rubrique: 'Culture générale', question: 'Quelle est la langue originale du Coran ?', reponse_correcte: 'L\'arabe', points: 25, difficulte: 'facile' },
     { rubrique: 'Culture générale', question: 'Quel mois suit le Ramadan ?', reponse_correcte: 'Shawwal', points: 25, difficulte: 'moyen' },
-    
+
     // Hadith (10 questions)
     { rubrique: 'Hadith', question: 'Complétez: "Les actes ne valent que par..."', reponse_correcte: 'les intentions', points: 20, difficulte: 'facile' },
     { rubrique: 'Hadith', question: 'Qui est le compilateur du Sahih Al-Bukhari ?', reponse_correcte: 'Imam Al-Bukhari', points: 20, difficulte: 'moyen' },
@@ -111,7 +100,7 @@ async function generateQuestions() {
 
         for (const q of questionsData) {
             const rubriqueId = rubriquesMap.get(q.rubrique);
-            
+
             if (!rubriqueId) {
                 console.log(`⚠️  Rubrique "${q.rubrique}" non trouvée, question ignorée`);
                 skippedCount++;

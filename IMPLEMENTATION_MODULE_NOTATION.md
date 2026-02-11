@@ -59,7 +59,6 @@ Le système respecte le barème défini dans `BAREME_POINTS_AUTO.md`:
 | Adhan | 10 | Critères (Voix 3 + Prononciation 7) |
 | Coran ouvert | 15 | Critères (Voix 5 + Prononciation 10) |
 | Coran fermé | 15 | Critères (Voix 5 + Prononciation 10) |
-| Questions sur le Coran | 5/question | Score direct |
 | Vie du Prophète | 15/question | Score direct |
 | Jurisprudence | 25/question | Score direct |
 | Culture générale | 25/question | Score direct |
@@ -95,9 +94,9 @@ Endpoint `/api/notation/classement/:manche_id` retourne:
       "rang": 1,
       "equipe_nom": "AL-FURQAN",
       "total_points": 185,
-      "total_possible": 250,
-      "pourcentage": 74.00,
-      "nb_rubriques_notees": 9
+      "total_possible": 240,
+      "pourcentage": 77.08,
+      "nb_rubriques_notees": 8
     }
   ]
 }

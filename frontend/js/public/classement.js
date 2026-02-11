@@ -52,18 +52,18 @@ const etapesNoms = {
     'finale': 'Finale'
 };
 
-let currentPhase = 'preliminaire'; // Default phase
+let currentPhase = 'finale'; //Priorité à la Phase Finale par défaut
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadDisplayConfig(); // Charger la config d'abord
-    
-    // Initialiser la phase courante basée sur la config ou par défaut
+
+    // Initialiser la phase courante basée sur la config (si définie) ou rester sur 'finale'
     if (displayConfig.etape_publiee) {
         currentPhase = displayConfig.etape_publiee;
     }
     updateActiveTab(currentPhase);
     initPhaseTabs();
-    
+
     await initClassement();
     initFilters();
     initPodiumCarousel();
@@ -77,17 +77,17 @@ async function loadDisplayConfig() {
     try {
         const response = await fetch('/api/classement-config');
         if (!response.ok) throw new Error('Erreur chargement config');
-        
+
         const result = await response.json();
         displayConfig = { ...displayConfig, ...result.data };
-        
+
         // Mettre à jour la phase courante immédiatement si définie dans la config
         if (displayConfig.etape_publiee) {
             currentPhase = displayConfig.etape_publiee;
         }
 
         console.log('✅ Configuration chargée:', displayConfig);
-        
+
         // Appliquer la configuration
         applyDisplayConfig();
     } catch (error) {
@@ -100,24 +100,26 @@ async function loadDisplayConfig() {
  * Appliquer la configuration d'affichage
  */
 function applyDisplayConfig() {
-    // Masquer/Afficher le podium
+    // Masquer/Afficher le podium (Uniquement pour la Grande Finale)
     const podiumSection = document.querySelector('.podium-section');
     if (podiumSection) {
-        podiumSection.style.display = displayConfig.afficher_podium ? 'block' : 'none';
+        const isFinale = currentPhase === 'finale';
+        podiumSection.style.display = (displayConfig.afficher_podium && isFinale) ? 'block' : 'none';
+        console.log(`🏆 Podium visibility: ${isFinale ? 'VISIBLE (Finale)' : 'HIDDEN (Hors-Finale)'}`);
     }
-    
+
     // Masquer/Afficher les filtres
     const filtersSection = document.querySelector('.filters-section');
     if (filtersSection) {
         filtersSection.style.display = displayConfig.afficher_filtres ? 'block' : 'none';
     }
-    
+
     // Masquer/Afficher les statistiques
     const statsSection = document.querySelector('.stats-section');
     if (statsSection) {
         statsSection.style.display = displayConfig.afficher_statistiques ? 'block' : 'none';
     }
-    
+
     // Afficher le message personnalisé si présent
     updateCustomMessage(currentPhase);
 
@@ -137,12 +139,12 @@ function applyDisplayConfig() {
     if (displayConfig.etape_publiee) {
         const titleElement = document.querySelector('.hero-classement h1');
         const subtitleElement = document.querySelector('.hero-classement .subtitle');
-        
+
         if (titleElement) {
             const etapeNom = etapesNoms[displayConfig.etape_publiee] || 'Compétition';
             titleElement.textContent = `🏆 Classement - ${etapeNom}`;
         }
-        
+
         if (subtitleElement) {
             subtitleElement.textContent = 'Résultats officiels en temps réel';
         }
@@ -157,8 +159,7 @@ async function initClassement() {
         await Promise.all([
             loadManches(), // Charger les manches pour le carrousel
             loadClassement(),
-            loadFiltersData(),
-            loadStats()
+            loadFiltersData()
         ]);
         updateLastRefreshTime();
     } catch (error) {
@@ -188,19 +189,25 @@ function initPhaseTabs() {
 async function switchPhase(phase) {
     currentPhase = phase;
     updateActiveTab(phase);
-    
+
     // Mettre à jour la config d'affichage locale pour refléter le changement
     displayConfig.etape_publiee = phase;
-    
+
     // Recharger les données
     showLoader();
-    await loadClassement();
-    
+    await Promise.all([
+        loadManches(),
+        loadClassement()
+    ]);
+
     // Mettre à jour le titre
     updateEtapeTitle(phase);
-    
+
     // Mettre à jour le message personnalisé
     updateCustomMessage(phase);
+
+    // Rafraîchir l'affichage global (Podium, Filtres, etc.)
+    applyDisplayConfig();
 }
 
 /**
@@ -208,23 +215,23 @@ async function switchPhase(phase) {
  */
 function updateCustomMessage(phase) {
     const heroSection = document.querySelector('.hero-classement .container');
-    
+
     // Nettoyer les messages existants pour réaffichage ordonné
     const existingCustomMsg = document.querySelector('.custom-message');
     if (existingCustomMsg) existingCustomMsg.remove();
-    
+
     const existingPhaseMsg = document.querySelector('.phase-message');
     if (existingPhaseMsg) existingPhaseMsg.remove();
 
     // Masquer l'ancienne zone de notification en bas de page pour éviter les doublons
     const noteBasPage = document.getElementById('noteBasPage');
     if (noteBasPage) noteBasPage.style.display = 'none';
-    
+
     if (!heroSection) return;
 
     // --- 1. Message Général (.custom-message) ---
     const generalMessage = displayConfig.message_personnalise;
-    
+
     if (generalMessage && generalMessage.trim() !== '') {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'custom-message';
@@ -248,7 +255,7 @@ function updateCustomMessage(phase) {
     if (phase) {
         specificMessage = displayConfig[`message_${phase}`];
     }
-    
+
     if (specificMessage && specificMessage.trim() !== '') {
         const phaseDiv = document.createElement('div');
         phaseDiv.className = 'phase-message';
@@ -267,11 +274,11 @@ function updateCustomMessage(phase) {
             justify-content: center;
             gap: 0.5rem;
         `;
-        
+
         // On ajoute le nom de la phase pour un contexte clair
         const phaseName = etapesNoms[phase] || phase;
         phaseDiv.innerHTML = `<strong>${phaseName} :</strong> ${specificMessage}`;
-        
+
         heroSection.appendChild(phaseDiv);
     }
 }
@@ -300,7 +307,7 @@ function showLoader() {
 async function loadClassement() {
     try {
         let url = null;
-        
+
         // Use currentPhase instead of displayConfig directly to allow overriding
         const phaseToLoad = currentPhase || displayConfig.etape_publiee;
 
@@ -319,12 +326,12 @@ async function loadClassement() {
 
         const response = await fetch(url);
         if (!response.ok) throw new Error('Erreur réseau');
-        
+
         const data = await response.json();
-        
+
         // Afficher le titre de l'étape si publiée
         updateEtapeTitle(displayConfig.etape_publiee);
-        
+
         // Le podium est géré par le carrousel maintenant
         displayTableau(data.classement, data.rubriques);
         displayCharts(data.classement);
@@ -332,7 +339,7 @@ async function loadClassement() {
         // Afficher la note de bas de page si disponible (spécifique à une manche)
         const noteContainer = document.getElementById('noteBasPage');
         const noteContent = document.getElementById('noteBasPageContent');
-        
+
         if (noteContainer && noteContent) {
             if (data.manche && data.manche.note_bas_page) {
                 noteContent.textContent = data.manche.note_bas_page;
@@ -342,7 +349,7 @@ async function loadClassement() {
                 noteContent.textContent = '';
             }
         }
-        
+
     } catch (error) {
         console.error('Erreur lors du chargement du classement:', error);
         showError('Impossible de charger le classement');
@@ -355,14 +362,14 @@ async function loadClassement() {
 function updateEtapeTitle(etapeCode) {
     const heroTitle = document.querySelector('.hero-section h1');
     if (!heroTitle) return;
-    
+
     const etapeNoms = {
         'preliminaire': '🎯 Phase Préliminaire',
         'quart': '⚡ Quart de Finale',
         'demi': '🔥 Demi-Finale',
         'finale': '👑 Grande Finale'
     };
-    
+
     if (etapeCode && etapeNoms[etapeCode]) {
         heroTitle.textContent = `Classement - ${etapeNoms[etapeCode]}`;
     } else {
@@ -379,13 +386,15 @@ async function loadManches() {
         console.log('Podium désactivé, chargement annulé');
         return;
     }
-    
+
     try {
-        const response = await fetch('/api/manches');
+        // Ne charger que les manches de l'étape courante
+        const url = currentPhase ? `/api/manches?etape=${currentPhase}` : '/api/manches';
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Erreur réseau');
-        
+
         const manches = await response.json();
-        
+
         // Créer un podium pour le classement général
         podiumCarousel.manches = [{
             id: 'general',
@@ -393,7 +402,7 @@ async function loadManches() {
             description: 'Cumul de toutes les manches',
             isGeneral: true
         }];
-        
+
         // Ajouter chaque manche
         if (manches && manches.length > 0) {
             manches.forEach(manche => {
@@ -406,13 +415,13 @@ async function loadManches() {
                 });
             });
         }
-        
+
         // Par défaut, afficher le dernier podium (dernière manche)
         podiumCarousel.currentIndex = podiumCarousel.manches.length - 1;
-        
+
         // Charger les données de chaque podium
         await loadAllPodiums();
-        
+
     } catch (error) {
         console.error('Erreur lors du chargement des manches:', error);
         // Si erreur, créer juste un podium général
@@ -434,23 +443,29 @@ async function loadAllPodiums() {
     for (let manche of podiumCarousel.manches) {
         try {
             let url = '/api/classement';
-            
-            if (!manche.isGeneral) {
-                url += `?manche_id=${manche.id}`;
+
+            if (manche.isGeneral) {
+                // Pour le classement général du podium, filtrer par l'étape courante si elle existe
+                url = '/api/classement/general';
+                if (currentPhase) {
+                    url += `?etape=${currentPhase}`;
+                }
+            } else {
+                url = `/api/classement/manche/${manche.id}`;
             }
-            
+
             const response = await fetch(url);
-            if (!response.ok) throw new Error('Erreur réseau');
-            
+            if (!response.ok) throw new Error(`Erreur réseau: ${response.status}`);
+
             const data = await response.json();
             manche.classement = data.classement || [];
-            
+
         } catch (error) {
             console.error(`Erreur lors du chargement du podium ${manche.nom}:`, error);
             manche.classement = [];
         }
     }
-    
+
     // Générer les podiums HTML
     renderPodiumSlides();
     renderCarouselIndicators();
@@ -463,10 +478,10 @@ async function loadAllPodiums() {
 function renderPodiumSlides() {
     const carousel = document.getElementById('podiumCarousel');
     if (!carousel) return;
-    
+
     carousel.innerHTML = podiumCarousel.manches.map((manche, index) => {
         const top3 = manche.classement.slice(0, 3);
-        
+
         return `
             <div class="podium-slide ${index === podiumCarousel.currentIndex ? 'active' : ''}" 
                  data-manche-index="${index}">
@@ -487,10 +502,10 @@ function renderPodiumPositions(top3) {
         { index: 0, place: 1, crown: '👑', baseClass: 'podium-base-1', winner: true },
         { index: 2, place: 3, crown: '🥉', baseClass: 'podium-base-3' }
     ];
-    
+
     return positions.map(pos => {
         const equipe = top3[pos.index];
-        
+
         if (!equipe) {
             return `
                 <div class="podium-item podium-${pos.place}" data-place="${pos.place}">
@@ -512,9 +527,9 @@ function renderPodiumPositions(top3) {
                 </div>
             `;
         }
-        
-        const symbol = equipesSymboles[equipe.nom_equipe] || '⭐';
-        
+
+        const symbol = equipesSymboles[equipe.nom_equipe] || '';
+
         return `
             <div class="podium-item podium-${pos.place}" data-place="${pos.place}">
                 <div class="podium-crown">${pos.crown}</div>
@@ -543,11 +558,11 @@ function renderPodiumPositions(top3) {
 function renderCarouselIndicators() {
     const indicators = document.getElementById('carouselIndicators');
     if (!indicators) return;
-    
+
     indicators.innerHTML = podiumCarousel.manches.map((manche, index) => {
         const activeClass = index === podiumCarousel.currentIndex ? 'active' : '';
-        const label = manche.isGeneral ? '📊 Général' : `🎯 Manche ${manche.numero}`;
-        
+        const label = manche.isGeneral ? ' Général' : ` Manche ${manche.numero}`;
+
         return `
             <button class="carousel-indicator ${activeClass}" 
                     data-index="${index}"
@@ -564,7 +579,7 @@ function renderCarouselIndicators() {
 function initPodiumCarousel() {
     const prevBtn = document.getElementById('prevPodium');
     const nextBtn = document.getElementById('nextPodium');
-    
+
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
             const newIndex = podiumCarousel.currentIndex - 1;
@@ -573,7 +588,7 @@ function initPodiumCarousel() {
             }
         });
     }
-    
+
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
             const newIndex = podiumCarousel.currentIndex + 1;
@@ -589,10 +604,10 @@ function initPodiumCarousel() {
  */
 function goToPodiumSlide(index) {
     if (index < 0 || index >= podiumCarousel.manches.length) return;
-    
+
     const oldIndex = podiumCarousel.currentIndex;
     podiumCarousel.currentIndex = index;
-    
+
     showPodiumSlide(index, oldIndex);
     updateCarouselButtons();
     updateCarouselIndicators();
@@ -604,10 +619,10 @@ function goToPodiumSlide(index) {
  */
 function showPodiumSlide(newIndex, oldIndex = null) {
     const slides = document.querySelectorAll('.podium-slide');
-    
+
     slides.forEach((slide, index) => {
         slide.classList.remove('active', 'prev');
-        
+
         if (index === newIndex) {
             slide.classList.add('active');
         } else if (oldIndex !== null && index === oldIndex) {
@@ -622,11 +637,11 @@ function showPodiumSlide(newIndex, oldIndex = null) {
 function updateCarouselButtons() {
     const prevBtn = document.getElementById('prevPodium');
     const nextBtn = document.getElementById('nextPodium');
-    
+
     if (prevBtn) {
         prevBtn.disabled = podiumCarousel.currentIndex === 0;
     }
-    
+
     if (nextBtn) {
         nextBtn.disabled = podiumCarousel.currentIndex === podiumCarousel.manches.length - 1;
     }
@@ -637,7 +652,7 @@ function updateCarouselButtons() {
  */
 function updateCarouselIndicators() {
     const indicators = document.querySelectorAll('.carousel-indicator');
-    
+
     indicators.forEach((indicator, index) => {
         if (index === podiumCarousel.currentIndex) {
             indicator.classList.add('active');
@@ -653,9 +668,9 @@ function updateCarouselIndicators() {
 function updatePodiumInfo() {
     const infoElem = document.getElementById('podiumMancheInfo');
     if (!infoElem) return;
-    
+
     const manche = podiumCarousel.manches[podiumCarousel.currentIndex];
-    
+
     if (manche.isGeneral) {
         infoElem.textContent = 'Classement Général - Cumul de toutes les manches';
     } else {
@@ -673,7 +688,7 @@ function displayTableau(classement, rubriquesData = []) {
 
     let table = document.querySelector('.classement-table');
     if (!classement || classement.length === 0) {
-        if(table) table.querySelector('tbody').innerHTML = `
+        if (table) table.querySelector('tbody').innerHTML = `
             <tr>
                 <td colspan="10" style="text-align: center; padding: 2rem;">
                     Aucune donnée de classement disponible
@@ -715,12 +730,12 @@ function displayTableau(classement, rubriquesData = []) {
     } else {
         // Fallback: regarder dans les données de classement si rubriquesData est vide
         classement.forEach(eq => {
-            if(eq.details_rubriques) {
+            if (eq.details_rubriques) {
                 Object.keys(eq.details_rubriques).forEach(r => availableRubrics.add(r));
             }
         });
     }
-    
+
     // Filtrer et trier selon la configuration
     const rubriquesList = rubriquesConf
         .filter(conf => availableRubrics.has(conf.key))
@@ -738,7 +753,7 @@ function displayTableau(classement, rubriquesData = []) {
             totalMaxScore += rubriquesMap[r];
         }
     });
-    
+
     // Header Score Total
     let scoreTotalHeader = 'Score Total';
     if (totalMaxScore > 0) {
@@ -753,15 +768,15 @@ function displayTableau(classement, rubriquesData = []) {
                 <th>Équipe</th>
                 <th class="col-score">${scoreTotalHeader}</th>
                 ${rubriquesList.map(r => {
-                    // Trouver le label personnalisé
-                    const conf = rubriquesConf.find(c => c.key === r);
-                    let headerLabel = conf ? conf.label : r;
-                    
-                    if (rubriquesMap[r]) {
-                        headerLabel += ` <span style="font-size: 0.8em; color: #718096;">/ ${rubriquesMap[r]}</span>`;
-                    }
-                    return `<th class="col-rubrique" style="text-align:center; font-size:0.8rem;">${headerLabel}</th>`;
-                }).join('')}
+        // Trouver le label personnalisé
+        const conf = rubriquesConf.find(c => c.key === r);
+        let headerLabel = conf ? conf.label : r;
+
+        if (rubriquesMap[r]) {
+            headerLabel += ` <span style="font-size: 0.8em; color: #718096;">/ ${rubriquesMap[r]}</span>`;
+        }
+        return `<th class="col-rubrique" style="text-align:center; font-size:0.8rem;">${headerLabel}</th>`;
+    }).join('')}
             </tr>
         </thead>
     `;
@@ -780,18 +795,18 @@ function displayTableau(classement, rubriquesData = []) {
             displayedTotal += score;
             return `<td style="text-align: center; color: #4a5568;">${score}</td>`;
         }).join('');
-        
+
         // Nous trions l'affichage par le total recalculé, mais l'ordre du tableau (classement) 
         // est basé sur le score total DB. Si on veut être cohérent, on affiche le total recalculé.
         // Si le classement change à cause de ce filtrage, c'est plus complexe (il faudrait re-trier le tableau).
-        // Supposons que "Questions sur le Coran" est négligeable ou 0 pour l'instant, 
+        // Supposons qu'une rubrique est négligeable ou 0 pour l'instant, 
         // ou que le client accepte que le rang soit basé sur le vrai total mais que l'affichage montre le sous-total.
         // Pour l'instant, on affiche le total recalculé pour que la somme soit correcte visuellement.
 
         const position = index + 1;
         const rankClass = position <= 3 ? `rank-${position}` : '';
         const rowClass = position <= 3 ? 'top-3' : '';
-        const symbol = equipesSymboles[equipe.nom_equipe] || '⭐';
+        const symbol = equipesSymboles[equipe.nom_equipe] || '';
 
         return `
             <tr class="${rowClass}">
@@ -815,7 +830,7 @@ function displayTableau(classement, rubriquesData = []) {
 
     // Reconstruire la table entière pour mettre à jour les headers
     table.innerHTML = `${theadHtml}<tbody id="classementTableBody">${tbodyHtml}</tbody>`;
-    
+
     // Ajouter un message de fin si nécessaire
     if (!displayConfig.afficher_classement_complet && displayConfig.nombre_equipes_affichees > 0 && classement.length > displayConfig.nombre_equipes_affichees) {
         const infoRow = document.createElement('tr');
@@ -855,7 +870,7 @@ function drawRubriqueChart(top3) {
  * Graphique de comparaison (Désactivé)
  */
 function drawCompareChart(classement) {
-   // Supprimé
+    // Supprimé
 }
 
 /**
@@ -866,14 +881,14 @@ async function loadFiltersData() {
     if (!displayConfig.afficher_filtres) {
         return;
     }
-    
+
     try {
         // Charger les manches
         const manchesRes = await fetch('/api/manches');
         if (manchesRes.ok) {
             const manchesData = await manchesRes.json();
             const mancheSelect = document.getElementById('mancheFilter');
-            
+
             if (mancheSelect && manchesData.manches) {
                 manchesData.manches.forEach(manche => {
                     const option = document.createElement('option');
@@ -889,7 +904,7 @@ async function loadFiltersData() {
         if (rubriquesRes.ok) {
             const rubriquesData = await rubriquesRes.json();
             const rubriqueSelect = document.getElementById('rubriqueFilter');
-            
+
             if (rubriqueSelect && rubriquesData.rubriques) {
                 rubriquesData.rubriques.forEach(rubrique => {
                     const option = document.createElement('option');
@@ -904,39 +919,6 @@ async function loadFiltersData() {
     }
 }
 
-/**
- * Charger les statistiques globales
- */
-async function loadStats() {
-    // Ne pas charger si les stats sont désactivées
-    if (!displayConfig.afficher_statistiques) {
-        return;
-    }
-    
-    try {
-        // Charger les statistiques
-        const [manchesRes, scoresRes] = await Promise.all([
-            fetch('/api/manches'),
-            fetch('/api/scores')
-        ]);
-
-        if (manchesRes.ok) {
-            const manchesData = await manchesRes.json();
-            const totalManches = manchesData.manches ? manchesData.manches.length : 0;
-            document.getElementById('totalManches').textContent = totalManches;
-        }
-
-        if (scoresRes.ok) {
-            const scoresData = await scoresRes.json();
-            const totalPoints = scoresData.scores 
-                ? scoresData.scores.reduce((sum, score) => sum + (score.points || 0), 0)
-                : 0;
-            document.getElementById('totalPoints').textContent = totalPoints;
-        }
-    } catch (error) {
-        console.error('Erreur lors du chargement des stats:', error);
-    }
-}
 
 /**
  * Initialiser les filtres
@@ -988,8 +970,8 @@ function updateLastRefreshTime() {
     const lastUpdateElem = document.getElementById('lastUpdate');
     if (lastUpdateElem) {
         const now = new Date();
-        const timeString = now.toLocaleTimeString('fr-FR', { 
-            hour: '2-digit', 
+        const timeString = now.toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
             minute: '2-digit',
             second: '2-digit'
         });

@@ -258,8 +258,7 @@ CREATE TABLE scores (
 |----------|-----------|-----------------|-----------|
 | Culture générale | 4 | 25 | 100 |
 | Vie du Prophète | 2 | 15 | 30 |
-| Jurisprudence | 2 | 20 | 40 |
-| Questions sur le Coran | 2 | 30 | 60 |
+| Jurisprudence | 2 | 25 | 50 |
 | Hadith | 1 | 50 | 50 |
 
 ### Logique de calcul:

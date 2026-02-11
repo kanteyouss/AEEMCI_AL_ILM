@@ -8,7 +8,6 @@ Le système attribue **automatiquement** les points corrects à chaque question 
 
 | Rubrique | Points par Question | Temps Limite |
 |----------|-------------------|--------------|
-| **Questions sur le Coran** | 5 pts | 15 sec |
 | **Vie du Prophète ﷺ** | 15 pts | 15 sec |
 | **Jurisprudence (Fiqh)** | 25 pts | 15 sec |
 | **Culture générale** | 25 pts | 15 sec |
@@ -37,7 +36,6 @@ const pointsParQuestion = {
     'Adhan': 10,
     'Coran ouvert': 15,
     'Coran fermé': 15,
-    'Questions sur le Coran': 5,
     'Vie du Prophète': 15,
     'Jurisprudence': 25,
     'Culture générale': 25,
@@ -82,13 +80,7 @@ document.getElementById('rubriqueSelect').addEventListener('change', (e) => {
 - **Temps** : Pas de limite
 - **Critères** : Voix (5 pts) + Prononciation (10 pts)
 
-### 4️⃣ Questions sur le Coran (10 pts total = 2 questions × 5 pts)
-- **Type** : Questions écrites/QCM
-- **Questions** : 2 questions
-- **Points** : 5 pts par question
-- **Temps** : 15 sec par question
-
-### 5️⃣ Vie du Prophète ﷺ (30 pts total = 2 questions × 15 pts)
+### 4️⃣ Vie du Prophète ﷺ (30 pts total = 2 questions × 15 pts)
 - **Type** : Questions écrites/QCM
 - **Questions** : 2 questions
 - **Points** : 15 pts par question
@@ -106,13 +98,13 @@ document.getElementById('rubriqueSelect').addEventListener('change', (e) => {
 - **Points** : 25 pts par question
 - **Temps** : 15 sec par question
 
-### 8️⃣ Hadith (20 pts total = 1 question × 20 pts)
+### 7️⃣ Hadith (20 pts total = 1 question × 20 pts)
 - **Type** : Récitation
 - **Questions** : 1 question
 - **Points** : 20 pts par question
 - **Temps** : 20 sec par question
 
-### 9️⃣ Questions relais (10 pts total = 2 questions × 5 pts)
+### 8️⃣ Questions relais (10 pts total = 2 questions × 5 pts)
 - **Type** : Relais rapide
 - **Questions** : 2 questions
 - **Points** : 5 pts par question
@@ -122,10 +114,10 @@ document.getElementById('rubriqueSelect').addEventListener('change', (e) => {
 
 ## 💯 Total Maximum
 
-**250 points** par manche
+**240 points** par manche
 
 ### Répartition :
-- Questions écrites : **190 pts** (Coran: 10, Vie: 30, Fiqh: 50, Culture: 100)
+- Questions écrites : **180 pts** (Vie: 30, Fiqh: 50, Culture: 100)
 - Récitations : **40 pts** (Adhan: 10, Coran ouvert: 15, Coran fermé: 15)
 - Hadith : **20 pts**
 - Questions relais : **10 pts**

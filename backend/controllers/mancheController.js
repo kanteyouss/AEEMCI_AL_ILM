@@ -6,29 +6,29 @@ const db = require('../config/database');
 const getAllManches = async (req, res, next) => {
     try {
         const { type, statut, etape } = req.query;
-        
+
         let query = 'SELECT * FROM manches WHERE 1=1';
         const params = [];
-        
+
         if (type) {
             params.push(type);
             query += ` AND type = $${params.length}`;
         }
-        
+
         if (statut) {
             params.push(statut);
             query += ` AND statut = $${params.length}`;
         }
-        
+
         if (etape) {
             params.push(etape);
             query += ` AND etape = $${params.length}`;
         }
-        
+
         query += ' ORDER BY numero, date_manche, heure_debut';
-        
+
         const result = await db.query(query, params);
-        
+
         // Charger les rubriques pour chaque manche
         const manches = await Promise.all(result.rows.map(async (manche) => {
             const rubriquesResult = await db.query(
@@ -39,7 +39,7 @@ const getAllManches = async (req, res, next) => {
                  ORDER BY rm.ordre_passage`,
                 [manche.id]
             );
-            
+
             const equipesResult = await db.query(
                 `SELECT e.id, e.nom, e.couleur, e.symbole
                  FROM equipes e
@@ -48,20 +48,20 @@ const getAllManches = async (req, res, next) => {
                  ORDER BY e.nom`,
                 [manche.id]
             );
-            
+
             return {
                 ...manche,
                 rubriques: rubriquesResult.rows,
                 equipes: equipesResult.rows
             };
         }));
-        
+
         res.json({
             success: true,
             data: manches,
             count: manches.length
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -73,24 +73,24 @@ const getAllManches = async (req, res, next) => {
 const createManche = async (req, res, next) => {
     try {
         const { nom, type, date_manche, heure_debut, heure_fin, description, rubriques, equipes, note_bas_page } = req.body;
-        
+
         const client = await db.pool.connect();
-        
+
         try {
             await client.query('BEGIN');
-            
+
             // Créer la manche
             const mancheQuery = `
                 INSERT INTO manches (nom, type, date_manche, heure_debut, heure_fin, description, etape, note_bas_page)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 RETURNING *
             `;
-            
+
             // Utiliser le type comme etape par défaut
             const mancheResult = await client.query(mancheQuery, [
                 nom, type, date_manche, heure_debut, heure_fin, description, type, note_bas_page
             ]);
-            
+
             const manche = mancheResult.rows[0];
 
             // Associer les rubriques si fournies
@@ -103,7 +103,7 @@ const createManche = async (req, res, next) => {
                     );
                 }
             }
-            
+
             // Associer les équipes si fournies
             if (equipes && Array.isArray(equipes)) {
                 for (const equipeId of equipes) {
@@ -113,22 +113,22 @@ const createManche = async (req, res, next) => {
                     );
                 }
             }
-            
+
             await client.query('COMMIT');
-            
+
             res.status(201).json({
                 success: true,
                 message: 'Manche créée avec succès',
                 data: manche
             });
-            
+
         } catch (error) {
             await client.query('ROLLBACK');
             throw error;
         } finally {
             client.release();
         }
-        
+
     } catch (error) {
         next(error);
     }
@@ -141,25 +141,25 @@ const updateStatut = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { statut } = req.body;
-        
+
         const result = await db.query(
             'UPDATE manches SET statut = $1 WHERE id = $2 RETURNING *',
             [statut, id]
         );
-        
+
         if (result.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Manche non trouvée'
             });
         }
-        
+
         res.json({
             success: true,
             message: 'Statut mis à jour',
             data: result.rows[0]
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -171,21 +171,21 @@ const updateStatut = async (req, res, next) => {
 const getMancheById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+
         const mancheResult = await db.query(
             'SELECT * FROM manches WHERE id = $1',
             [id]
         );
-        
+
         if (mancheResult.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Manche non trouvée'
             });
         }
-        
+
         const manche = mancheResult.rows[0];
-        
+
         // Charger les rubriques associées
         const rubriquesResult = await db.query(
             `SELECT r.*, rm.ordre_passage 
@@ -195,7 +195,7 @@ const getMancheById = async (req, res, next) => {
              ORDER BY rm.ordre_passage`,
             [id]
         );
-        
+
         // Charger les équipes associées
         const equipesResult = await db.query(
             `SELECT e.id, e.nom, e.couleur, e.symbole
@@ -205,7 +205,7 @@ const getMancheById = async (req, res, next) => {
              ORDER BY e.nom`,
             [id]
         );
-        
+
         res.json({
             success: true,
             data: {
@@ -214,7 +214,7 @@ const getMancheById = async (req, res, next) => {
                 equipes: equipesResult.rows
             }
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -227,18 +227,18 @@ const updateManche = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { nom, type, date_manche, heure_debut, heure_fin, description, rubriques, equipes, note_bas_page } = req.body;
-        
+
         const client = await db.pool.connect();
-        
+
         try {
             await client.query('BEGIN');
-            
+
             // Récupérer la manche existante pour garder les valeurs non modifiées
             const existingManche = await client.query(
                 'SELECT * FROM manches WHERE id = $1',
                 [id]
             );
-            
+
             if (existingManche.rows.length === 0) {
                 await client.query('ROLLBACK');
                 return res.status(404).json({
@@ -246,9 +246,9 @@ const updateManche = async (req, res, next) => {
                     message: 'Manche non trouvée'
                 });
             }
-            
+
             const current = existingManche.rows[0];
-            
+
             // Utiliser les nouvelles valeurs ou conserver les anciennes
             const updatedNom = nom !== undefined ? nom : current.nom;
             const updatedType = type !== undefined ? type : current.type;
@@ -257,7 +257,7 @@ const updateManche = async (req, res, next) => {
             const updatedHeureFin = heure_fin !== undefined ? heure_fin : current.heure_fin;
             const updatedDescription = description !== undefined ? description : current.description;
             const updatedNoteBasPage = note_bas_page !== undefined ? note_bas_page : current.note_bas_page;
-            
+
             // Mettre à jour la manche (sans modifier le numero qui est un identifiant fixe)
             const mancheQuery = `
                 UPDATE manches 
@@ -266,14 +266,14 @@ const updateManche = async (req, res, next) => {
                 WHERE id = $8
                 RETURNING *
             `;
-            
+
             const mancheResult = await client.query(mancheQuery, [
-                updatedNom, updatedType, updatedDateManche, 
+                updatedNom, updatedType, updatedDateManche,
                 updatedHeureDebut, updatedHeureFin, updatedDescription, updatedNoteBasPage, id
             ]);
-            
+
             const manche = mancheResult.rows[0];
-            
+
             // Mettre à jour les rubriques associées SEULEMENT si le paramètre est fourni
             if (rubriques !== undefined && Array.isArray(rubriques)) {
                 // 1. Récupérer les associations existantes pour mise à jour intelligente (évite de casser les FK)
@@ -283,12 +283,12 @@ const updateManche = async (req, res, next) => {
                 );
                 const existingRelMap = new Map(); // rubrique_id -> id (pk de rubriques_manche)
                 existingRelResult.rows.forEach(row => existingRelMap.set(row.rubrique_id, row.id));
-                
+
                 // 2. Parcourir la nouvelle liste
                 for (let i = 0; i < rubriques.length; i++) {
                     const rubriqueId = parseInt(rubriques[i]);
                     const ordrePassage = i + 1;
-                    
+
                     if (existingRelMap.has(rubriqueId)) {
                         // La relation existe déjà : on met à jour l'ordre et on s'assure qu'elle est active
                         await client.query(
@@ -311,7 +311,7 @@ const updateManche = async (req, res, next) => {
                         }
                     }
                 }
-                
+
                 // 3. Gérer les relations restantes (celles qui ont été décochées)
                 for (const [rubriqueId, pkId] of existingRelMap) {
                     try {
@@ -328,7 +328,7 @@ const updateManche = async (req, res, next) => {
                     }
                 }
             }
-            
+
             // Mettre à jour les équipes associées SEULEMENT si le paramètre est fourni
             if (equipes !== undefined && Array.isArray(equipes)) {
                 // Supprimer les anciennes associations
@@ -336,7 +336,7 @@ const updateManche = async (req, res, next) => {
                     'DELETE FROM equipes_manche WHERE manche_id = $1',
                     [id]
                 );
-                
+
                 // Créer les nouvelles associations
                 for (const equipeId of equipes) {
                     // Vérifier si l'équipe existe avant d'insérer (pour éviter 23503)
@@ -353,9 +353,9 @@ const updateManche = async (req, res, next) => {
                     }
                 }
             }
-            
+
             await client.query('COMMIT');
-            
+
             // Récupérer les rubriques associées pour la réponse
             const rubriquesAssociees = await client.query(
                 `SELECT r.* FROM rubriques r
@@ -364,7 +364,7 @@ const updateManche = async (req, res, next) => {
                  ORDER BY rm.ordre_passage`,
                 [id]
             );
-            
+
             // Récupérer les équipes associées
             const equipesAssociees = await client.query(
                 `SELECT e.id, e.nom, e.couleur, e.symbole
@@ -374,7 +374,7 @@ const updateManche = async (req, res, next) => {
                  ORDER BY e.nom`,
                 [id]
             );
-            
+
             res.json({
                 success: true,
                 message: 'Manche mise à jour avec succès',
@@ -384,14 +384,14 @@ const updateManche = async (req, res, next) => {
                     equipes: equipesAssociees.rows
                 }
             });
-            
+
         } catch (error) {
             await client.query('ROLLBACK');
             throw error;
         } finally {
             client.release();
         }
-        
+
     } catch (error) {
         next(error);
     }
@@ -403,18 +403,18 @@ const updateManche = async (req, res, next) => {
 const deleteManche = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+
         const client = await db.pool.connect();
-        
+
         try {
             await client.query('BEGIN');
-            
+
             // Vérifier que la manche existe
             const mancheCheck = await client.query(
                 'SELECT * FROM manches WHERE id = $1',
                 [id]
             );
-            
+
             if (mancheCheck.rows.length === 0) {
                 await client.query('ROLLBACK');
                 return res.status(404).json({
@@ -422,45 +422,57 @@ const deleteManche = async (req, res, next) => {
                     message: 'Manche non trouvée'
                 });
             }
-            
-            // Supprimer les associations avec les rubriques
+
+            // 1. Supprimer les évaluations associées (car elles pointent vers rubriques_manche via session_id)
             await client.query(
-                'DELETE FROM rubriques_manche WHERE manche_id = $1',
+                'DELETE FROM evaluations WHERE manche_id = $1',
                 [id]
             );
-            
-            // Supprimer les scores associés (si la table existe)
+
+            // 2. Supprimer les scores associés
             await client.query(
                 'DELETE FROM scores WHERE manche_id = $1',
                 [id]
             );
-            
-            // Supprimer les soumissions associées (si la table existe)
+
+            // 3. Supprimer les soumissions associées
             await client.query(
                 'DELETE FROM soumissions WHERE manche_id = $1',
                 [id]
             );
-            
+
+            // 4. Supprimer les associations avec les équipes
+            await client.query(
+                'DELETE FROM equipes_manche WHERE manche_id = $1',
+                [id]
+            );
+
+            // 5. Supprimer les associations avec les rubriques
+            await client.query(
+                'DELETE FROM rubriques_manche WHERE manche_id = $1',
+                [id]
+            );
+
             // Supprimer la manche
             await client.query(
                 'DELETE FROM manches WHERE id = $1',
                 [id]
             );
-            
+
             await client.query('COMMIT');
-            
+
             res.json({
                 success: true,
                 message: 'Manche supprimée avec succès'
             });
-            
+
         } catch (error) {
             await client.query('ROLLBACK');
             throw error;
         } finally {
             client.release();
         }
-        
+
     } catch (error) {
         next(error);
     }
@@ -484,7 +496,7 @@ const getManchesParEtape = async (req, res, next) => {
             GROUP BY m.id
             ORDER BY m.numero
         `);
-        
+
         // Grouper par étape
         const etapes = {
             preliminaire: { nom: 'Phase Préliminaire', manches: [] },
@@ -492,24 +504,24 @@ const getManchesParEtape = async (req, res, next) => {
             demi: { nom: 'Demi-Finale', manches: [] },
             finale: { nom: 'Finale', manches: [] }
         };
-        
+
         result.rows.forEach(manche => {
             const etape = manche.etape || 'preliminaire';
             if (etapes[etape]) {
                 etapes[etape].manches.push(manche);
             }
         });
-        
+
         // Filtrer les étapes vides
         const etapesAvecManches = Object.entries(etapes)
             .filter(([key, value]) => value.manches.length > 0)
             .map(([key, value]) => ({ code: key, ...value }));
-        
+
         res.json({
             success: true,
             data: etapesAvecManches
         });
-        
+
     } catch (error) {
         next(error);
     }

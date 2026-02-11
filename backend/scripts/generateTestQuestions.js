@@ -8,19 +8,19 @@ const db = require('../config/database');
 async function generateTestQuestions() {
     try {
         console.log('🎲 Génération de questions de test...\n');
-        
+
         // Récupérer toutes les rubriques
         const rubriques = await db.query('SELECT id, nom, type, description FROM rubriques ORDER BY id');
-        
+
         for (const rubrique of rubriques.rows) {
             console.log(`📋 ${rubrique.nom}`);
-            
+
             const questions = getQuestionsForRubrique(rubrique);
-            
+
             for (const q of questions) {
                 try {
                     await db.query(
-                        `INSERT INTO questions (rubrique_id, question, reponse_correcte, type, points, difficulte)
+                        `INSERT INTO questions (rubrique_id, question_texte, reponse_correcte, type, points, difficulte)
                          VALUES ($1, $2, $3, $4, $5, $6)`,
                         [rubrique.id, q.enonce, q.reponse, 'qcm', q.points, q.difficulte]
                     );
@@ -33,15 +33,15 @@ async function generateTestQuestions() {
                     }
                 }
             }
-            
+
             console.log('');
         }
-        
+
         const count = await db.query('SELECT COUNT(*) FROM questions');
         console.log(`✅ Total de questions dans la base : ${count.rows[0].count}`);
-        
+
         process.exit(0);
-        
+
     } catch (error) {
         console.error('❌ Erreur:', error);
         process.exit(1);
@@ -70,15 +70,6 @@ function getQuestionsForRubrique(rubrique) {
             { enonce: "Quelle sourate a été révélée en entier d'un seul coup ?", reponse: "Al-Fatiha", points: 15, difficulte: 'moyen' },
             { enonce: "Combien de fois le nom 'Muhammad' est-il mentionné dans le Coran ?", reponse: "4 fois", points: 15, difficulte: 'difficile' },
             { enonce: "Quelle sourate est recommandée de lire le vendredi ?", reponse: "Sourate Al-Kahf", points: 15, difficulte: 'facile' }
-        ],
-        'Questions sur le Coran': [
-            { enonce: "Combien d'années a duré la révélation du Coran ?", reponse: "23 ans", points: 5, difficulte: 'moyen' },
-            { enonce: "Quelle est la dernière sourate révélée ?", reponse: "An-Nasr", points: 5, difficulte: 'moyen' },
-            { enonce: "Combien de prophètes sont mentionnés dans le Coran ?", reponse: "25 prophètes", points: 5, difficulte: 'moyen' },
-            { enonce: "Quelle sourate parle de la famille d'Imran ?", reponse: "Ali Imran", points: 5, difficulte: 'facile' },
-            { enonce: "Quel compagnon a compilé le Coran en un seul livre ?", reponse: "Zayd ibn Thabit", points: 5, difficulte: 'moyen' },
-            { enonce: "Quelle sourate est appelée 'la mère du Coran' ?", reponse: "Al-Fatiha", points: 5, difficulte: 'facile' },
-            { enonce: "Combien de sajda (prosternations) y a-t-il dans le Coran ?", reponse: "14 ou 15", points: 5, difficulte: 'difficile' }
         ],
         'Vie du Prophète': [
             { enonce: "En quelle année le Prophète (saw) est-il né ?", reponse: "570 après J.C. (Année de l'Éléphant)", points: 15, difficulte: 'moyen' },
@@ -115,7 +106,7 @@ function getQuestionsForRubrique(rubrique) {
             { enonce: "Quel hadith parle des cinq piliers de l'Islam ?", reponse: "Hadith de Jibril", points: 20, difficulte: 'moyen' }
         ]
     };
-    
+
     return questions[rubrique.nom] || [
         { enonce: `Question test pour ${rubrique.nom} - 1`, reponse: "Réponse test 1", points: 10, difficulte: 'facile' },
         { enonce: `Question test pour ${rubrique.nom} - 2`, reponse: "Réponse test 2", points: 10, difficulte: 'moyen' },

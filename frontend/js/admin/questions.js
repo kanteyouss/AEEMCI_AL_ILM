@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 function initEventListeners() {
     console.log('🔧 Initialisation des écouteurs...');
-    
+
     // Bouton nouvelle question
     const addBtn = document.getElementById('addQuestionBtn');
     if (addBtn) {
@@ -48,10 +48,10 @@ function initEventListeners() {
     const modal = document.getElementById('questionModal');
     const closeBtn = modal.querySelector('.modal-close');
     const cancelBtn = modal.querySelector('.modal-cancel');
-    
+
     closeBtn.addEventListener('click', () => modal.style.display = 'none');
     cancelBtn.addEventListener('click', () => modal.style.display = 'none');
-    
+
     window.addEventListener('click', (e) => {
         if (e.target === modal) modal.style.display = 'none';
         if (e.target === document.getElementById('importModal')) {
@@ -63,7 +63,7 @@ function initEventListeners() {
     const importModal = document.getElementById('importModal');
     const importCloseBtn = importModal.querySelector('.modal-close');
     const importCancelBtn = importModal.querySelector('.modal-cancel');
-    
+
     importCloseBtn.addEventListener('click', () => importModal.style.display = 'none');
     importCancelBtn.addEventListener('click', () => importModal.style.display = 'none');
 
@@ -100,7 +100,6 @@ function initEventListeners() {
 
         // Points par question (pour UNE question)
         const pointsParQuestion = {
-            'Questions sur le Coran': 5,
             'Vie du Prophète': 15,
             'Jurisprudence': 25,
             'Culture générale': 25,
@@ -137,7 +136,7 @@ function initEventListeners() {
  */
 async function loadRubriques() {
     console.log('📥 Chargement des rubriques...');
-    
+
     try {
         const response = await fetch('/api/rubriques', {
             headers: {
@@ -156,26 +155,25 @@ async function loadRubriques() {
 
         // Afficher les onglets
         displayRubriqueTabs();
-        
+
         // Remplir le select
         const select = document.getElementById('rubriqueSelect');
         select.innerHTML = '<option value="">-- Sélectionner une rubrique --</option>';
         rubriques.forEach(rubrique => {
             const option = document.createElement('option');
             option.value = rubrique.id;
-            
+
             // Points par question selon la rubrique
             const pointsParQuestion = {
-                'Questions sur le Coran': 5,
                 'Vie du Prophète': 15,
                 'Jurisprudence': 25,
                 'Culture générale': 25,
                 'Hadith': 20,
                 'Questions relais': 5
             };
-            
+
             const points = pointsParQuestion[rubrique.nom];
-            
+
             // N'afficher que les rubriques avec des questions à créer
             if (points) {
                 option.textContent = `${rubrique.nom} (${points} pts/question)`;
@@ -197,9 +195,9 @@ async function loadRubriques() {
  */
 function displayRubriqueTabs() {
     const container = document.getElementById('rubriqueTabs');
-    
+
     console.log('📑 Affichage des onglets pour', rubriques.length, 'rubriques');
-    
+
     // Ajouter l'onglet "Toutes"
     let tabsHTML = `
         <button class="rubrique-tab ${currentRubrique === null ? 'active' : ''}" 
@@ -207,7 +205,7 @@ function displayRubriqueTabs() {
             📚 Toutes
         </button>
     `;
-    
+
     // Ajouter les onglets par rubrique
     tabsHTML += rubriques.map(rubrique => `
         <button class="rubrique-tab ${rubrique.id === currentRubrique ? 'active' : ''}" 
@@ -215,7 +213,7 @@ function displayRubriqueTabs() {
             ${rubrique.nom}
         </button>
     `).join('');
-    
+
     container.innerHTML = tabsHTML;
 
     // Ajouter les événements
@@ -223,13 +221,13 @@ function displayRubriqueTabs() {
         tab.addEventListener('click', () => {
             const rubriqueId = tab.dataset.rubriqueId;
             currentRubrique = rubriqueId === 'all' ? null : parseInt(rubriqueId);
-            
+
             console.log(`🔄 Changement de rubrique: ${currentRubrique === null ? 'Toutes' : currentRubrique}`);
-            
+
             // Mettre à jour l'UI
             container.querySelectorAll('.rubrique-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            
+
             // Recharger les questions
             displayQuestions();
         });
@@ -241,7 +239,7 @@ function displayRubriqueTabs() {
  */
 async function loadQuestions() {
     console.log('📥 Chargement des questions...');
-    
+
     try {
         const response = await fetch('/api/questions', {
             headers: {
@@ -272,10 +270,10 @@ async function loadQuestions() {
  */
 function displayQuestions() {
     const container = document.getElementById('questionsList');
-    
+
     // Filtrer par rubrique (si null, afficher toutes)
-    const filteredQuestions = currentRubrique === null 
-        ? questions 
+    const filteredQuestions = currentRubrique === null
+        ? questions
         : questions.filter(q => q.rubrique_id === currentRubrique);
 
     console.log(`📋 Affichage de ${filteredQuestions.length} question(s)${currentRubrique ? ` pour la rubrique ${currentRubrique}` : ' (toutes rubriques)'}`);
@@ -368,7 +366,7 @@ function filterQuestions() {
         const difficultyDiv = card.querySelector('.question-detail .value');
         const cardDifficulty = difficultyDiv ? difficultyDiv.textContent.toLowerCase() : '';
         const matchesDifficulty = !difficulty || cardDifficulty.includes(difficulty);
-        
+
         // Note: Pour l'instant, toutes les questions sont considérées comme non utilisées
         // Cette fonctionnalité sera complétée lors de l'implémentation du jeu
         const matchesUtilisee = !utilisee;
@@ -395,7 +393,7 @@ function updateStats() {
         console.warn('⚠️ Élément totalQuestions non trouvé, stats ignorées');
         return;
     }
-    
+
     totalElement.textContent = questions.length;
 
     // Créer des statistiques par rubrique
@@ -404,7 +402,7 @@ function updateStats() {
         console.warn('⚠️ Élément statsContainer non trouvé');
         return;
     }
-    
+
     const rubriqueStats = {};
 
     rubriques.forEach(r => {
@@ -438,10 +436,10 @@ function updateStats() {
  */
 function openQuestionModal(question = null) {
     console.log('🔓 Ouverture du modal', question ? `(édition ID: ${question.id})` : '(nouvelle question)');
-    
+
     const modal = document.getElementById('questionModal');
     const form = document.getElementById('questionForm');
-    
+
     form.reset();
     document.getElementById('questionId').value = '';
     document.getElementById('modalTitle').textContent = question ? 'Modifier la Question' : 'Nouvelle Question';
@@ -473,28 +471,27 @@ function openQuestionModal(question = null) {
         // Pré-sélectionner la rubrique courante
         if (currentRubrique) {
             document.getElementById('rubriqueSelect').value = currentRubrique;
-            
+
             // Appliquer automatiquement les points par défaut
             const rubrique = rubriques.find(r => r.id === currentRubrique);
             if (rubrique) {
                 // Points par question (pour UNE question)
                 const pointsParQuestion = {
-                    'Questions sur le Coran': 5,
                     'Vie du Prophète': 15,
                     'Jurisprudence': 25,
                     'Culture générale': 25,
                     'Hadith': 20,
                     'Questions relais': 5
                 };
-                
+
                 const points = pointsParQuestion[rubrique.nom] || 10;
                 document.getElementById('points').value = points;
-                
+
                 if (rubrique.temps_par_question) {
                     document.getElementById('tempsLimite').value = rubrique.temps_par_question;
                 }
             }
-            
+
             console.log(`✅ Rubrique ${currentRubrique} pré-sélectionnée`);
         }
     }
@@ -639,7 +636,6 @@ function openImportModal() {
  */
 function downloadTemplate() {
     const template = `rubrique,question,type,optionA,optionB,optionC,optionD,reponse,difficulte,points,temps_limite,reference
-Questions sur le Coran,Quelle sourate commence par "Al-Hamdulillah"?,qcm,Al-Fatiha,Al-Baqara,Al-Imran,An-Nisa,A,facile,5,15,Sourate 1
 Vie du Prophète,En quelle année est né le Prophète Muhammad (ﷺ)?,texte_libre,,,,,,facile,15,15,Sira
 Jurisprudence,Combien de Rakats dans Salat al-Fajr?,qcm,2,3,4,5,A,moyen,25,15,Fiqh
 Culture générale,Quelle est la capitale de l'Arabie Saoudite?,qcm,Riyad,Jeddah,La Mecque,Médine,A,facile,25,15,
@@ -663,11 +659,11 @@ function handleCsvFile(e) {
     document.getElementById('fileName').textContent = `📎 ${file.name}`;
 
     const reader = new FileReader();
-    reader.onload = function(event) {
+    reader.onload = function (event) {
         try {
             const csv = event.target.result;
             csvData = parseCSV(csv);
-            
+
             if (csvData.length === 0) {
                 throw new Error('Aucune donnée valide trouvée dans le fichier');
             }
@@ -690,12 +686,12 @@ function handleCsvFile(e) {
 function parseCSV(csv) {
     const lines = csv.split('\n').filter(line => line.trim());
     const headers = lines[0].split(',').map(h => h.trim());
-    
+
     const data = [];
-    
+
     for (let i = 1; i < lines.length; i++) {
         const values = parseCSVLine(lines[i]);
-        
+
         if (values.length < headers.length) continue;
 
         const row = {};
@@ -704,7 +700,7 @@ function parseCSV(csv) {
         });
 
         // Trouver l'ID de la rubrique
-        const rubrique = rubriques.find(r => 
+        const rubrique = rubriques.find(r =>
             r.nom.toLowerCase() === row.rubrique.toLowerCase()
         );
 
@@ -775,7 +771,7 @@ function parseCSVLine(line) {
  */
 function displayPreview(data) {
     const container = document.getElementById('previewContent');
-    
+
     container.innerHTML = data.slice(0, 10).map((q, index) => `
         <div style="padding: 0.75rem; background: var(--bg-primary); border-radius: 4px; margin-bottom: 0.5rem;">
             <strong>${index + 1}.</strong> ${escapeHtml(q.question)}
@@ -833,7 +829,7 @@ async function confirmImport() {
     confirmBtn.disabled = false;
 
     document.getElementById('importModal').style.display = 'none';
-    
+
     showNotification(
         `Import terminé : ${successCount} question(s) importée(s), ${errorCount} erreur(s)`,
         errorCount === 0 ? 'success' : 'warning'

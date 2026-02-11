@@ -36,14 +36,6 @@ INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, c
     '{"voix": 5, "prononciation": 10}'::jsonb
 ),
 (
-    'Questions sur le Coran',
-    'questions_ecrites',
-    10,
-    15,
-    '2 questions sur le Coran. 1 question = 5 pts. 15 sec par question.',
-    '{"exactitude": 5}'::jsonb
-),
-(
     'Vie du Prophète',
     'questions_ecrites',
     30,
@@ -99,5 +91,5 @@ ORDER BY id;
 DO $$
 BEGIN
     RAISE NOTICE '✅ Rubriques mises à jour avec le barème officiel !';
-    RAISE NOTICE '💯 Total : 280 points maximum par manche (Adhan 10 + Coran ouvert 15 + Coran fermé 15 + Questions Coran 10 + Vie Prophète 30 + Jurisprudence 50 + Culture générale 100 + Hadith 20 + Questions relais 40)';
+    RAISE NOTICE '💯 Total : 270 points maximum par manche (Adhan 10 + Coran ouvert 15 + Coran fermé 15 + Vie Prophète 30 + Jurisprudence 50 + Culture générale 100 + Hadith 20 + Questions relais 40)';
 END $$;

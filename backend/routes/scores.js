@@ -7,7 +7,7 @@ const { verifyJWT, isAdmin } = require('../middleware/auth');
  * GET /api/scores
  * Récupérer tous les scores
  */
-router.get('/', verifyJWT, scoreController.getAllScores);
+router.get('/', scoreController.getAllScores);
 
 /**
  * GET /api/scores/:id

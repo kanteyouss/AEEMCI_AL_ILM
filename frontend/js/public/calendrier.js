@@ -11,7 +11,7 @@ function gregorianToHijri(gregorianDate) {
     const ramadanStart = new Date(2026, 1, 18); // 18 Février 2026
     const diffDays = Math.floor((gregorianDate - ramadanStart) / (1000 * 60 * 60 * 24));
     const hijriDay = 1 + diffDays;
-    
+
     if (hijriDay >= 1 && hijriDay <= 30) {
         return `${hijriDay} Ramadan 1447`;
     } else if (hijriDay < 1) {
@@ -45,8 +45,6 @@ async function initCalendrier() {
         renderManchesList();
         console.log('📅 Mise à jour de l\'affichage de la date...');
         updateDateDisplay();
-        console.log('📈 Mise à jour des statistiques...');
-        updateStats();
         console.log('🔧 Initialisation de la navigation...');
         initNavigation();
         console.log('🔧 Initialisation du modal...');
@@ -66,14 +64,14 @@ async function loadManches() {
         console.log('📅 Chargement des manches depuis /api/manches...');
         const response = await fetch('/api/manches');
         console.log('📡 Réponse HTTP:', response.status, response.statusText);
-        
+
         if (!response.ok) throw new Error('Erreur réseau');
-        
+
         const data = await response.json();
         console.log('📦 Données reçues:', data);
-        
+
         manches = data.data || data.manches || [];
-        
+
         console.log('✅ Manches chargées:', manches.length, manches);
     } catch (error) {
         console.error('❌ Erreur lors du chargement des manches:', error);
@@ -135,7 +133,7 @@ function renderCalendar() {
     // Jours du mois suivant
     const totalCells = prevMonthDays + daysInMonth;
     const nextMonthDays = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
-    
+
     for (let day = 1; day <= nextMonthDays; day++) {
         const dayDate = new Date(year, month + 1, day);
         calendarGrid.appendChild(createDayCell(dayDate, true));
@@ -148,7 +146,7 @@ function renderCalendar() {
 function createDayCell(date, isOtherMonth) {
     const cell = document.createElement('div');
     cell.className = 'calendar-day';
-    
+
     if (isOtherMonth) {
         cell.classList.add('other-month');
     }
@@ -176,18 +174,20 @@ function createDayCell(date, isOtherMonth) {
     if (dayManches.length > 0) {
         const manchesContainer = document.createElement('div');
         manchesContainer.className = 'day-manches';
-        
+
         dayManches.forEach(manche => {
             const indicator = document.createElement('div');
             indicator.className = `manche-indicator manche-${manche.type || 'preliminaire'}`;
-            indicator.textContent = `M${manche.numero}`;
+            // Priorité au numéro s'il existe, sinon 1ère lettre du type ou "M"
+            const label = manche.numero ? `M${manche.numero}` : (manche.nom ? manche.nom.substring(0, 2) : 'M');
+            indicator.textContent = label;
             indicator.addEventListener('click', (e) => {
                 e.stopPropagation();
                 openMancheModal(manche);
             });
             manchesContainer.appendChild(indicator);
         });
-        
+
         cell.appendChild(manchesContainer);
     }
 
@@ -235,11 +235,11 @@ function renderManchesList() {
         // D'abord par numéro
         const numeroA = a.numero || 0;
         const numeroB = b.numero || 0;
-        
+
         if (numeroA !== numeroB) {
             return numeroA - numeroB;
         }
-        
+
         // Si même numéro (ou pas de numéro), trier par date
         return new Date(a.date_manche || a.date) - new Date(b.date_manche || b.date);
     });
@@ -248,7 +248,7 @@ function renderManchesList() {
         const mancheDate = new Date(manche.date_manche || manche.date);
         const mancheType = manche.type || getMancheType(manche.numero);
         const isCompleted = mancheDate < new Date();
-        
+
         const dateStr = mancheDate.toLocaleDateString('fr-FR', {
             weekday: 'long',
             year: 'numeric',
@@ -269,7 +269,7 @@ function renderManchesList() {
                 <div class="timeline-marker ${isCompleted ? 'completed' : ''}"></div>
                 <div class="manche-card type-${mancheType}" onclick="openMancheModalById(${manche.id})">
                     <div class="manche-header">
-                        <h3 class="manche-title">Manche ${manche.numero}</h3>
+                        <h3 class="manche-title">${manche.nom || `Manche ${manche.numero || '?'}`}</h3>
                         <span class="manche-type-badge badge-${mancheType}">
                             ${getMancheTypeLabel(mancheType)}
                         </span>
@@ -336,46 +336,6 @@ function updateDateDisplay() {
     }
 }
 
-/**
- * Mettre à jour les statistiques
- */
-function updateStats() {
-    console.log('📊 Mise à jour des statistiques avec', manches.length, 'manches');
-    
-    // Jours restants jusqu'au Ramadan
-    const ramadanStart = new Date(2026, 1, 18);
-    const today = new Date();
-    const daysRemaining = Math.ceil((ramadanStart - today) / (1000 * 60 * 60 * 24));
-    
-    const joursRestantsElem = document.getElementById('joursRestants');
-    if (joursRestantsElem) {
-        joursRestantsElem.textContent = daysRemaining > 0 ? daysRemaining : 0;
-        console.log('📅 Jours restants:', daysRemaining);
-    }
-
-    // Manches totales
-    const manchesTotalesElem = document.getElementById('manchesTotales');
-    if (manchesTotalesElem) {
-        manchesTotalesElem.textContent = manches.length;
-        console.log('🎯 Manches totales:', manches.length);
-    }
-
-    // Manches terminées (statut = 'termine')
-    const manchesTerminees = manches.filter(m => m.statut === 'termine').length;
-    const manchesTermineesElem = document.getElementById('manchesTerminees');
-    if (manchesTermineesElem) {
-        manchesTermineesElem.textContent = manchesTerminees;
-        console.log('✅ Manches terminées:', manchesTerminees);
-    }
-
-    // Manches à venir (statut = 'publie' ou 'brouillon')
-    const manchesAVenir = manches.filter(m => m.statut === 'publie' || m.statut === 'brouillon').length;
-    const manchesAVenirElem = document.getElementById('manchesAVenir');
-    if (manchesAVenirElem) {
-        manchesAVenirElem.textContent = manchesAVenir;
-        console.log('⏳ Manches à venir:', manchesAVenir);
-    }
-}
 
 /**
  * Initialiser la navigation du calendrier
@@ -433,7 +393,7 @@ function initModal() {
 /**
  * Ouvrir le modal d'une manche par ID
  */
-window.openMancheModalById = function(mancheId) {
+window.openMancheModalById = function (mancheId) {
     const manche = manches.find(m => m.id === mancheId);
     if (manche) {
         openMancheModal(manche);
@@ -446,12 +406,12 @@ window.openMancheModalById = function(mancheId) {
 function openMancheModal(manche) {
     const modal = document.getElementById('mancheModal');
     const modalBody = document.getElementById('mancheModalBody');
-    
+
     if (!modal || !modalBody) return;
 
     const mancheDate = new Date(manche.date_manche || manche.date);
     const mancheType = manche.type || getMancheType(manche.numero);
-    
+
     const dateStr = mancheDate.toLocaleDateString('fr-FR', {
         weekday: 'long',
         year: 'numeric',
@@ -460,7 +420,7 @@ function openMancheModal(manche) {
     });
 
     // Utiliser heure_debut et heure_fin si disponibles
-    const timeStr = manche.heure_debut && manche.heure_fin 
+    const timeStr = manche.heure_debut && manche.heure_fin
         ? `${manche.heure_debut} - ${manche.heure_fin}`
         : mancheDate.toLocaleTimeString('fr-FR', {
             hour: '2-digit',
@@ -468,7 +428,7 @@ function openMancheModal(manche) {
         });
 
     const hijriDate = gregorianToHijri(mancheDate);
-    
+
     // Préparer l'affichage des rubriques
     const rubriquesHTML = manche.rubriques && manche.rubriques.length > 0
         ? `<ul style="margin: 0; padding-left: 1.5rem;">
@@ -478,7 +438,7 @@ function openMancheModal(manche) {
 
     modalBody.innerHTML = `
         <h2 class="modal-manche-title">
-            Manche ${manche.numero} - ${getMancheTypeLabel(mancheType)}
+            ${manche.nom || `Manche ${manche.numero || '?'}`} - ${getMancheTypeLabel(mancheType)}
         </h2>
         
         <div class="modal-info-grid">
