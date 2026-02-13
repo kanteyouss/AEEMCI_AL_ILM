@@ -1,0 +1,32 @@
+services:
+  # Backend API
+  - type: web
+    name: alilm-2026-api
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: "*"
+
+  # Frontend Static Site
+  - type: web
+    name: alilm-2026-frontend
+    runtime: static
+    region: oregon
+    plan: free
+    buildCommand: echo "No build needed"
+    staticPublishPath: ./frontend
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
