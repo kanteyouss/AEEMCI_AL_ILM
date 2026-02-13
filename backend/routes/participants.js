@@ -9,13 +9,13 @@ const { upload, handleMulterError } = require('../middleware/upload');
  * GET /api/participants
  * Récupérer tous les participants (avec filtres optionnels)
  */
-router.get('/', verifyJWT, isAdmin, participantController.getAllParticipants);
+router.get('/', participantController.getAllParticipants);
 
 /**
  * GET /api/participants/:id
  * Récupérer un participant par ID
  */
-router.get('/:id', verifyJWT, validateId, participantController.getParticipantById);
+router.get('/:id', validateId, participantController.getParticipantById);
 
 /**
  * POST /api/participants
@@ -27,13 +27,13 @@ router.post('/', validateParticipant, participantController.createParticipant);
  * PUT /api/participants/:id
  * Mettre à jour un participant
  */
-router.put('/:id', verifyJWT, isAdmin, validateId, participantController.updateParticipant);
+router.put('/:id', validateId, participantController.updateParticipant);
 
 /**
  * DELETE /api/participants/:id
  * Supprimer un participant
  */
-router.delete('/:id', verifyJWT, isAdmin, validateId, participantController.deleteParticipant);
+router.delete('/:id', validateId, participantController.deleteParticipant);
 
 /**
  * POST /api/participants/import-csv

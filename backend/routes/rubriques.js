@@ -7,30 +7,30 @@ const { verifyJWT, isAdmin } = require('../middleware/auth');
  * GET /api/rubriques
  * Récupérer toutes les rubriques
  */
-router.get('/', verifyJWT, rubriqueController.getAllRubriques);
+router.get('/', rubriqueController.getAllRubriques);
 
 /**
  * GET /api/rubriques/:id
  * Récupérer une rubrique par ID
  */
-router.get('/:id', verifyJWT, rubriqueController.getRubriqueById);
+router.get('/:id', rubriqueController.getRubriqueById);
 
 /**
  * POST /api/rubriques
- * Créer une nouvelle rubrique (Admin uniquement)
+ * Créer une nouvelle rubrique
  */
-router.post('/', verifyJWT, isAdmin, rubriqueController.createRubrique);
+router.post('/', rubriqueController.createRubrique);
 
 /**
  * PUT /api/rubriques/:id
- * Mettre à jour une rubrique (Admin uniquement)
+ * Mettre à jour une rubrique
  */
-router.put('/:id', verifyJWT, isAdmin, rubriqueController.updateRubrique);
+router.put('/:id', rubriqueController.updateRubrique);
 
 /**
  * DELETE /api/rubriques/:id
- * Supprimer une rubrique (Admin uniquement)
+ * Supprimer une rubrique
  */
-router.delete('/:id', verifyJWT, isAdmin, rubriqueController.deleteRubrique);
+router.delete('/:id', rubriqueController.deleteRubrique);
 
 module.exports = router;

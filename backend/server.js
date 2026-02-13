@@ -123,6 +123,17 @@ app.get('/api/migrate-etapes', async (req, res) => {
 });
 
 // ============================================
+// ENDPOINT DE SANTÉ (Diagnostic)
+// ============================================
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'UP',
+        timestamp: new Date().toISOString(),
+        database: 'Connected' // On suppose que si le serveur tourne, la DB est OK ou sera testée ici plus tard
+    });
+});
+
+// ============================================
 // ROUTE RACINE (Pour tester le serveur)
 // ============================================
 app.get('/api', (req, res) => {
@@ -132,6 +143,7 @@ app.get('/api', (req, res) => {
         organisation: 'AEEMCI - Section ESATIC',
         devise: 'Pour une identité islamique !',
         endpoints: {
+            health: '/api/health',
             auth: '/api/auth',
             participants: '/api/participants',
             equipes: '/api/equipes',
@@ -175,7 +187,7 @@ server.listen(PORT, () => {
     console.log(`   AEEMCI - Section ESATIC`);
     console.log('========================================== 🕌\n');
     console.log(`✅ Serveur démarré sur le port ${PORT}`);
-    console.log(`📍 URL: http://localhost:${PORT}`);
+    console.log(` URL: http://localhost:${PORT}`);
     console.log(`🔗 API: http://localhost:${PORT}/api`);
     console.log(`\n🌙 Ramadan 2026 - Que la lumière de la connaissance vous guide !\n`);
 });

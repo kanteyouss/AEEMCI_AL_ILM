@@ -3,19 +3,8 @@
 // Dashboard Admin AL ILM 2026
 // ============================================
 
-// Données des 10 équipes
-const EQUIPES_DATA = [
-    { id: 1, nom: 'AL-FURQAN', symbole: '⚖️', couleur: '#2c3e50' },
-    { id: 2, nom: 'AS-SABIQUN', symbole: '🏃', couleur: '#27ae60' },
-    { id: 3, nom: 'AL-MUJAHIDUN', symbole: '⚔️', couleur: '#c0392b' },
-    { id: 4, nom: 'AN-NUR', symbole: '💡', couleur: '#f39c12' },
-    { id: 5, nom: 'AL-HUDA', symbole: '🧭', couleur: '#16a085' },
-    { id: 6, nom: 'AL-BADR', symbole: '🌕', couleur: '#95a5a6' },
-    { id: 7, nom: 'AL-FIRDAWS', symbole: '🌴', couleur: '#27ae60' },
-    { id: 8, nom: 'AL-MUFLIHUN', symbole: '🎯', couleur: '#e67e22' },
-    { id: 9, nom: 'AS-SADIQUN', symbole: '🤝', couleur: '#9b59b6' },
-    { id: 10, nom: 'AL-IMAN', symbole: '🕋', couleur: '#34495e' }
-];
+// Données des équipes (chargées dynamiquement)
+let EQUIPES_DATA = [];
 
 // État global
 let participants = [];
@@ -24,43 +13,39 @@ let draggedElement = null;
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', async () => {
-    // Vérifier l'authentification avec api.js
-    const token = getAuthToken();
-    const user = getUser();
-    
-    console.log('🔐 Token présent:', !!token);
+    // Vérifier l'authentification (profonde)
+    const isAuthenticated = await checkAuth();
+    // const isAuthenticated = await checkAuth(); // Authentification facultative
+    const user = getUser() || { prenom: 'Admin', nom: 'Public', role: 'admin' };
+
+    // console.log('🔐 Statut Auth:', isAuthenticated); // isAuthenticated n'est plus défini
     console.log('👤 Utilisateur:', user);
-    
-    if (!token || !user) {
-        console.log('❌ Pas authentifié, redirection vers login');
-        window.location.href = '../login.html';
-        return;
-    }
-    
-    if (user.role !== 'admin') {
-        console.log('❌ Pas admin, redirection vers login');
-        window.location.href = '../login.html';
-        return;
-    }
-    
+
     // Afficher le nom de l'utilisateur
     const userNameElement = document.getElementById('userName');
-    if (userNameElement && user.nom) {
-        userNameElement.textContent = `${user.prenom || ''} ${user.nom}`.trim();
+    const adminBadge = document.querySelector('.admin-badge');
+
+    if (userNameElement) {
+        const displayName = user.prenom ? `${user.prenom} ${user.nom}` : (user.nom || 'Utilisateur');
+        userNameElement.textContent = displayName;
+    }
+
+    if (adminBadge && user.type === 'equipe') {
+        adminBadge.textContent = 'Session Équipe';
+        adminBadge.style.background = 'rgba(76, 175, 80, 0.1)';
+        adminBadge.style.color = '#4caf50';
     }
 
     // Gérer la déconnexion
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            clearAuthToken();
-            window.location.href = '../login.html';
+        logoutBtn.addEventListener('click', async () => {
+            await logout();
         });
     }
 
     await loadParticipants();
     await loadEquipesWithMembers();
-    renderEquipes();
     renderParticipants();
     initEventListeners();
 });
@@ -70,36 +55,11 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function loadParticipants() {
     try {
-        const token = getAuthToken();
-        console.log('🔑 Chargement participants avec token:', token ? 'Présent' : 'Absent');
-        
-        const response = await fetch('/api/participants', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        console.log('📡 Réponse API participants:', response.status);
-        
-        if (!response.ok) {
-            if (response.status === 401) {
-                console.error('❌ Non autorisé (401)');
-                showNotification('Session expirée. Redirection...', 'error');
-                setTimeout(() => {
-                    clearAuthToken();
-                    window.location.href = '../login.html';
-                }, 1500);
-                return;
-            }
-            throw new Error(`Erreur ${response.status}`);
-        }
-        
-        const result = await response.json();
+        const result = await apiRequest('/participants');
         console.log('📊 Données reçues:', result);
-        
+
         participants = result.data.filter(p => !p.equipe_id); // Seulement les non assignés
-        
+
         updatePoolCount();
         console.log(`✅ ${participants.length} participants chargés`);
     } catch (error) {
@@ -126,43 +86,60 @@ function initEquipes() {
  */
 async function loadEquipesWithMembers() {
     try {
-        const token = getAuthToken();
-        
-        // Charger toutes les équipes avec leurs membres
-        const response = await fetch('/api/equipes', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Erreur ${response.status}`);
-        }
-        
-        const result = await response.json();
+        const result = await apiRequest('/equipes');
         console.log('📊 Équipes chargées depuis la BD:', result);
-        
-        // Initialiser les équipes vides
-        initEquipes();
-        
-        // Remplir avec les données de la BD
-        result.data.forEach(equipeDB => {
-            const equipeLocal = equipes[equipeDB.id];
-            if (!equipeLocal) return;
-            
-            // Si l'équipe a des membres dans la BD, les charger
-            if (equipeDB.nb_membres > 0) {
-                loadEquipeMembres(equipeDB.id);
-            }
+
+        // Mettre à jour EQUIPES_DATA dynamiquement
+        EQUIPES_DATA = result.data.map(eq => ({
+            id: eq.id,
+            nom: eq.nom,
+            symbole: eq.symbole || '🏴',
+            couleur: eq.couleur || '#333'
+        }));
+
+        // Créer les conteneurs DOM pour les équipes
+        renderEquipes();
+
+        // Réinitialiser l'état local des équipes
+        equipes = {};
+        EQUIPES_DATA.forEach(equipe => {
+            equipes[equipe.id] = {
+                ...equipe,
+                membres: [],
+                capitaine: null
+            };
         });
-        
+
+        // Charger les membres pour chaque équipe
+        for (const eq of EQUIPES_DATA) {
+            try {
+                const teamResult = await apiRequest(`/equipes/${eq.id}`);
+                if (teamResult.success && teamResult.data.membres) {
+                    equipes[eq.id].membres = teamResult.data.membres;
+
+                    const capitaine = teamResult.data.membres.find(m => m.est_capitaine);
+                    if (capitaine) {
+                        equipes[eq.id].capitaine = capitaine.id;
+                    }
+
+                    // Mettre à jour l'affichage pour cette équipe
+                    renderEquipeMembers(eq.id);
+                    updateEquipeCount(eq.id);
+                }
+            } catch (err) {
+                console.warn(`⚠️ Impossible de charger les membres pour l'équipe ${eq.nom}:`, err);
+            }
+        }
+
         console.log('✅ Équipes initialisées avec membres');
-        
+
     } catch (error) {
         console.error('❌ Erreur chargement équipes:', error);
-        // En cas d'erreur, initialiser avec équipes vides
-        initEquipes();
+        // Tenter de rendre ce qu'on a pour éviter un écran vide
+        renderEquipes();
+        if (EQUIPES_DATA.length > 0) {
+            initEquipes();
+        }
     }
 }
 
@@ -171,36 +148,25 @@ async function loadEquipesWithMembers() {
  */
 async function loadEquipeMembres(equipeId) {
     try {
-        const token = getAuthToken();
-        
-        const response = await fetch(`/api/equipes/${equipeId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) return;
-        
-        const result = await response.json();
+        const result = await apiRequest(`/equipes/${equipeId}`);
         const equipeData = result.data;
-        
+
         if (equipeData.membres && equipeData.membres.length > 0) {
             equipes[equipeId].membres = equipeData.membres;
-            
+
             // Trouver le capitaine
             const capitaine = equipeData.membres.find(m => m.est_capitaine);
             if (capitaine) {
                 equipes[equipeId].capitaine = capitaine.id;
             }
-            
+
             console.log(`✅ Équipe ${equipeId} : ${equipeData.membres.length} membre(s) chargé(s)`);
-            
+
             // Mettre à jour l'affichage
             renderEquipeMembers(equipeId);
             updateEquipeCount(equipeId);
         }
-        
+
     } catch (error) {
         console.error(`❌ Erreur chargement membres équipe ${equipeId}:`, error);
     }
@@ -211,7 +177,7 @@ async function loadEquipeMembres(equipeId) {
  */
 function renderEquipes() {
     const grid = document.getElementById('equipesGrid');
-    
+
     grid.innerHTML = EQUIPES_DATA.map(equipe => `
         <div class="equipe-box" 
              data-equipe-id="${equipe.id}"
@@ -241,7 +207,7 @@ function renderEquipes() {
  */
 function renderParticipants() {
     const list = document.getElementById('participantsList');
-    
+
     if (participants.length === 0) {
         list.innerHTML = `
             <p style="text-align: center; color: #adb5bd; padding: 2rem;">
@@ -250,7 +216,7 @@ function renderParticipants() {
         `;
         return;
     }
-    
+
     list.innerHTML = participants.map(p => `
         <div class="participant-card" 
              draggable="true"
@@ -258,7 +224,7 @@ function renderParticipants() {
              ondragstart="dragStart(event)">
             <div class="participant-name">${p.nom} ${p.prenom}</div>
             <div class="participant-info">
-                ${p.niveau || 'N/A'} • ${p.sexe === 'M' ? 'Homme' : 'Femme'}
+                ${p.niveau || 'N/A'} • ${p.genre || 'N/A'}
             </div>
         </div>
     `).join('');
@@ -284,7 +250,7 @@ function dragStart(event) {
 function allowDrop(event) {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
-    
+
     const equipeBox = event.currentTarget;
     if (equipeBox.classList.contains('equipe-box')) {
         equipeBox.classList.add('drag-over');
@@ -300,18 +266,18 @@ function dragLeave(event) {
 
 function drop(event) {
     event.preventDefault();
-    
+
     const equipeBox = event.currentTarget;
     equipeBox.classList.remove('drag-over');
-    
+
     const participantId = parseInt(event.dataTransfer.getData('participantId'));
     const equipeId = parseInt(equipeBox.dataset.equipeId);
-    
+
     if (draggedElement) {
         draggedElement.classList.remove('dragging');
         draggedElement = null;
     }
-    
+
     addToEquipe(participantId, equipeId);
 }
 
@@ -321,15 +287,15 @@ function drop(event) {
 function addToEquipe(participantId, equipeId) {
     const participant = participants.find(p => p.id === participantId);
     if (!participant) return;
-    
+
     if (equipes[equipeId].membres.length >= 10) {
         showNotification('Cette équipe est complète (max 10 membres)', 'warning');
         return;
     }
-    
+
     participants = participants.filter(p => p.id !== participantId);
     equipes[equipeId].membres.push(participant);
-    
+
     renderParticipants();
     renderEquipeMembers(equipeId);
     updatePoolCount();
@@ -343,7 +309,7 @@ function addToEquipe(participantId, equipeId) {
 function renderEquipeMembers(equipeId) {
     const container = document.getElementById(`members-${equipeId}`);
     const equipe = equipes[equipeId];
-    
+
     if (equipe.membres.length === 0) {
         container.innerHTML = `
             <p style="text-align: center; color: #adb5bd; padding: 2rem;">
@@ -352,26 +318,26 @@ function renderEquipeMembers(equipeId) {
         `;
         return;
     }
-    
+
     container.innerHTML = equipe.membres.map(membre => {
         const isCaptain = equipe.capitaine === membre.id;
-        
+
         return `
             <div class="member-card ${isCaptain ? 'captain' : ''}" 
                  data-member-id="${membre.id}">
-                ${isCaptain ? '<span class="captain-badge">👑 Capitaine</span>' : ''}
+                ${isCaptain ? '<span class="captain-badge">Capitaine</span>' : ''}
                 <div class="member-name">${membre.nom} ${membre.prenom}</div>
                 <div class="participant-info">
-                    ${membre.niveau || 'N/A'} • ${membre.sexe === 'M' ? 'Homme' : 'Femme'}
+                    ${membre.niveau || 'N/A'} • ${membre.genre || 'N/A'}
                 </div>
                 <div class="member-actions">
                     ${!isCaptain ? `
                         <button class="btn-captain" onclick="setCaptain(${equipeId}, ${membre.id})">
-                            👑 Capitaine
+                            Capitaine
                         </button>
                     ` : ''}
                     <button class="btn-remove" onclick="removeFromEquipe(${equipeId}, ${membre.id})">
-                        ❌ Retirer
+                        Retirer
                     </button>
                 </div>
             </div>
@@ -405,15 +371,15 @@ function setCaptain(equipeId, membreId) {
 function removeFromEquipe(equipeId, membreId) {
     const membre = equipes[equipeId].membres.find(m => m.id === membreId);
     if (!membre) return;
-    
+
     equipes[equipeId].membres = equipes[equipeId].membres.filter(m => m.id !== membreId);
-    
+
     if (equipes[equipeId].capitaine === membreId) {
         equipes[equipeId].capitaine = null;
     }
-    
+
     participants.push(membre);
-    
+
     renderParticipants();
     renderEquipeMembers(equipeId);
     updatePoolCount();
@@ -431,14 +397,14 @@ function updateProgressStats() {
     const statsCapitaines = document.getElementById('statsCapitaines');
     const statsNonAssignes = document.getElementById('statsNonAssignes');
     const readyIndicator = document.getElementById('readyIndicator');
-    
+
     if (!progressBar) return;
-    
+
     // Calculer les statistiques
     let nbEquipesFormees = 0;
     let totalMembres = 0;
     let nbCapitaines = 0;
-    
+
     EQUIPES_DATA.forEach(eq => {
         const equipe = equipes[eq.id];
         if (equipe.membres.length > 0) {
@@ -449,22 +415,22 @@ function updateProgressStats() {
             }
         }
     });
-    
+
     const nbNonAssignes = participants.length;
-    
+
     // Mettre à jour l'affichage
     statsEquipes.textContent = nbEquipesFormees;
     statsMembres.textContent = totalMembres;
     statsCapitaines.textContent = nbCapitaines;
     statsNonAssignes.textContent = nbNonAssignes;
-    
+
     // Afficher la barre si des équipes sont formées
     if (nbEquipesFormees > 0) {
         progressBar.style.display = 'block';
-        
+
         // Indicateur de préparation
         const allHaveCaptains = nbEquipesFormees === nbCapitaines;
-        
+
         if (allHaveCaptains && nbEquipesFormees > 0) {
             readyIndicator.style.display = 'block';
             readyIndicator.style.background = '#d4edda';
@@ -491,31 +457,31 @@ function autoAssign() {
         showNotification('Aucun participant à répartir', 'warning');
         return;
     }
-    
+
     if (!confirm('Voulez-vous répartir automatiquement les participants ?\nCela effacera la répartition actuelle.')) {
         return;
     }
-    
+
     resetAllEquipes();
-    
+
     const shuffled = [...participants].sort(() => Math.random() - 0.5);
     const equipesIds = EQUIPES_DATA.map(e => e.id);
     let equipeIndex = 0;
-    
+
     shuffled.forEach(participant => {
         const equipeId = equipesIds[equipeIndex];
         equipes[equipeId].membres.push(participant);
         equipeIndex = (equipeIndex + 1) % equipesIds.length;
     });
-    
+
     participants = [];
-    
+
     equipesIds.forEach(id => {
         if (equipes[id].membres.length > 0) {
             equipes[id].capitaine = equipes[id].membres[0].id;
         }
     });
-    
+
     renderParticipants();
     equipesIds.forEach(id => {
         renderEquipeMembers(id);
@@ -523,7 +489,7 @@ function autoAssign() {
     });
     updatePoolCount();
     updateProgressStats();
-    
+
     showNotification('Répartition automatique effectuée !', 'success');
 }
 
@@ -536,7 +502,7 @@ function resetAllEquipes() {
         equipes[eq.id].membres = [];
         equipes[eq.id].capitaine = null;
     });
-    
+
     renderParticipants();
     EQUIPES_DATA.forEach(eq => {
         renderEquipeMembers(eq.id);
@@ -552,7 +518,7 @@ function resetAll() {
     if (!confirm('Voulez-vous vraiment tout réinitialiser ?\nCette action est irréversible.')) {
         return;
     }
-    
+
     resetAllEquipes();
     showNotification('Réinitialisation effectuée', 'info');
 }
@@ -562,23 +528,23 @@ function resetAll() {
  */
 function validateEquipes() {
     const warnings = [];
-    
+
     EQUIPES_DATA.forEach(eq => {
         const equipe = equipes[eq.id];
-        
+
         if (equipe.membres.length === 0) {
             warnings.push(`${eq.nom} est vide`);
         }
-        
+
         if (equipe.membres.length > 0 && !equipe.capitaine) {
             warnings.push(`${eq.nom} n'a pas de capitaine`);
         }
     });
-    
+
     if (participants.length > 0) {
         warnings.push(`${participants.length} participant(s) non assigné(s)`);
     }
-    
+
     showValidationModal(warnings);
 }
 
@@ -588,9 +554,9 @@ function validateEquipes() {
 function showValidationModal(warnings) {
     const modal = document.getElementById('validationModal');
     const body = document.getElementById('modalBody');
-    
+
     let html = '';
-    
+
     if (warnings.length > 0) {
         html += `
             <div class="warning-box">
@@ -615,16 +581,16 @@ function showValidationModal(warnings) {
             </div>
         `;
     }
-    
+
     let totalMembres = 0;
-    
+
     EQUIPES_DATA.forEach(eq => {
         const equipe = equipes[eq.id];
-        
+
         if (equipe.membres.length > 0) {
             totalMembres += equipe.membres.length;
             const capitaine = equipe.membres.find(m => m.id === equipe.capitaine);
-            
+
             html += `
                 <div class="equipe-summary">
                     <h4>
@@ -636,20 +602,20 @@ function showValidationModal(warnings) {
                     </div>
                     <ul>
                         ${equipe.membres.map(m => {
-                            const isCap = equipe.capitaine === m.id;
-                            return `
+                const isCap = equipe.capitaine === m.id;
+                return `
                                 <li>
                                     <span>${m.nom} ${m.prenom}</span>
                                     ${isCap ? '<span class="captain-indicator">👑 Capitaine</span>' : ''}
                                 </li>
                             `;
-                        }).join('')}
+            }).join('')}
                     </ul>
                 </div>
             `;
         }
     });
-    
+
     // Afficher le résumé global
     const nbEquipes = EQUIPES_DATA.filter(eq => equipes[eq.id].membres.length > 0).length;
     html = `
@@ -671,7 +637,7 @@ function showValidationModal(warnings) {
             </div>
         </div>
     ` + html;
-    
+
     body.innerHTML = html;
     modal.classList.add('show');
 }
@@ -692,45 +658,45 @@ function closeModal() {
 function generateEquipesPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
+
     let pageCount = 0;
-    
+
     EQUIPES_DATA.forEach((equipeData, index) => {
         const equipe = equipes[equipeData.id];
-        
+
         // Ne générer que les équipes avec des membres
         if (!equipe || equipe.membres.length === 0) return;
-        
+
         // Nouvelle page pour chaque équipe (sauf la première)
         if (pageCount > 0) {
             doc.addPage();
         }
         pageCount++;
-        
+
         // En-tête
         doc.setFillColor(45, 106, 79); // Couleur primaire
         doc.rect(0, 0, 210, 40, 'F');
-        
+
         // Logo/Titre
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(24);
         doc.setFont('helvetica', 'bold');
         doc.text('AL ILM 2026', 105, 15, { align: 'center' });
-        
+
         doc.setFontSize(16);
         doc.text('FICHE EQUIPE', 105, 25, { align: 'center' });
-        
+
         // Nom de l'équipe
         doc.setFontSize(14);
         doc.text(equipeData.nom.toUpperCase(), 105, 35, { align: 'center' });
-        
+
         // Informations de l'équipe
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
-        
+
         let y = 55;
-        
+
         // Code d'accès
         doc.setFillColor(240, 240, 240);
         doc.roundedRect(20, y - 5, 170, 15, 3, 3, 'F');
@@ -738,9 +704,9 @@ function generateEquipesPDF() {
         doc.setFont('courier', 'bold');
         doc.setFontSize(14);
         doc.text(equipe.code || 'NON GENERE', 70, y + 5);
-        
+
         y += 25;
-        
+
         // Capitaine
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
@@ -757,55 +723,55 @@ function generateEquipesPDF() {
         } else {
             doc.text('Non designe', 60, y);
         }
-        
+
         y += 20;
-        
+
         // Liste des membres
         doc.setFont('helvetica', 'bold');
         doc.text(`MEMBRES (${equipe.membres.length}):`, 25, y);
-        
+
         y += 10;
-        
+
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
-        
+
         equipe.membres.forEach((membre, idx) => {
             const isCap = membre.id === equipe.capitaine;
             const prefix = isCap ? '[C]' : `${idx + 1}.`;
-            
+
             // Nom avec préfixe
             doc.setFont('helvetica', isCap ? 'bold' : 'normal');
             doc.text(`${prefix} ${membre.prenom} ${membre.nom}`, 30, y);
-            
+
             // Établissement
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100, 100, 100);
             doc.setFontSize(9);
             doc.text(membre.etablissement, 35, y + 4);
-            
+
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(10);
-            
+
             y += 12;
-            
+
             // Nouvelle page si nécessaire
             if (y > 270) {
                 doc.addPage();
                 y = 20;
             }
         });
-        
+
         // Pied de page
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
         doc.text('AL ILM 2026 - Competition Islamique Inter-Ecoles', 105, 285, { align: 'center' });
         doc.text(`Page ${pageCount}`, 105, 290, { align: 'center' });
     });
-    
+
     // Télécharger le PDF
     const date = new Date().toISOString().split('T')[0];
     doc.save(`AL_ILM_2026_Equipes_${date}.pdf`);
-    
+
     showNotification('Fiches PDF generees avec succes !', 'success');
 }
 
@@ -817,36 +783,20 @@ async function confirmValidation() {
             membres: equipes[eq.id].membres.map(m => m.id),
             capitaine_id: equipes[eq.id].capitaine
         }));
-        
+
         const token = getAuthToken();
+        // Skip auth check as requested
+        /*
         if (!token) {
             throw new Error('Non authentifié');
         }
-        
-        const response = await fetch('/api/equipes/validate', {
+        */
+
+        const result = await apiRequest('/equipes/validate', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
             body: JSON.stringify({ equipes: equipesData })
         });
-        
-        if (!response.ok) {
-            if (response.status === 401) {
-                showNotification('Session expirée. Redirection...', 'error');
-                setTimeout(() => {
-                    clearAuthToken();
-                    window.location.href = '/login.html';
-                }, 1500);
-                return;
-            }
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Erreur serveur');
-        }
-        
-        const result = await response.json();
-        
+
         // Mettre à jour les codes d'accès localement
         result.data.forEach(equipeResult => {
             const equipeLocal = EQUIPES_DATA.find(e => e.id === equipeResult.equipe_id);
@@ -854,10 +804,10 @@ async function confirmValidation() {
                 equipes[equipeResult.equipe_id].code = equipeResult.code_acces;
             }
         });
-        
+
         closeModal();
         showNotification(`✅ ${result.data.length} équipe(s) validée(s) ! Codes générés.`, 'success');
-        
+
         // Afficher les codes générés
         setTimeout(() => {
             let codesMessage = '🎯 CODES D\'ACCÈS GÉNÉRÉS\n\n';
@@ -866,10 +816,10 @@ async function confirmValidation() {
                 codesMessage += `${equipeData.symbole} ${equipeData.nom}: ${eq.code_acces}\n`;
             });
             codesMessage += '\n💡 Les codes sont maintenant disponibles dans les fiches PDF.';
-            
+
             alert(codesMessage);
         }, 1000);
-        
+
     } catch (error) {
         console.error('Erreur lors de la validation:', error);
         showNotification(`❌ ${error.message}`, 'error');
@@ -935,24 +885,24 @@ function showHelp() {
             </div>
         </div>
     `;
-    
+
     const modalBody = document.getElementById('modalBody');
     modalBody.innerHTML = helpContent;
-    
+
     // Modifier les boutons du modal
     const btnConfirm = document.getElementById('btnConfirmValidation');
     const btnCancel = btnConfirm.previousElementSibling;
-    
+
     // Sauvegarder les gestionnaires d'origine
     const originalCancelText = btnCancel.textContent;
     const originalConfirmDisplay = btnConfirm.style.display;
-    
+
     btnCancel.textContent = 'Fermer';
     btnConfirm.style.display = 'none';
-    
+
     // Ouvrir le modal
     document.getElementById('validationModal').classList.add('show');
-    
+
     // Restaurer les boutons à la fermeture
     const modal = document.getElementById('validationModal');
     const observer = new MutationObserver((mutations) => {
@@ -974,19 +924,19 @@ function initEventListeners() {
     document.getElementById('searchParticipants').addEventListener('input', (e) => {
         const search = e.target.value.toLowerCase();
         const cards = document.querySelectorAll('.participant-card');
-        
+
         cards.forEach(card => {
             const text = card.textContent.toLowerCase();
             card.style.display = text.includes(search) ? 'block' : 'none';
         });
     });
-    
+
     document.getElementById('btnAutoAssign').addEventListener('click', autoAssign);
     document.getElementById('btnReset').addEventListener('click', resetAll);
     document.getElementById('btnValidate').addEventListener('click', validateEquipes);
     document.getElementById('btnConfirmValidation').addEventListener('click', confirmValidation);
     document.getElementById('btnGeneratePDF').addEventListener('click', generateEquipesPDF);
-    
+
     document.getElementById('logoutBtn').addEventListener('click', () => {
         localStorage.removeItem('token');
         window.location.href = '../login.html';
@@ -1003,7 +953,7 @@ function showNotification(message, type = 'info') {
         warning: '#f39c12',
         info: '#3498db'
     };
-    
+
     const notification = document.createElement('div');
     notification.style.cssText = `
         position: fixed;
@@ -1018,9 +968,9 @@ function showNotification(message, type = 'info') {
         animation: slideIn 0.3s ease;
     `;
     notification.textContent = message;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.remove();
     }, 3000);

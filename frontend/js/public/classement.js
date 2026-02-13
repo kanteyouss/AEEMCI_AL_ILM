@@ -33,16 +33,14 @@ let podiumCarousel = {
 
 // Symboles des équipes
 const equipesSymboles = {
-    'AL-FURQAN': '⚖️',
-    'AS-SABIQUN': '🏃',
-    'AL-MUJAHIDUN': '⚔️',
-    'AN-NUR': '💡',
-    'AL-HUDA': '🧭',
-    'AL-BADR': '🌕',
-    'AL-FIRDAWS': '🌴',
-    'AL-MUFLIHUN': '🎯',
-    'AS-SADIQUN': '🤝',
-    'AL-IMAN': '🕋'
+    'AS-SOLIHATE': '🌸',
+    'AT-TAWWABOUNE': '🤲',
+    'AZ-ZAKIROUNE': '📿',
+    'AL YAQRA\'OUN': '📖',
+    'AL MOUHTADOUNE': '🧭',
+    'AL MOUDJAHIDOUNE': '⚔️',
+    'AS SORBIROUNE': '⏳',
+    'ASH-SHAKIROUNE': '🙌'
 };
 
 const etapesNoms = {
@@ -52,15 +50,20 @@ const etapesNoms = {
     'finale': 'Finale'
 };
 
-let currentPhase = 'finale'; //Priorité à la Phase Finale par défaut
+let currentPhase = null; // Sera initialisé dynamiquement dans loadDisplayConfig
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadDisplayConfig(); // Charger la config d'abord
 
-    // Initialiser la phase courante basée sur la config (si définie) ou rester sur 'finale'
-    if (displayConfig.etape_publiee) {
+    // Initialiser la phase courante basée sur la config (si définie)
+    if (displayConfig.etape_publiee && displayConfig[`afficher_phase_${displayConfig.etape_publiee}`] !== false) {
         currentPhase = displayConfig.etape_publiee;
+    } else {
+        // Sinon, trouver la première phase activée
+        const phases = ['finale', 'demi', 'quart', 'preliminaire'];
+        currentPhase = phases.find(p => displayConfig[`afficher_phase_${p}`] !== false) || 'preliminaire';
     }
+
     updateActiveTab(currentPhase);
     initPhaseTabs();
 
@@ -81,9 +84,13 @@ async function loadDisplayConfig() {
         const result = await response.json();
         displayConfig = { ...displayConfig, ...result.data };
 
-        // Mettre à jour la phase courante immédiatement si définie dans la config
-        if (displayConfig.etape_publiee) {
+        // Mettre à jour la phase courante intelligemment
+        if (displayConfig.etape_publiee && displayConfig[`afficher_phase_${displayConfig.etape_publiee}`] !== false) {
             currentPhase = displayConfig.etape_publiee;
+        } else {
+            // Trouver la meilleure phase disponible
+            const phases = ['finale', 'demi', 'quart', 'preliminaire'];
+            currentPhase = phases.find(p => displayConfig[`afficher_phase_${p}`] !== false) || 'preliminaire';
         }
 
         console.log('✅ Configuration chargée:', displayConfig);

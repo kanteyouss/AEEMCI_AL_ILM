@@ -11,26 +11,26 @@ router.get('/', classementConfigController.getAllConfig);
 
 /**
  * PUT /api/classement-config
- * Mettre à jour une configuration (Admin uniquement)
+ * Mettre à jour une configuration (Public temporairement)
  */
-router.put('/', verifyJWT, isAdmin, classementConfigController.updateConfig);
+router.put('/', classementConfigController.updateConfig);
 
 /**
  * PUT /api/classement-config/batch
- * Mettre à jour plusieurs configurations (Admin uniquement)
+ * Mettre à jour plusieurs configurations (Public temporairement)
  */
-router.put('/batch', verifyJWT, isAdmin, classementConfigController.updateMultipleConfig);
+router.put('/batch', classementConfigController.updateMultipleConfig);
 
 /**
  * POST /api/classement-config/publier
- * Publier le classement (Admin uniquement)
+ * Publier le classement (Public temporairement)
  */
-router.post('/publier', verifyJWT, isAdmin, classementConfigController.publierClassement);
+router.post('/publier', classementConfigController.publierClassement);
 
 /**
  * POST /api/classement-config/depublier
- * Dépublier le classement (Admin uniquement)
+ * Dépublier le classement (Public temporairement)
  */
-router.post('/depublier', verifyJWT, isAdmin, classementConfigController.depublierClassement);
+router.post('/depublier', classementConfigController.depublierClassement);
 
 module.exports = router;

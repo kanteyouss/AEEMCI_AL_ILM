@@ -6,27 +6,40 @@ console.log('✅ Dashboard admin chargé');
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('✅ DOM chargé, initialisation...');
-    
-    // Vérifier l'authentification
+
+    // Authentification facultative (Mode ouvert)
+    /* 
+    const isAuthenticated = await checkAuth();
     const user = getUser();
-    console.log('👤 Utilisateur:', user);
-    
-    if (!user || user.role !== 'admin') {
-        console.log('❌ Non autorisé, redirection vers login');
+    console.log('👤 Utilisateur:', user, 'Auth:', isAuthenticated);
+
+    if (!isAuthenticated || !user || user.role !== 'admin') {
+        console.log('❌ Non autorisé ou session invalide, redirection vers login');
         window.location.href = '/login.html';
         return;
     }
-    
+    */
+    const user = getUser() || { prenom: 'Admin', nom: 'Public', role: 'admin' };
+
     // Afficher les informations de l'admin
     const userNameElement = document.getElementById('userName');
+    const adminBadge = document.querySelector('.admin-badge');
+
     if (userNameElement) {
-        userNameElement.textContent = `${user.prenom} ${user.nom}`;
-        console.log('✅ Nom affiché:', userNameElement.textContent);
+        const displayName = user.prenom ? `${user.prenom} ${user.nom}` : (user.nom || 'Utilisateur');
+        userNameElement.textContent = displayName;
+        console.log('✅ Nom affiché:', displayName);
     }
-    
+
+    if (adminBadge && user.type === 'equipe') {
+        adminBadge.textContent = 'Session Équipe';
+        adminBadge.style.background = 'rgba(76, 175, 80, 0.1)';
+        adminBadge.style.color = '#4caf50';
+    }
+
     // Gestion de la navigation entre sections
     initNavigation();
-    
+
     // Bouton déconnexion
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
@@ -35,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = '/login.html';
         });
     }
-    
+
     // Bouton import CSV
     const importCSVBtn = document.getElementById('importCSVBtn');
     if (importCSVBtn) {
@@ -44,10 +57,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             openCSVImportDialog();
         });
     }
-    
+
     // Charger les statistiques
     await loadStatistics();
-    
+
     console.log('✅ Dashboard initialisé');
 });
 
@@ -57,37 +70,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 function initNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.content-section');
-    
+
     console.log('📋 Navigation items:', navItems.length);
     console.log('📋 Sections:', sections.length);
-    
+
     navItems.forEach(item => {
         // Ignorer les liens externes (equipes.html)
         if (item.getAttribute('href') && item.getAttribute('href') !== '#') {
             console.log('⏭️ Lien externe ignoré:', item.getAttribute('href'));
             return;
         }
-        
+
         item.addEventListener('click', (e) => {
             e.preventDefault();
-            
+
             const targetSection = item.dataset.section;
             console.log('🔄 Navigation vers:', targetSection);
-            
+
             // Retirer la classe active de tous les items
             navItems.forEach(nav => nav.classList.remove('active'));
             sections.forEach(section => section.classList.remove('active'));
-            
+
             // Activer l'item et la section ciblés
             item.classList.add('active');
             const section = document.getElementById(targetSection);
             if (section) {
                 section.classList.add('active');
                 console.log('✅ Section affichée:', targetSection);
-                
+
                 // Mettre à jour l'URL avec le hash
                 window.location.hash = targetSection;
-                
+
                 // Charger les données de la section
                 loadSectionData(targetSection);
             } else {
@@ -95,23 +108,23 @@ function initNavigation() {
             }
         });
     });
-    
+
     // Détecter le hash dans l'URL au chargement
     const hash = window.location.hash.substring(1); // Enlever le #
     if (hash) {
         console.log('🔗 Hash détecté dans l\'URL:', hash);
         const targetSection = document.getElementById(hash);
         const targetNavItem = document.querySelector(`[data-section="${hash}"]`);
-        
+
         if (targetSection && targetNavItem) {
             // Désactiver toutes les sections et nav items
             sections.forEach(section => section.classList.remove('active'));
             navItems.forEach(nav => nav.classList.remove('active'));
-            
+
             // Activer la section ciblée
             targetSection.classList.add('active');
             targetNavItem.classList.add('active');
-            
+
             console.log('✅ Section activée depuis hash:', hash);
             loadSectionData(hash);
         }
@@ -123,8 +136,8 @@ function initNavigation() {
  */
 async function loadSectionData(section) {
     console.log('📊 Chargement des données pour:', section);
-    
-    switch(section) {
+
+    switch (section) {
         case 'participants':
             await loadParticipants();
             break;
@@ -149,32 +162,32 @@ async function loadStatistics() {
         // Récupérer le nombre de participants
         const participantsResponse = await apiRequest('/participants');
         const nbParticipants = participantsResponse.data ? participantsResponse.data.length : 0;
-        
+
         // Récupérer le nombre d'équipes
         const equipesResponse = await apiRequest('/equipes');
         const nbEquipes = equipesResponse.data ? equipesResponse.data.length : 0;
-        
+
         // Récupérer le nombre de manches
         const manchesResponse = await apiRequest('/manches');
         const nbManches = manchesResponse.data ? manchesResponse.data.length : 0;
-        
+
         // Récupérer le nombre de questions
         const questionsResponse = await apiRequest('/questions');
         const nbQuestions = questionsResponse.data ? questionsResponse.data.length : 0;
-        
+
         // Afficher les statistiques
         const totalParticipants = document.getElementById('totalParticipants');
         const totalEquipes = document.getElementById('totalEquipes');
         const totalManches = document.getElementById('totalManches');
         const totalQuestions = document.getElementById('totalQuestions');
-        
+
         if (totalParticipants) totalParticipants.textContent = nbParticipants;
         if (totalEquipes) totalEquipes.textContent = nbEquipes;
         if (totalManches) totalManches.textContent = nbManches;
         if (totalQuestions) totalQuestions.textContent = nbQuestions;
-        
+
         console.log('✅ Statistiques chargées:', { nbParticipants, nbEquipes, nbManches, nbQuestions });
-        
+
     } catch (error) {
         console.error('❌ Erreur lors du chargement des statistiques:', error);
     }
@@ -217,10 +230,10 @@ async function loadManches() {
         const response = await apiRequest('/manches');
         console.log('✅ Manches chargées:', response.data.length);
         console.log('📋 Détails des manches:', response.data);
-        
+
         // Charger les manches créées
         await loadCreatedManches();
-        
+
     } catch (error) {
         console.error('❌ Erreur:', error);
     }
@@ -257,21 +270,21 @@ async function loadClassement() {
                 option.textContent = `Manche ${manche.numero} - ${new Date(manche.date_debut).toLocaleDateString('fr-FR')}`;
                 filterSelect.appendChild(option);
             });
-            
+
             // Event listener pour le filtre
             filterSelect.addEventListener('change', () => loadClassement());
         }
-        
+
         // Récupérer le filtre sélectionné
         const mancheId = filterSelect?.value || '';
         const queryParam = mancheId ? `?manche_id=${mancheId}` : '';
-        
+
         const response = await apiRequest(`/classement/general${queryParam}`);
         console.log('✅ Classement chargé:', response);
-        
+
         const container = document.getElementById('classementTable');
         if (!container) return;
-        
+
         if (!response.classement || response.classement.length === 0) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 3rem; color: #718096;">
@@ -281,7 +294,7 @@ async function loadClassement() {
             `;
             return;
         }
-        
+
         // Créer le tableau HTML
         container.innerHTML = `
             <div style="overflow-x: auto;">
@@ -297,11 +310,11 @@ async function loadClassement() {
                     </thead>
                     <tbody>
                         ${response.classement.map((equipe, index) => {
-                            const isTop3 = index < 3;
-                            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
-                            const bgColor = index % 2 === 0 ? '#f9fafb' : 'white';
-                            
-                            return `
+            const isTop3 = index < 3;
+            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+            const bgColor = index % 2 === 0 ? '#f9fafb' : 'white';
+
+            return `
                                 <tr style="background: ${bgColor}; border-bottom: 1px solid #e5e7eb;">
                                     <td style="padding: 1rem; text-align: center; font-size: ${isTop3 ? '1.5rem' : '1rem'}; font-weight: ${isTop3 ? 'bold' : 'normal'};">
                                         ${medal || equipe.rang}
@@ -327,12 +340,12 @@ async function loadClassement() {
                                     </td>
                                 </tr>
                             `;
-                        }).join('')}
+        }).join('')}
                     </tbody>
                 </table>
             </div>
         `;
-        
+
     } catch (error) {
         console.error('❌ Erreur:', error);
         const container = document.getElementById('classementTable');
@@ -357,11 +370,11 @@ async function loadRecentActivities() {
         const recentParticipants = participantsResponse.data
             .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
             .slice(0, 5);
-        
+
         // Afficher les activités
         const activitiesList = document.getElementById('recentActivities');
         activitiesList.innerHTML = '';
-        
+
         recentParticipants.forEach(participant => {
             const li = document.createElement('li');
             li.className = 'activity-item';
@@ -374,7 +387,7 @@ async function loadRecentActivities() {
             `;
             activitiesList.appendChild(li);
         });
-        
+
     } catch (error) {
         console.error('Erreur lors du chargement des activités:', error);
     }
@@ -387,7 +400,7 @@ function createCharts(participants, equipes) {
     // Répartition par établissement
     const esaticCount = participants.filter(p => p.etablissement === 'ESATIC').length;
     const emspCount = participants.filter(p => p.etablissement === 'EMSP').length;
-    
+
     const etablissementChart = document.getElementById('etablissementChart');
     if (etablissementChart) {
         etablissementChart.innerHTML = `
@@ -416,11 +429,11 @@ function formatDate(dateString) {
     const date = new Date(dateString);
     const now = new Date();
     const diff = now - date;
-    
+
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
-    
+
     if (minutes < 60) {
         return `il y a ${minutes} min`;
     } else if (hours < 24) {
@@ -467,15 +480,15 @@ function openCSVImportDialog() {
     fileInput.type = 'file';
     fileInput.accept = '.csv';
     fileInput.style.display = 'none';
-    
+
     fileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        
+
         console.log('📄 Fichier sélectionné:', file.name);
         await importCSVFile(file);
     });
-    
+
     document.body.appendChild(fileInput);
     fileInput.click();
     document.body.removeChild(fileInput);
@@ -487,11 +500,11 @@ function openCSVImportDialog() {
 async function importCSVFile(file) {
     try {
         console.log('📤 Upload du fichier CSV...');
-        
+
         // Créer un FormData pour envoyer le fichier
         const formData = new FormData();
         formData.append('file', file);
-        
+
         // Envoyer le fichier au backend
         const response = await fetch(`${API_BASE_URL}/upload/participants`, {
             method: 'POST',
@@ -500,27 +513,27 @@ async function importCSVFile(file) {
             },
             body: formData
         });
-        
+
         const result = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(result.message || 'Erreur lors de l\'import');
         }
-        
+
         console.log('✅ Import réussi:', result);
-        
+
         // Afficher un message de succès
         alert(`✅ Import réussi !\n\n${result.data.success} participant(s) importé(s)\n${result.data.errors || 0} erreur(s)`);
-        
+
         // Recharger les statistiques
         await loadStatistics();
-        
+
         // Si on est sur la section participants, recharger la liste
         const activeSection = document.querySelector('.content-section.active');
         if (activeSection && activeSection.id === 'participants') {
             await loadParticipants();
         }
-        
+
     } catch (error) {
         console.error('❌ Erreur lors de l\'import CSV:', error);
         alert(`❌ Erreur lors de l'import :\n${error.message}`);
@@ -555,35 +568,35 @@ function initMancheCreation() {
     console.log('🔧 Initialisation des boutons de création de manches...');
     const createButtons = document.querySelectorAll('.btn-create-manche');
     console.log(`📊 Nombre de boutons trouvés: ${createButtons.length}`);
-    
+
     createButtons.forEach((button, index) => {
         console.log(`📌 Bouton ${index + 1}: type=${button.dataset.type}, numero=${button.dataset.numero}`);
         button.addEventListener('click', async (e) => {
             console.log('🖱️ Clic sur bouton de création de manche');
-            
+
             // Vérifier si le bouton est désactivé (manche déjà créée)
             if (button.disabled) {
                 console.warn('⚠️ Ce bouton est désactivé (manche déjà créée)');
                 alert('⚠️ Cette manche a déjà été créée. Utilisez le bouton "Modifier" dans la liste des manches créées.');
                 return;
             }
-            
+
             const type = button.dataset.type;
             const numero = button.dataset.numero;
-            
+
             // Récupérer la carte parent pour obtenir les valeurs
             const card = button.closest('.manche-card');
             const dateInput = card.querySelector('input[type="date"]');
             const timeInput = card.querySelector('input[type="time"]');
-            
+
             console.log(`📅 Date sélectionnée: ${dateInput.value}`);
             console.log(`🕐 Heure sélectionnée: ${timeInput.value}`);
-            
+
             if (!dateInput.value) {
                 alert('⚠️ Veuillez sélectionner une date pour cette manche.');
                 return;
             }
-            
+
             // Stocker les données de la manche
             currentMancheData = {
                 type,
@@ -592,14 +605,14 @@ function initMancheCreation() {
                 time: timeInput.value,
                 button
             };
-            
+
             console.log('📦 Données de la manche stockées:', currentMancheData);
-            
+
             // Charger les rubriques et ouvrir le modal
             await loadRubriquesAndShowModal();
         });
     });
-    
+
     // Initialiser le modal
     console.log('🔧 Initialisation du modal des rubriques...');
     initRubriquesModal();
@@ -612,24 +625,24 @@ async function createManche(type, numero, date, time, button, rubriques = [], eq
     try {
         console.log(`🎯 === DÉBUT ${isEdit ? 'MODIFICATION' : 'CRÉATION'} MANCHE ===`);
         console.log('📋 Paramètres reçus:', { type, numero, date, time, rubriques, equipes, isEdit, mancheId, note });
-        
+
         // En mode création SEULEMENT, vérifier si la manche n'existe pas déjà
         if (!isEdit) {
             console.log('🔍 Mode CRÉATION détecté, vérification des doublons...');
             const existingResponse = await apiRequest('/manches');
             const existingManches = existingResponse.data || [];
             const mancheExists = existingManches.find(m => m.numero === parseInt(numero));
-            
+
             if (mancheExists) {
                 console.error(`❌ La manche ${numero} existe déjà (ID: ${mancheExists.id})`);
                 showNotification('error', `La manche ${numero} existe déjà. Utilisez le bouton "Modifier" pour la mettre à jour.`);
-                
+
                 // Réactiver le bouton
                 if (button) {
                     button.disabled = false;
                     button.textContent = 'Créer cette manche';
                 }
-                
+
                 // Recharger pour désactiver le bouton
                 await loadCreatedManches();
                 return;
@@ -638,19 +651,40 @@ async function createManche(type, numero, date, time, button, rubriques = [], eq
         } else {
             console.log('✏️ Mode ÉDITION détecté, pas de vérification de doublon');
         }
-        
+
         // Désactiver le bouton pendant l'opération
         if (button) {
             button.disabled = true;
             button.textContent = isEdit ? 'Modification en cours...' : 'Création en cours...';
             console.log('🔒 Bouton désactivé');
         }
-        
+
+        // Validation du numéro
+        if (!numero || isNaN(parseInt(numero))) {
+            console.error('❌ Numéro de manche invalide:', numero);
+            showNotification('error', 'Erreur interne: Numéro de manche invalide');
+            if (button) button.disabled = false;
+            return;
+        }
+
+        // Générer un nom plus explicite
+        let nomManche = `Manche ${numero}`;
+        if (type === 'finale') nomManche = "Grande Finale";
+        else if (type === 'demi') {
+            // Manche 7 -> Demi-Finale 1, Manche 8 -> Demi-Finale 2
+            const numDemi = parseInt(numero) - 6;
+            nomManche = `Demi-Finale ${numDemi}`;
+        }
+        else if (type === 'quart') {
+            const numQuart = parseInt(numero) - 3;
+            nomManche = `Quart de Finale ${numQuart}`;
+        }
+
         // Préparer les données de la manche
         const mancheData = {
             type,
             numero: parseInt(numero),
-            nom: `Manche ${numero}`, // Nom par défaut
+            nom: nomManche,
             date_manche: date,
             heure_debut: time,
             heure_fin: calculateEndTime(time), // +2h par défaut
@@ -659,9 +693,9 @@ async function createManche(type, numero, date, time, button, rubriques = [], eq
             equipes: equipes,
             note_bas_page: note
         };
-        
+
         console.log('📦 Données prêtes à envoyer:', mancheData);
-        
+
         // Envoyer la requête au backend
         let response;
         if (isEdit) {
@@ -677,10 +711,10 @@ async function createManche(type, numero, date, time, button, rubriques = [], eq
                 body: JSON.stringify(mancheData)
             });
         }
-        
+
         console.log('📡 Réponse du serveur:', response);
         console.log(`✅ Manche ${isEdit ? 'modifiée' : 'créée'} avec succès:`, response.data);
-        
+
         // Mettre à jour le bouton (seulement en mode création)
         if (button && !isEdit) {
             button.classList.add('created');
@@ -688,40 +722,52 @@ async function createManche(type, numero, date, time, button, rubriques = [], eq
             button.disabled = true;
             console.log('✅ Bouton mis à jour');
         }
-        
+
         // Mettre à jour la liste des manches créées
         console.log('🔄 Rechargement de la liste des manches...');
         await loadCreatedManches();
-        
+
         // Mettre à jour les statistiques
         console.log('📊 Mise à jour des statistiques...');
         await loadStatistics();
-        
+
         // Afficher un message de succès
         const actionText = isEdit ? 'modifiée' : 'créée';
         showNotification('success', `Manche ${numero} ${actionText} avec ${rubriques.length} rubrique(s) !`);
-        
+
         console.log(`🎯 === FIN ${isEdit ? 'MODIFICATION' : 'CRÉATION'} MANCHE - SUCCÈS ===`);
-        
+
     } catch (error) {
         const isEdit = currentMancheData && currentMancheData.isEdit;
         console.error(`❌ === ERREUR ${isEdit ? 'MODIFICATION' : 'CRÉATION'} MANCHE ===`);
         console.error('📋 Type d\'erreur:', error.name);
         console.error('💬 Message:', error.message);
-        console.error('📚 Stack:', error.stack);
-        console.error('📦 Objet erreur complet:', error);
-        
+
+        // Gestion spécifique des conflits (409)
+        if (error.message && error.message.includes('existe déjà')) {
+            console.warn('⚠️ Manche déjà existante détectée par le serveur.');
+            if (button && !isEdit) {
+                button.classList.add('created');
+                button.textContent = '✅ Déjà créée';
+                button.disabled = true;
+                // On recharge quand même pour être sûr d'avoir la dernière version
+                await loadCreatedManches();
+            }
+            showNotification('warning', 'Cette manche existe déjà.');
+            return;
+        }
+
         // Réactiver le bouton
         if (button) {
             button.disabled = false;
             button.textContent = isEdit ? 'Modifier' : 'Créer cette manche';
             console.log('🔓 Bouton réactivé');
         }
-        
+
         // Afficher un message d'erreur
         const actionText = isEdit ? 'modification' : 'création';
         showNotification('error', error.message || `Erreur lors de la ${actionText} de la manche`);
-        
+
         console.log(`❌ === FIN ${isEdit ? 'MODIFICATION' : 'CRÉATION'} MANCHE - ÉCHEC ===`);
     }
 }
@@ -754,29 +800,43 @@ async function loadCreatedManches() {
         console.log('🔄 Chargement des manches créées...');
         const response = await apiRequest('/manches');
         const manches = response.data || [];
-        
+
         console.log('📅 Manches créées:', manches.length);
         console.log('📋 Données complètes:', manches);
-        
+
         // Afficher dans le div manchesCreees
         const manchesCreees = document.getElementById('manchesCreees');
         if (!manchesCreees) {
             console.error('❌ Élément manchesCreees non trouvé !');
             return;
         }
-        
+
         if (manches.length === 0) {
             manchesCreees.innerHTML = '<p style="text-align: center; color: #718096;">Aucune manche créée pour le moment</p>';
             console.log('ℹ️ Aucune manche à afficher');
+            // Réactiver tous les boutons de création au cas où
+            document.querySelectorAll('.btn-create-manche').forEach(btn => {
+                btn.classList.remove('created');
+                const type = btn.dataset.type;
+                const numero = btn.dataset.numero;
+                let label = `Créer Manche ${numero}`;
+                if (type === 'finale') label = "Créer Grande Finale";
+                btn.textContent = label;
+                btn.disabled = false;
+            });
             return;
         }
-        
+
         // Trier par numéro de manche
         manches.sort((a, b) => (a.numero || 0) - (b.numero || 0));
-        
+
         // Générer le HTML
         manchesCreees.innerHTML = manches.map(manche => `
             <div class="manche-item">
+                <div class="manche-status-badge status-${manche.statut || 'publie'}">
+                    ${formatStatut(manche.statut || 'publie')}
+                </div>
+                
                 <div class="manche-item-info">
                     <h4>
                         <span class="manche-badge badge-${manche.type}">
@@ -784,37 +844,51 @@ async function loadCreatedManches() {
                         </span>
                         ${manche.nom}
                     </h4>
-                    <p>
-                        📅 ${formatMancheDate(manche.date_manche)} 
-                        🕐 ${manche.heure_debut} - ${manche.heure_fin}
-                    </p>
+                    
+                    <div class="info-row">
+                        <span class="info-icon">📅</span>
+                        <span>${formatMancheDate(manche.date_manche)}</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-icon">🕒</span>
+                        <span>${manche.heure_debut} - ${manche.heure_fin}</span>
+                    </div>
+
                     ${manche.rubriques && manche.rubriques.length > 0 ? `
-                        <p style="margin-top: 0.5rem; color: var(--primary-color);">
-                            📋 ${manche.rubriques.length} rubrique(s): 
-                            ${manche.rubriques.map(r => r.nom).join(', ')}
-                        </p>
+                        <div class="info-row rubriques-row">
+                            <span class="info-icon">📚</span>
+                            <span class="rubriques-list">
+                                ${manche.rubriques.map(r => r.nom).join(', ')}
+                            </span>
+                        </div>
                     ` : ''}
                 </div>
+                
                 <div class="manche-item-actions">
-                    <span class="manche-status status-${manche.statut || 'publie'}">
-                        ${formatStatut(manche.statut || 'publie')}
-                    </span>
                     <button class="btn btn-secondary btn-edit-manche" 
                             data-manche-id="${manche.id}"
                             data-manche-numero="${manche.numero}"
-                            data-manche-type="${manche.type}">
-                        ✏️ Modifier
+                            data-manche-type="${manche.type}"
+                            title="Modifier">
+                        <i class="fas fa-edit"></i> <span class="btn-text">Modifier</span>
+                    </button>
+                    <button class="btn btn-danger btn-delete-manche" 
+                            data-manche-id="${manche.id}"
+                            onclick="if(confirm('Supprimer cette manche ?')) deleteManche(${manche.id})"
+                            title="Supprimer">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
         `).join('');
-        
+
         console.log('✅ HTML généré pour les manches');
-        
+
         // Attacher les événements aux boutons Modifier
         const editButtons = document.querySelectorAll('.btn-edit-manche');
         console.log(`🔧 Nombre de boutons Modifier trouvés: ${editButtons.length}`);
-        
+
         editButtons.forEach((btn, index) => {
             console.log(`📌 Bouton ${index + 1}: mancheId=${btn.dataset.mancheId}`);
             btn.addEventListener('click', () => {
@@ -822,26 +896,35 @@ async function loadCreatedManches() {
                 editManche(btn.dataset.mancheId);
             });
         });
-        
+
         // Marquer les boutons des manches déjà créées
         console.log('🔒 Désactivation des boutons pour les manches déjà créées...');
+
+        // D'abord on réinitialise tous les boutons
+        document.querySelectorAll('.btn-create-manche').forEach(btn => {
+            btn.classList.remove('created');
+            btn.disabled = false;
+            // Restaurer le texte original (approximatif)
+            if (!btn.textContent.includes('Créer')) {
+                const type = btn.dataset.type;
+                if (type === 'finale') btn.textContent = "Créer Grande Finale";
+                else btn.textContent = `Créer Manche ${btn.dataset.numero}`;
+            }
+        });
+
         manches.forEach(manche => {
-            const numero = manche.numero;
+            const numero = parseInt(manche.numero);
             if (numero) {
-                console.log(`🔍 Recherche du bouton pour la manche numéro ${numero}...`);
                 const button = document.querySelector(`.btn-create-manche[data-numero="${numero}"]`);
                 if (button) {
-                    console.log(`✅ Bouton trouvé pour manche ${numero}, désactivation...`);
                     button.classList.add('created');
                     button.textContent = '✅ Créée';
                     button.disabled = true;
-                } else {
-                    console.warn(`⚠️ Bouton non trouvé pour la manche numéro ${numero}`);
                 }
             }
         });
         console.log('✅ Désactivation des boutons terminée');
-        
+
     } catch (error) {
         console.error('❌ Erreur lors du chargement des manches:', error);
     }
@@ -853,11 +936,11 @@ async function loadCreatedManches() {
 function formatMancheDate(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', { 
-        weekday: 'long', 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
+    return date.toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
     });
 }
 
@@ -880,18 +963,41 @@ function formatStatut(statut) {
 async function editManche(mancheId) {
     try {
         console.log('✏️ Modification de la manche:', mancheId);
-        
+
         // Récupérer les données de la manche
         const response = await apiRequest(`/manches/${mancheId}`);
         const manche = response.data;
-        
+
         console.log('📋 Données de la manche:', manche);
-        
+
+        // Tenter de récupérer ou déduire le numéro
+        let numero = manche.numero;
+        if (!numero && manche.nom) {
+            // Essayer d'extraire le numéro du nom (ex: "Manche 1")
+            const match = manche.nom.match(/Manche\s+(\d+)/i);
+            if (match) {
+                numero = parseInt(match[1]);
+            } else if (manche.nom.toLowerCase().includes('finale')) {
+                numero = 9; // Grande Finale
+            } else if (manche.nom.toLowerCase().includes('demi')) {
+                // Essayer de déduire d'une demi-finale (ex: Demi-Finale 1 -> Manche 7)
+                const matchDemi = manche.nom.match(/Demi-Finale\s+(\d+)/i);
+                if (matchDemi) {
+                    numero = parseInt(matchDemi[1]) + 6;
+                }
+            } else if (manche.nom.toLowerCase().includes('quart')) {
+                const matchQuart = manche.nom.match(/Quart\s+(\d+)/i); // Quart de Finale 1 -> Manche 4
+                if (matchQuart) {
+                    numero = parseInt(matchQuart[1]) + 3;
+                }
+            }
+        }
+
         // Stocker les données pour la modification
         currentMancheData = {
             id: manche.id,
             type: manche.type,
-            numero: manche.numero,
+            numero: numero, // Numéro récupéré ou déduit
             date: manche.date_manche,
             time: manche.heure_debut,
             isEdit: true, // Mode édition
@@ -899,12 +1005,12 @@ async function editManche(mancheId) {
             existingEquipes: manche.equipes ? manche.equipes.map(e => e.id) : [],
             note: manche.note_bas_page
         };
-        
-        console.log('📦 Données de la manche stockées:', currentMancheData);
-        
+
+        console.log('📦 Données de la manche stockées (avec numéro corrigé):', currentMancheData);
+
         // Charger les rubriques et afficher le modal
         await loadRubriquesAndShowModal();
-        
+
     } catch (error) {
         console.error('❌ Erreur lors de la récupération de la manche:', error);
         alert('Erreur lors de la récupération de la manche: ' + error.message);
@@ -936,115 +1042,115 @@ function initRubriquesModal() {
     const cancelBtn = document.getElementById('btnCancelRubriques');
     const confirmBtn = document.getElementById('btnConfirmRubriques');
     const deleteBtn = document.getElementById('btnDeleteManche');
-    
+
     // Fermer le modal
     const closeModal = () => {
         modal.classList.remove('show');
         modal.style.display = 'none'; // Retirer le style inline
         currentMancheData = null;
     };
-    
+
     closeBtn?.addEventListener('click', closeModal);
     cancelBtn?.addEventListener('click', closeModal);
-    
+
     // Fermer en cliquant à l'extérieur
     modal?.addEventListener('click', (e) => {
         if (e.target === modal) {
             closeModal();
         }
     });
-    
+
     // Supprimer la manche
     deleteBtn?.addEventListener('click', async () => {
         if (!currentMancheData || !currentMancheData.id) {
             console.error('❌ Impossible de supprimer : pas de manche sélectionnée');
             return;
         }
-        
+
         const mancheId = currentMancheData.id;
         const mancheNumero = currentMancheData.numero;
-        
+
         // Demander confirmation
         const confirmDelete = confirm(`⚠️ Êtes-vous sûr de vouloir supprimer la Manche ${mancheNumero} ?\n\nCette action est irréversible.`);
-        
+
         if (!confirmDelete) {
             console.log('❌ Suppression annulée par l\'utilisateur');
             return;
         }
-        
+
         try {
             console.log('🗑️ Suppression de la manche:', mancheId);
-            
+
             // Fermer le modal
             closeModal();
-            
+
             // Envoyer la requête de suppression
             await apiRequest(`/manches/${mancheId}`, {
                 method: 'DELETE'
             });
-            
+
             console.log('✅ Manche supprimée avec succès');
-            
+
             // Recharger la liste des manches
             await loadCreatedManches();
             await loadStatistics();
-            
+
             showNotification('success', `Manche ${mancheNumero} supprimée avec succès`);
-            
+
         } catch (error) {
             console.error('❌ Erreur lors de la suppression:', error);
             showNotification('error', error.message || 'Erreur lors de la suppression de la manche');
         }
     });
-    
+
     // Confirmer la sélection
     confirmBtn?.addEventListener('click', async () => {
         console.log('✅ Clic sur le bouton Confirmer');
         const selectedRubriques = getSelectedRubriques();
-        
+
         console.log(`📋 Rubriques sélectionnées: ${selectedRubriques.length}`, selectedRubriques);
-        
+
         if (selectedRubriques.length === 0) {
             console.warn('⚠️ Aucune rubrique sélectionnée');
             alert('⚠️ Veuillez sélectionner au moins une rubrique.');
             return;
         }
-        
+
         // IMPORTANT: Sauvegarder currentMancheData AVANT de fermer le modal
         // car closeModal() réinitialise currentMancheData à null
         const mancheData = currentMancheData;
-        
+
         if (!mancheData) {
             console.error('❌ currentMancheData est null !');
             return;
         }
-        
+
         // En mode édition, récupérer les nouvelles valeurs de date/heure
         let finalDate = mancheData.date;
         let finalTime = mancheData.time;
-        
+
         if (mancheData.isEdit) {
             const editDateInput = document.getElementById('editDateInput');
             const editTimeInput = document.getElementById('editTimeInput');
-            
+
             if (editDateInput.value) {
                 finalDate = editDateInput.value;
             }
             if (editTimeInput.value) {
                 finalTime = editTimeInput.value;
             }
-            
+
             console.log('📅 Nouvelles valeurs de date/heure:', { finalDate, finalTime });
         }
-        
+
         // Fermer le modal
         console.log('🚪 Fermeture du modal');
         closeModal();
-        
+
         // Récupérer les équipes sélectionnées
         const selectedEquipes = getSelectedEquipes();
         console.log(`👥 ${selectedEquipes.length} équipe(s) sélectionnée(s):`, selectedEquipes);
-        
+
         // Récupérer la note
         const noteInput = document.getElementById('mancheNoteInput');
         const note = noteInput ? noteInput.value : '';
@@ -1072,7 +1178,7 @@ function initRubriquesModal() {
 async function loadRubriquesAndShowModal() {
     try {
         console.log('🔄 Chargement des rubriques pour le modal...');
-        
+
         // Charger les rubriques si ce n'est pas déjà fait
         if (rubriquesDisponibles.length === 0) {
             console.log('📡 Requête API pour récupérer les rubriques...');
@@ -1082,14 +1188,14 @@ async function loadRubriquesAndShowModal() {
         } else {
             console.log(`ℹ️ ${rubriquesDisponibles.length} rubriques déjà en cache`);
         }
-        
+
         // Charger les équipes si ce n'est pas déjà fait
         await loadEquipesIfNeeded();
-        
+
         // Afficher le modal
         console.log('🎭 Affichage du modal...');
         showRubriquesModal();
-        
+
     } catch (error) {
         console.error('❌ Erreur lors du chargement des rubriques:', error);
         console.error('📋 Détails de l\'erreur:', error.message, error.stack);
@@ -1116,35 +1222,35 @@ async function loadEquipesIfNeeded() {
  */
 function showRubriquesModal() {
     console.log('🎭 Fonction showRubriquesModal appelée');
-    
+
     const modal = document.getElementById('rubriquesModal');
     const title = document.getElementById('mancheModalTitle');
     const selection = document.getElementById('rubriquesSelection');
-    
+
     console.log('🔍 Éléments du modal:', {
         modal: modal ? 'trouvé' : 'NON TROUVÉ',
         title: title ? 'trouvé' : 'NON TROUVÉ',
         selection: selection ? 'trouvé' : 'NON TROUVÉ'
     });
-    
+
     if (!currentMancheData) {
         console.error('❌ currentMancheData est null !');
         return;
     }
-    
+
     console.log('📦 currentMancheData:', currentMancheData);
-    
+
     // Mettre à jour le titre et les boutons
     const modeText = currentMancheData.isEdit ? 'Modifier' : 'Créer';
     title.textContent = `${modeText} Manche ${currentMancheData.numero} - ${MANCHE_TYPES[currentMancheData.type]}`;
-    
+
     // Afficher/masquer la section de modification de date
     const editDateSection = document.getElementById('editDateSection');
     const editDateInput = document.getElementById('editDateInput');
     const editTimeInput = document.getElementById('editTimeInput');
     const deleteBtn = document.getElementById('btnDeleteManche');
     const confirmBtn = document.getElementById('btnConfirmRubriques');
-    
+
     // Remplir le champ note s'il existe
     const noteInput = document.getElementById('mancheNoteInput');
     if (noteInput) {
@@ -1164,9 +1270,9 @@ function showRubriquesModal() {
         deleteBtn.style.display = 'none';
         confirmBtn.textContent = 'Créer la manche';
     }
-    
+
     console.log('📝 Titre du modal mis à jour, mode:', modeText);
-    
+
     // Générer les checkboxes de rubriques
     console.log(`📋 Génération de ${rubriquesDisponibles.length} checkboxes...`);
     const existingRubriques = currentMancheData.existingRubriques || [];
@@ -1188,9 +1294,9 @@ function showRubriquesModal() {
         </label>
         `;
     }).join('');
-    
+
     console.log('✅ Checkboxes générées', existingRubriques.length > 0 ? `avec ${existingRubriques.length} pré-sélectionnées` : '');
-    
+
     // Ajouter les événements de sélection
     const checkboxes = selection.querySelectorAll('input[type="checkbox"]');
     console.log(`🎯 Ajout des événements sur ${checkboxes.length} checkboxes`);
@@ -1199,17 +1305,17 @@ function showRubriquesModal() {
             updateRubriqueSelection();
         });
     });
-    
+
     // Afficher les équipes
     displayEquipesSelection();
-    
+
     // Afficher le modal
     console.log('👁️ Affichage du modal (ajout classe show)');
     modal.classList.add('show');
     modal.style.display = 'flex'; // Force l'affichage
     console.log('📐 Style du modal:', window.getComputedStyle(modal).display);
     console.log('🎨 Classes du modal:', modal.className);
-    
+
     // Réinitialiser le compteur
     updateSelectionCount();
     console.log('✅ Modal affiché avec succès');
@@ -1224,10 +1330,10 @@ function displayEquipesSelection() {
         console.error('❌ Element equipesSelection non trouvé');
         return;
     }
-    
+
     const existingEquipes = currentMancheData.existingEquipes || [];
     console.log(`📋 Affichage de ${equipesDisponibles.length} équipes, ${existingEquipes.length} pré-sélectionnées`);
-    
+
     // Créer les boutons "Tout sélectionner" / "Tout désélectionner"
     const selectionButtons = `
         <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
@@ -1239,30 +1345,28 @@ function displayEquipesSelection() {
             </button>
         </div>
     `;
-    
+
     // Créer la grille d'équipes
     const equipesGrid = `
-        <div class="equipes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; max-height: 300px; overflow-y: auto;">
+        <div class="equipes-selection-grid">
             ${equipesDisponibles.map(equipe => {
-                const isChecked = existingEquipes.includes(equipe.id);
-                return `
-                    <label class="equipe-checkbox ${isChecked ? 'selected' : ''}" 
-                           style="display: flex; align-items: center; padding: 0.75rem; background: white; border: 2px solid ${isChecked ? 'var(--primary-color)' : '#e0e6ed'}; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+        const isChecked = existingEquipes.includes(equipe.id);
+        return `
+                    <label class="equipe-checkbox-item ${isChecked ? 'selected' : ''}">
                         <input type="checkbox" 
                                value="${equipe.id}" 
                                ${isChecked ? 'checked' : ''}
-                               onchange="updateEquipeSelection()"
-                               style="margin-right: 0.5rem;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; color: #1e293b;">${equipe.nom}</div>
-                            ${equipe.couleur ? `<div style="font-size: 0.8rem; color: ${equipe.couleur};">●</div>` : ''}
+                               onchange="updateEquipeSelection()">
+                        <div class="equipe-checkbox-content">
+                            <div class="equipe-name">${equipe.nom}</div>
+                            ${equipe.couleur ? `<div class="equipe-dot" style="color: ${equipe.couleur};">●</div>` : ''}
                         </div>
                     </label>
                 `;
-            }).join('')}
+    }).join('')}
         </div>
     `;
-    
+
     equipesSelection.innerHTML = selectionButtons + equipesGrid;
 }
 
@@ -1271,7 +1375,7 @@ function displayEquipesSelection() {
  */
 function updateRubriqueSelection() {
     const labels = document.querySelectorAll('.rubrique-checkbox');
-    
+
     labels.forEach(label => {
         const checkbox = label.querySelector('input[type="checkbox"]');
         if (checkbox.checked) {
@@ -1280,7 +1384,7 @@ function updateRubriqueSelection() {
             label.classList.remove('selected');
         }
     });
-    
+
     updateSelectionCount();
 }
 
@@ -1290,7 +1394,7 @@ function updateRubriqueSelection() {
 function updateSelectionCount() {
     const selectedCount = document.getElementById('selectedCount');
     const count = getSelectedRubriques().length;
-    
+
     if (selectedCount) {
         selectedCount.textContent = count;
     }
@@ -1320,19 +1424,15 @@ function formatRubriqueType(type) {
 /**
  * Mettre à jour l'apparence de la sélection d'équipes
  */
-window.updateEquipeSelection = function() {
-    const labels = document.querySelectorAll('.equipe-checkbox');
-    
+window.updateEquipeSelection = function () {
+    const labels = document.querySelectorAll('.equipe-checkbox-item');
+
     labels.forEach(label => {
         const checkbox = label.querySelector('input[type="checkbox"]');
         if (checkbox.checked) {
             label.classList.add('selected');
-            label.style.borderColor = 'var(--primary-color)';
-            label.style.background = '#f0f9ff';
         } else {
             label.classList.remove('selected');
-            label.style.borderColor = '#e0e6ed';
-            label.style.background = 'white';
         }
     });
 };
@@ -1340,8 +1440,8 @@ window.updateEquipeSelection = function() {
 /**
  * Sélectionner toutes les équipes ou aucune
  */
-window.selectAllEquipes = function(selectAll) {
-    const checkboxes = document.querySelectorAll('.equipes-grid input[type="checkbox"]');
+window.selectAllEquipes = function (selectAll) {
+    const checkboxes = document.querySelectorAll('.equipes-selection-grid input[type="checkbox"]');
     checkboxes.forEach(checkbox => {
         checkbox.checked = selectAll;
     });
@@ -1352,7 +1452,7 @@ window.selectAllEquipes = function(selectAll) {
  * Obtenir les IDs des équipes sélectionnées
  */
 function getSelectedEquipes() {
-    const checkboxes = document.querySelectorAll('.equipes-grid input[type="checkbox"]:checked');
+    const checkboxes = document.querySelectorAll('#equipesSelection input[type="checkbox"]:checked');
     return Array.from(checkboxes).map(cb => parseInt(cb.value));
 }
 

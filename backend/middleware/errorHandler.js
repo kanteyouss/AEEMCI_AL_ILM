@@ -4,11 +4,11 @@
 const errorHandler = (err, req, res, next) => {
     // Log de l'erreur
     console.error('\n❌ ================ ERREUR ================');
-    console.error('📍 Route:', req.method, req.path);
+    console.error(' Route:', req.method, req.path);
     console.error('⚠️  Message:', err.message);
     console.error('🔍 Stack:', err.stack);
     console.error('==========================================\n');
-    
+
     // Erreurs PostgreSQL
     if (err.code) {
         switch (err.code) {
@@ -18,21 +18,21 @@ const errorHandler = (err, req, res, next) => {
                     message: 'Cette valeur existe déjà dans la base de données',
                     error: 'Duplicate entry'
                 });
-            
+
             case '23503': // Violation de clé étrangère
                 return res.status(400).json({
                     success: false,
                     message: 'Référence invalide à un enregistrement inexistant',
                     error: 'Foreign key violation'
                 });
-            
+
             case '23502': // Violation NOT NULL
                 return res.status(400).json({
                     success: false,
                     message: 'Champ obligatoire manquant',
                     error: 'NOT NULL violation'
                 });
-            
+
             case '22P02': // Format de données invalide
                 return res.status(400).json({
                     success: false,
@@ -41,7 +41,7 @@ const errorHandler = (err, req, res, next) => {
                 });
         }
     }
-    
+
     // Erreurs JWT
     if (err.name === 'JsonWebTokenError') {
         return res.status(401).json({
@@ -50,7 +50,7 @@ const errorHandler = (err, req, res, next) => {
             error: 'Invalid token'
         });
     }
-    
+
     if (err.name === 'TokenExpiredError') {
         return res.status(401).json({
             success: false,
@@ -58,7 +58,7 @@ const errorHandler = (err, req, res, next) => {
             error: 'Token expired'
         });
     }
-    
+
     // Erreur de validation
     if (err.name === 'ValidationError') {
         return res.status(400).json({
@@ -67,7 +67,7 @@ const errorHandler = (err, req, res, next) => {
             errors: err.errors
         });
     }
-    
+
     // Erreur personnalisée avec statut HTTP
     if (err.status) {
         return res.status(err.status).json({
@@ -76,15 +76,15 @@ const errorHandler = (err, req, res, next) => {
             error: err.error || 'Custom error'
         });
     }
-    
+
     // Erreur générique (500)
     res.status(500).json({
         success: false,
-        message: process.env.NODE_ENV === 'production' 
-            ? 'Une erreur interne s\'est produite' 
+        message: process.env.NODE_ENV === 'production'
+            ? 'Une erreur interne s\'est produite'
             : err.message,
-        error: process.env.NODE_ENV === 'production' 
-            ? 'Internal Server Error' 
+        error: process.env.NODE_ENV === 'production'
+            ? 'Internal Server Error'
             : err.stack
     });
 };

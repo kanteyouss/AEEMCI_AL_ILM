@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Équipe - AL ILM 2026</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/equipe-dashboard.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="navbar-root"></div>
+
+    <main class="container dashboard-main">
+        <div id="loading" class="loading-state">
+            <div class="spinner"></div>
+            <p>Chargement de votre espace personnel...</p>
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+            <!-- Header Dynamique -->
+            <header class="dashboard-header">
+                <div class="team-info">
+                    <h1 class="team-name" id="teamName">Chargement...</h1>
+                    <div class="team-signification" id="teamSignification">...</div>
+                    <div class="team-meta">
+                        <span id="memberCount" class="member-count-badge">0 membres</span>
+                    </div>
+                </div>
+                <button onclick="logout()" class="logout-btn">
+                    Se déconnecter
+                </button>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Prochaine Manche -->
+                <div class="card next-event">
+                    <div class="card-header">
+                        <div class="card-title">Calendrier des épreuves</div>
+                    </div>
+                    <div id="nextEventContent">
+                        <div style="text-align: center; padding: 1rem;">
+                            <h3 style="color: #c53030; margin-bottom: 0.5rem;">Aucune manche prévue</h3>
+                            <p style="color: #718096;">Restez à l'écoute des annonces officielles.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Membres -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Membres de l'Équipe</div>
+                        <span class="role-badge" id="captainName" style="color: #1a202c; font-weight: 700;">Capitaine:
+                            -</span>
+                    </div>
+                    <ul class="member-list" id="memberList">
+                        <!-- Liste des membres chargée en JS -->
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- SECTION JEU LIVE (Masquée par défaut) -->
+    <div id="liveGameSection" class="live-game-overlay">
+
+        <!-- Header du Jeu -->
+        <div class="live-header">
+            <h2 id="liveTitle">SESSION EN DIRECT</h2>
+            <p id="liveTeamName" class="live-team-name">EQUIPE</p>
+        </div>
+
+        <div class="container live-game-container">
+
+            <!-- État : EN ATTENTE -->
+            <div id="liveWaitingState" class="live-waiting-state">
+                <div class="spinner"></div>
+                <h3 style="color: var(--primary-color); font-weight: 800; font-size: 1.5rem;">L'épreuve va bientôt
+                    commencer</h3>
+                <p style="color: #64748b; font-size: 1.1rem;">Veuillez patienter pendant la préparation de la question
+                    par le jury.</p>
+            </div>
+
+            <!-- État : QUESTION ACTIVE -->
+            <div id="liveQuestionState" style="display:none;">
+
+                <!-- Timer -->
+                <div class="timer-container">
+                    <div id="liveTimerFill" class="timer-fill"></div>
+                </div>
+                <div id="liveTimerText" class="timer-text">--</div>
+
+                <!-- Question -->
+                <div class="question-card">
+                    <span class="question-label">Question en cours</span>
+                    <div id="liveQuestionText" class="question-text">
+                        En attente du contenu...
+                    </div>
+                </div>
+
+                <!-- Zone de Réponse -->
+                <div id="liveResponseArea" class="answer-input-area">
+
+                    <!-- Mode Texte -->
+                    <div id="liveInputMode">
+                        <textarea id="liveResponseInput" rows="4"
+                            placeholder="Saisissez votre réponse finale ici..."></textarea>
+                    </div>
+
+                    <!-- Mode QCM (Généré dynamiquement) -->
+                    <div id="liveQcmMode" class="qcm-grid" style="display:none;">
+                        <!-- Boutons A, B, C, D -->
+                    </div>
+
+                    <!-- Bouton Envoyer -->
+                    <button id="btnSubmitLive" class="btn-submit-live">
+                        Soumettre ma réponse
+                    </button>
+                    <div
+                        style="text-align:center; color:#94a3b8; font-size:0.85rem; margin-top:1.5rem; font-weight: 500;">
+                        Note : Une fois soumise, votre réponse est définitive et ne peut être modifiée.
+                    </div>
+                </div>
+
+                <!-- Feedback Après Envoi -->
+                <div id="liveSubmittedState" class="submitted-feedback" style="display:none;">
+                    <h3>Réponse enregistrée</h3>
+                    <p>Votre réponse a été transmise avec succès au jury.</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/init-navbar.js"></script>
+    <script src="/js/equipe/dashboard.js"></script>
+</body>
+
+</html>

@@ -14,57 +14,48 @@
     <script src="/js/init-navbar.js"></script>
 
     <main class="container">
-        <div class="inscription-card">
-            <div
-                style="background: var(--primary-color); padding: 2rem; border-radius: 10px; margin-bottom: 2rem; text-align: center;">
-                <h2 style="color: white; margin: 0 0 1rem 0;">📝 Inscription au Jeu Concours AL ILM 2026</h2>
-                <p style="color: white; opacity: 0.9; margin: 0; font-size: 1.1rem;">
-                    Vous allez être redirigé vers le formulaire Google Forms officiel
-                </p>
+        <div class="inscription-card closed-registration">
+            <div class="registration-closed-banner">
+                <div class="icon-lock"></div>
+                <h2>Inscriptions Closes pour l'Édition 2026</h2>
+                <p>Le quota maximum de participants a été atteint.</p>
             </div>
 
-            <div style="text-align: center; padding: 2rem;">
-                <p style="font-size: 1.1rem; color: #333; margin-bottom: 2rem;">
-                    Pour vous inscrire au Jeu Concours AL ILM 2026, veuillez remplir le formulaire officiel Google
-                    Forms.
-                </p>
-
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSdWgstxIP64GJvmC8uo2UIhUjHk58TD98FaVpOG36oLa4nKpQ/viewform"
-                    target="_blank" class="btn-primary"
-                    style="display: inline-block; padding: 1.2rem 3rem; font-size: 1.2rem; text-decoration: none; margin-bottom: 2rem;">
-                    📋 Accéder au formulaire d'inscription
-                </a>
-
-                <div
-                    style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary-color);">
-                    <h3 style="color: var(--primary-color); margin-top: 0;">ℹ️ Informations importantes</h3>
-                    <ul style="text-align: left; color: #333; line-height: 1.8;">
-                        <li>Le formulaire s'ouvrira dans un nouvel onglet</li>
-                        <li>Assurez-vous de remplir tous les champs obligatoires</li>
-                        <li>Vous recevrez une confirmation par email après votre inscription</li>
-                        <li>Les inscriptions sont ouvertes jusqu'au début du Ramadan 2026</li>
-                    </ul>
+            <div class="registration-closed-content">
+                <div class="info-highlight">
+                    <p>
+                        <strong>Al Hamdoulillah !</strong><br>
+                        L'enthousiasme pour cette édition AL ILM 2026 a été exceptionnel. Toutes les places disponibles
+                        ont été pourvues par nos talentueux participants.
+                    </p>
                 </div>
 
-                <div style="margin-top: 2rem; padding: 1rem; background: #fff3e0; border-radius: 8px;">
-                    <p style="margin: 0; color: #f57c00; font-weight: 500;">
-                        ⚠️ Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :
+                <div class="spectator-invite">
+                    <h3>Devenez Spectateur Privilégié</h3>
+                    <p>
+                        Même si vous n'êtes pas sur le terrain, l'aventure ne fait que commencer ! Rejoignez-nous pour
+                        encourager les équipes et enrichir vos connaissances tout au long du Ramadan.
                     </p>
-                    <p style="margin: 0.5rem 0 0 0; word-break: break-all; font-size: 0.9rem;">
-                        <code
-                            style="background: white; padding: 0.3rem 0.5rem; border-radius: 3px; display: inline-block;">
-                            https://docs.google.com/forms/d/e/1FAIpQLSdWgstxIP64GJvmC8uo2UIhUjHk58TD98FaVpOG36oLa4nKpQ/viewform
-                        </code>
-                    </p>
+                    <div class="action-buttons">
+                        <a href="/index.html" class="btn-primary">Retour à l'accueil</a>
+                    </div>
+                </div>
+
+                <div class="next-steps-info">
+                    <h3>Restez connectés</h3>
+                    <p>Pour ne rien manquer de l'actualité du concours et préparer l'édition 2027 :</p>
+                    <ul class="contact-list">
+                        <li>Suivez les annonces sur le campus ESATIC</li>
+                        <li>Rejoignez les canaux officiels de l'AEEMCI</li>
+                        <li>Contactez l'organisation pour toute question urgente</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="footer">
-        <p>&copy; 2026 AEEMCI - Section ESATIC</p>
-        <p>Pour une identité islamique !</p>
-    </footer>
+    <div id="footer-root"></div>
+    <script src="/js/init-footer.js"></script>
 
     <script>
         // Redirection automatique après 3 secondes (optionnel)

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendrier Ramadan 2026 - AL ILM 🌙</title>
+    <title>Calendrier Ramadan 2026 - AL ILM</title>
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/calendrier.css">
 </head>
@@ -17,7 +17,7 @@
         <!-- Hero Section -->
         <section class="hero-calendrier">
             <div class="container">
-                <h1>🌙 Calendrier Ramadan 2026</h1>
+                <h1>Calendrier Ramadan 2026</h1>
                 <p class="subtitle">Suivez toutes les manches du concours AL ILM</p>
                 <div class="date-display">
                     <div class="date-gregorian">
@@ -36,7 +36,7 @@
         <!-- Légende des types de manches -->
         <section class="legend-section">
             <div class="container">
-                <h2 class="section-title">📋 Légende des Manches</h2>
+                <h2 class="section-title">Légende des Manches</h2>
                 <div class="legend-grid">
                     <div class="legend-item" data-type="preliminaire">
                         <div class="legend-color color-preliminaire"></div>
@@ -79,8 +79,10 @@
                     <button id="nextMonth" class="btn-nav">Suivant ▶</button>
                 </div>
 
-                <div class="calendar-grid" id="calendarGrid">
-                    <!-- Généré dynamiquement -->
+                <div class="calendar-wrapper">
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Généré dynamiquement -->
+                    </div>
                 </div>
             </div>
         </section>
@@ -111,12 +113,8 @@
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 AEEMCI - Association des Élèves et Étudiants Musulmans de Côte d'Ivoire</p>
-            <p>Section ESATIC - "Pour une identité islamique !"</p>
-        </div>
-    </footer>
+    <div id="footer-root"></div>
+    <script src="/js/init-footer.js"></script>
 
     <script src="/js/api.js"></script>
     <script src="/js/public/calendrier.js"></script>

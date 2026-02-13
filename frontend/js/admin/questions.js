@@ -9,7 +9,12 @@ let csvData = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Initialisation de la page Questions...');
-    await checkAuth();
+
+    // Authentification facultative
+    // await checkAuth();
+    // if (!getAuthToken()) window.location.href = '/login.html';
+    const user = getUser() || { prenom: 'Admin', nom: 'Public', role: 'admin' };
+
     displayUserInfo();
     await loadRubriques();
     await loadQuestions();
@@ -138,17 +143,7 @@ async function loadRubriques() {
     console.log('📥 Chargement des rubriques...');
 
     try {
-        const response = await fetch('/api/rubriques', {
-            headers: {
-                'Authorization': `Bearer ${getAuthToken()}`
-            }
-        });
-
-        console.log('📡 Réponse rubriques:', response.status);
-
-        if (!response.ok) throw new Error('Erreur lors du chargement des rubriques');
-
-        const result = await response.json();
+        const result = await apiRequest('/rubriques');
         rubriques = result.data || [];
 
         console.log(`✅ ${rubriques.length} rubrique(s) chargée(s):`, rubriques.map(r => r.nom));
@@ -241,17 +236,7 @@ async function loadQuestions() {
     console.log('📥 Chargement des questions...');
 
     try {
-        const response = await fetch('/api/questions', {
-            headers: {
-                'Authorization': `Bearer ${getAuthToken()}`
-            }
-        });
-
-        console.log('📡 Réponse questions:', response.status);
-
-        if (!response.ok) throw new Error('Erreur lors du chargement des questions');
-
-        const result = await response.json();
+        const result = await apiRequest('/questions');
         questions = result.data || [];
 
         console.log(`✅ ${questions.length} question(s) chargée(s)`);
@@ -298,8 +283,8 @@ function displayQuestions() {
                     <div class="question-text">${escapeHtml(q.question_texte)}</div>
                 </div>
                 <div class="question-actions">
-                    <button class="btn-secondary" onclick="editQuestion(${q.id})">✏️ Modifier</button>
-                    <button class="btn-danger" onclick="deleteQuestion(${q.id})" style="background: #dc3545;">🗑️ Supprimer</button>
+                    <button class="btn-secondary" onclick="editQuestion(${q.id})">Modifier</button>
+                    <button class="btn-danger" onclick="deleteQuestion(${q.id})" style="background: #dc3545;">Supprimer</button>
                 </div>
             </div>
             
@@ -546,32 +531,17 @@ async function handleSubmitQuestion(e) {
     }
 
     try {
-        const url = questionId ? `/api/questions/${questionId}` : '/api/questions';
+        const endpoint = questionId ? `/questions/${questionId}` : '/questions';
         const method = questionId ? 'PUT' : 'POST';
 
         console.log('📤 Envoi de la question:', data);
 
-        const response = await fetch(url, {
+        const result = await apiRequest(endpoint, {
             method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getAuthToken()}`
-            },
             body: JSON.stringify(data)
         });
 
-        const result = await response.json();
         console.log('📥 Réponse serveur:', result);
-
-        if (!response.ok) {
-            // Afficher les erreurs de validation en détail
-            if (result.errors && Array.isArray(result.errors)) {
-                console.error('❌ Erreurs de validation:', result.errors);
-                const errorMessages = result.errors.map(err => `- ${err.msg || err.message || err}`).join('\n');
-                throw new Error(`${result.message}:\n${errorMessages}`);
-            }
-            throw new Error(result.message || 'Erreur lors de l\'enregistrement');
-        }
 
         showNotification(questionId ? 'Question modifiée avec succès' : 'Question créée avec succès', 'success');
         document.getElementById('questionModal').style.display = 'none';
@@ -600,16 +570,11 @@ async function deleteQuestion(id) {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) return;
 
     try {
-        const response = await fetch(`/api/questions/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${getAuthToken()}`
-            }
+        await apiRequest(`/questions/${id}`, {
+            method: 'DELETE'
         });
 
-        if (!response.ok) throw new Error('Erreur lors de la suppression');
-
-        showNotification('Question supprimée avec succès', 'success');
+        showNotification('Question supprimée', 'success');
         await loadQuestions();
 
     } catch (error) {
@@ -804,24 +769,14 @@ async function confirmImport() {
 
     for (const question of csvData) {
         try {
-            const response = await fetch('/api/questions', {
+            await apiRequest('/questions', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getAuthToken()}`
-                },
                 body: JSON.stringify(question)
             });
-
-            if (response.ok) {
-                successCount++;
-            } else {
-                errorCount++;
-                console.error('Erreur pour la question:', question.question);
-            }
+            successCount++;
         } catch (error) {
             errorCount++;
-            console.error('Erreur:', error);
+            console.error('Erreur pour la question:', question.question, error);
         }
     }
 
@@ -872,21 +827,20 @@ function showNotification(message, type = 'info') {
 }
 
 function displayUserInfo() {
-    const user = getUser();
-    if (user) {
-        document.getElementById('userName').textContent = user.prenom + ' ' + user.nom;
+    const user = getUser() || { prenom: 'Admin', nom: 'Public', role: 'admin' };
+    const userNameElement = document.getElementById('userName');
+    const adminBadge = document.querySelector('.admin-badge');
+
+    if (userNameElement) {
+        const displayName = user.prenom ? `${user.prenom} ${user.nom}` : (user.nom || 'Utilisateur');
+        userNameElement.textContent = displayName;
+    }
+
+    if (adminBadge && user.type === 'equipe') {
+        adminBadge.textContent = 'Session Équipe';
+        adminBadge.style.background = 'rgba(76, 175, 80, 0.1)';
+        adminBadge.style.color = '#4caf50';
     }
 }
 
-async function checkAuth() {
-    const token = getAuthToken();
-    if (!token) {
-        window.location.href = '/login.html';
-        return;
-    }
-}
-
-function logout() {
-    clearAuthToken();
-    window.location.href = '/login.html';
-}
+// Redundant local auth functions removed. Using functions from api.js

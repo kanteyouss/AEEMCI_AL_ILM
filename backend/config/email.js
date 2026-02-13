@@ -53,7 +53,7 @@ const sendWelcomeEmail = async (participant) => {
             <p>Bienvenue au <strong>Jeu Concours AL ILM - Édition 2026</strong> organisé par l'AEEMCI - Section ESATIC.</p>
             
             <div style="background: #F8F9FA; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p><strong>📝 Vos informations :</strong></p>
+                <p><strong> Vos informations :</strong></p>
                 <ul>
                     <li>Nom : ${participant.nom}</li>
                     <li>Prénom : ${participant.prenom}</li>
@@ -73,7 +73,7 @@ const sendWelcomeEmail = async (participant) => {
             </p>
         </div>
     `;
-    
+
     return await sendEmail({ to: participant.email, subject, html });
 };
 
@@ -114,7 +114,7 @@ const sendTeamAccessCode = async (equipe, capitaine) => {
             </p>
         </div>
     `;
-    
+
     return await sendEmail({ to: capitaine.email, subject, html });
 };
 

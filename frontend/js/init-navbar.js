@@ -8,14 +8,14 @@ function initNavbar() {
         function closeMenu() {
             nav.classList.remove('active');
             overlay.classList.remove('active');
-            toggle.innerHTML = '☰';
+            toggle.classList.remove('active');
             document.body.style.overflow = '';
         }
 
         function openMenu() {
             nav.classList.add('active');
             overlay.classList.add('active');
-            toggle.innerHTML = '✕';
+            toggle.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
@@ -61,6 +61,38 @@ fetch('/components/navbar.html')
     .then(html => {
         document.getElementById('navbar-root').innerHTML = html;
         initNavbar();
+
+        // Personnalisation pour les équipes connectées
+        try {
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                if (user && user.type === 'equipe') {
+                    const navContainer = document.querySelector('.alilm-navbar-nav');
+                    if (navContainer) {
+                        // Supprimer S'inscrire et Connexion
+                        const loginBtn = navContainer.querySelector('a[href="/login.html"]');
+                        const signupBtn = navContainer.querySelector('a[href="/public/inscription.html"]');
+                        if (loginBtn) loginBtn.remove();
+                        if (signupBtn) signupBtn.remove();
+
+                        // Ajouter lien Dashboard
+                        const dashboardLink = document.createElement('a');
+                        dashboardLink.href = '/equipe/dashboard.html';
+                        dashboardLink.className = 'alilm-btn-primary';
+                        dashboardLink.textContent = 'Mon Espace';
+
+                        if (window.location.pathname === '/equipe/dashboard.html') {
+                            dashboardLink.classList.add('active');
+                        }
+
+                        navContainer.appendChild(dashboardLink);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Erreur init navbar equipe:', e);
+        }
 
         // Apply dynamic visibility settings if api.js is loaded
         if (typeof applyGlobalNavConfig === 'function') {

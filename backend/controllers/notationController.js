@@ -20,6 +20,7 @@ const getSessionsNotation = async (req, res, next) => {
                 r.type as rubrique_type,
                 r.points_max,
                 r.temps_par_question,
+                r.mode_affichage,
                 r.description,
                 r.criteres_evaluation
             FROM rubriques_manche rm
@@ -198,7 +199,9 @@ const saveNotation = async (req, res, next) => {
             [equipe_id, manche_id, rubrique_id]
         );
 
-        let evaluationId;
+        // Plafonner la note au score max autorisé
+        const pointsMax = sessionCheck.rows[0].points_max;
+        const notePlafonnee = Math.min(note_totale, pointsMax);
 
         if (existingCheck.rows.length > 0) {
             // Mise à jour
@@ -212,7 +215,7 @@ const saveNotation = async (req, res, next) => {
                      statut = 'valide'
                  WHERE id = $5
                  RETURNING id`,
-                [JSON.stringify(criteres), note_totale, commentaire, jure_id, existingCheck.rows[0].id]
+                [JSON.stringify(criteres), notePlafonnee, commentaire, jure_id, existingCheck.rows[0].id]
             );
             evaluationId = updateResult.rows[0].id;
 
@@ -225,7 +228,7 @@ const saveNotation = async (req, res, next) => {
                 ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'valide')
                 RETURNING id`,
                 [equipe_id, manche_id, rubrique_id, session_id,
-                    JSON.stringify(criteres), note_totale, commentaire, jure_id]
+                    JSON.stringify(criteres), notePlafonnee, commentaire, jure_id]
             );
             evaluationId = insertResult.rows[0].id;
         }
@@ -238,7 +241,7 @@ const saveNotation = async (req, res, next) => {
              DO UPDATE SET 
                 points_obtenus = $4,
                 date_calcul = NOW()`,
-            [equipe_id, manche_id, rubrique_id, note_totale, sessionCheck.rows[0].points_max]
+            [equipe_id, manche_id, rubrique_id, notePlafonnee, pointsMax]
         );
 
         await client.query('COMMIT');

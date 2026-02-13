@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - AL ILM 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/admin.css">
 </head>
+
 <body>
     <header class="header-admin">
         <div class="container">
-            <h1>🕌 AL ILM 2026 - Administration</h1>
-            <div class="user-info">
-                <span id="userName"></span>
-                <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+            <div class="logo-box">
+                <h1>AL ILM 2026</h1>
+                <p class="tagline">Administration - Pour une identité islamique !</p>
+            </div>
+            <div class="user-session-block">
+                <div class="user-identity">
+                    <span class="user-name" id="userName">Admin</span>
+                    <span class="admin-badge">Administrateur</span>
+                </div>
+                <button id="logoutBtn" class="btn-logout" title="Déconnexion">
+                    <i class="fas fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -37,13 +48,13 @@
                     Banque de Questions
                 </a>
                 <a href="jeu.html" class="nav-item">
-                     Jeu en Direct
+                    Jeu en Direct
                 </a>
                 <a href="notation.html" class="nav-item">
-                     Notation
+                    Notation
                 </a>
                 <a href="resultats.html" class="nav-item">
-                     Résultats et Classement
+                    Résultats et Classement
                 </a>
             </nav>
         </aside>
@@ -130,8 +141,8 @@
                 <!-- Phase Préliminaire -->
                 <div class="phase-container">
                     <h3 class="phase-title">Phase Préliminaire (3 jours)</h3>
-                    <p class="phase-description">10 équipes en lice</p>
-                    
+                    <p class="phase-description">8 équipes en lice</p>
+
                     <div class="manches-grid">
                         <div class="manche-card">
                             <div class="manche-header">
@@ -199,7 +210,7 @@
                 <div class="phase-container">
                     <h3 class="phase-title">Quarts de Finale (3 jours)</h3>
                     <p class="phase-description">8 équipes qualifiées</p>
-                    
+
                     <div class="manches-grid">
                         <div class="manche-card">
                             <div class="manche-header">
@@ -267,7 +278,7 @@
                 <div class="phase-container">
                     <h3 class="phase-title">Demi-Finales (2 jours)</h3>
                     <p class="phase-description">4 équipes qualifiées</p>
-                    
+
                     <div class="manches-grid">
                         <div class="manche-card">
                             <div class="manche-header">
@@ -315,7 +326,7 @@
                 <div class="phase-container">
                     <h3 class="phase-title">Grande Finale (1 jour)</h3>
                     <p class="phase-description">2 équipes finalistes</p>
-                    
+
                     <div class="manches-grid">
                         <div class="manche-card">
                             <div class="manche-header">
@@ -376,33 +387,39 @@
             </div>
             <div class="modal-body">
                 <p class="modal-subtitle" id="mancheModalTitle"></p>
-                
+
                 <!-- Section Date/Heure (affichée en mode édition) -->
-                <div id="editDateSection" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+                <div id="editDateSection" class="modal-section-date"
+                    style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
                     <h4 style="margin: 0 0 1rem 0; color: var(--primary-color);"> Date et heure</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="modal-grid-half">
                         <div>
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Date</label>
-                            <input type="date" id="editDateInput" class="form-input" style="width: 100%; padding: 0.5rem; border: 2px solid #e0e6ed; border-radius: 8px;">
+                            <input type="date" id="editDateInput" class="form-input">
                         </div>
                         <div>
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Heure de début</label>
-                            <input type="time" id="editTimeInput" class="form-input" style="width: 100%; padding: 0.5rem; border: 2px solid #e0e6ed; border-radius: 8px;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Heure de
+                                début</label>
+                            <input type="time" id="editTimeInput" class="form-input">
                         </div>
                     </div>
                 </div>
 
                 <!-- Section Options (NB) -->
-                <div id="optionsSection" style="margin-bottom: 1.5rem; padding: 1rem; background: #fffbf0; border-radius: 8px;">
-                    <h4 style="margin: 0 0 1rem 0; color: #d97706;">📝 Note de bas de page (Optionnel)</h4>
+                <div id="optionsSection"
+                    style="margin-bottom: 1.5rem; padding: 1rem; background: #fffbf0; border-radius: 8px;">
+                    <h4 style="margin: 0 0 1rem 0; color: #d97706;"> Note de bas de page (Optionnel)</h4>
                     <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #64748b;">
                         Ce texte s'affichera en gras en bas du tableau de classement (NB : ...)
                     </label>
-                    <input type="text" id="mancheNoteInput" class="form-input" placeholder="Ex: Les résultats sont provisoires..." style="width: 100%; padding: 0.5rem; border: 2px solid #e0e6ed; border-radius: 8px;">
+                    <input type="text" id="mancheNoteInput" class="form-input"
+                        placeholder="Ex: Les résultats sont provisoires..."
+                        style="width: 100%; padding: 0.5rem; border: 2px solid #e0e6ed; border-radius: 8px;">
                 </div>
 
                 <!-- Section Sélection des Équipes -->
-                <div id="equipesSection" style="margin-bottom: 1.5rem; padding: 1rem; background: #f0f9ff; border-radius: 8px;">
+                <div id="equipesSection"
+                    style="margin-bottom: 1.5rem; padding: 1rem; background: #f0f9ff; border-radius: 8px;">
                     <h4 style="margin: 0 0 1rem 0; color: var(--primary-color);">👥 Équipes participantes</h4>
                     <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #64748b;">
                         Sélectionnez les équipes qui participeront à cette manche
@@ -413,16 +430,17 @@
                             <p>Chargement des équipes...</p>
                         </div>
                     </div>
-                    <div style="margin-top: 1rem; padding: 0.75rem; background: white; border-radius: 6px; border-left: 4px solid var(--primary-color);">
+                    <div
+                        style="margin-top: 1rem; padding: 0.75rem; background: white; border-radius: 6px; border-left: 4px solid var(--primary-color);">
                         <p style="margin: 0; font-size: 0.9rem;">
-                            <strong style="color: var(--primary-color);">💡 Astuce :</strong>
+                            <strong style="color: var(--primary-color);"> Astuce :</strong>
                             <span style="color: #64748b;">
                                 Cliquez sur "Toutes" pour sélectionner toutes les équipes rapidement
                             </span>
                         </p>
                     </div>
                 </div>
-                
+
                 <div class="rubriques-selection" id="rubriquesSelection">
                     <!-- Les rubriques seront chargées dynamiquement -->
                 </div>
@@ -445,4 +463,5 @@
     <script src="/js/api.js"></script>
     <script src="/js/admin/dashboard.js"></script>
 </body>
+
 </html>

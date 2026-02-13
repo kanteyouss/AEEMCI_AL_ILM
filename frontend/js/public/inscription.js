@@ -4,10 +4,11 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const inscriptionForm = document.getElementById('inscriptionForm');
-    
+    if (!inscriptionForm) return;
+
     inscriptionForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const formData = {
             nom: document.getElementById('nom').value,
             prenom: document.getElementById('prenom').value,
@@ -18,20 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
             connaissance_hadiths: document.getElementById('connaissance_hadiths').value || null,
             memorisation_sourate: document.getElementById('memorisation_sourate').value || null
         };
-        
+
         try {
             const response = await apiRequest('/participants', {
                 method: 'POST',
                 body: JSON.stringify(formData)
             });
-            
+
             if (response.success) {
-                showSuccess('successMessage', 
+                showSuccess('successMessage',
                     '✅ Inscription réussie ! Vous serez bientôt affecté(e) à une équipe.');
-                
+
                 // Réinitialiser le formulaire
                 inscriptionForm.reset();
-                
+
                 // Rediriger après 3 secondes
                 setTimeout(() => {
                     window.location.href = '/index.html';

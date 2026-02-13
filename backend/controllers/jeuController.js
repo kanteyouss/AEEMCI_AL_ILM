@@ -366,9 +366,106 @@ const terminerSession = async (req, res, next) => {
     }
 };
 
+/**
+ * Générer une question commune pour toutes les équipes (Mode Collectif)
+ */
+const genererQuestionCommune = async (req, res, next) => {
+    try {
+        const { rubrique_id, manche_id } = req.body;
+
+        // Récupérer les ID des questions déjà posées dans cette manche pour cette rubrique
+        // On regarde n'importe quelle soumission car la question est commune
+        const questionsUtilisees = await db.query(
+            `SELECT DISTINCT question_id 
+             FROM soumissions 
+             WHERE manche_id = $1 
+             AND rubrique_id = $2
+             AND question_id IS NOT NULL`,
+            [manche_id, rubrique_id]
+        );
+
+        const idsUtilises = questionsUtilisees.rows.map(r => r.question_id);
+
+        // Récupérer une question aléatoire non utilisée
+        let query = `
+            SELECT q.*, r.temps_par_question, r.nom as rubrique_nom
+            FROM questions q
+            JOIN rubriques r ON q.rubrique_id = r.id
+            WHERE q.rubrique_id = $1
+            AND q.utilise = false
+        `;
+
+        const params = [rubrique_id];
+
+        if (idsUtilises.length > 0) {
+            params.push(idsUtilises);
+            query += ` AND q.id NOT IN (SELECT unnest($${params.length}::int[]))`;
+        }
+
+        query += ` ORDER BY RANDOM() LIMIT 1`;
+
+        const result = await db.query(query, params);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Aucune question disponible pour cette rubrique'
+            });
+        }
+
+        const question = result.rows[0];
+
+        // Marquer la question comme utilisée
+        await db.query(
+            `UPDATE questions SET utilise = true WHERE id = $1`,
+            [question.id]
+        );
+
+        const questionPublique = {
+            id: question.id,
+            question_texte: question.question_texte,
+            type: question.type,
+            points: question.points,
+            temps_limite: question.temps_limite || question.temps_par_question,
+            rubrique_nom: question.rubrique_nom,
+            mode: 'collectif',
+            options: question.type === 'qcm' ? {
+                A: question.choix_a,
+                B: question.choix_b,
+                C: question.choix_c,
+                D: question.choix_d
+            } : null
+        };
+
+        // Diffuser la question à toutes les équipes via Socket.IO
+        // Structure compatible avec frontend/admin/jeu.js (handle new_question)
+        const io = req.app.get('io');
+        const payload = {
+            question: questionPublique,
+            temps: questionPublique.temps_limite
+        };
+
+        io.to('public_room').emit('new_question', payload);
+        // Aussi vers la manche spécifique au cas où
+        io.to(`manche_${manche_id}`).emit('new_question', payload);
+
+        res.json({
+            success: true,
+            data: {
+                ...questionPublique,
+                reponse_correcte: question.reponse_correcte // Le jury reçoit la réponse
+            }
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     demarrerSession,
     genererQuestion,
+    genererQuestionCommune, // Exporté
     soumettreReponse,
     getQuestionsRestantes,
     getEtatSession,

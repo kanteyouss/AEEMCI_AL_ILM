@@ -93,8 +93,17 @@ async function updateBaremes() {
         `);
         console.log('✅ Hadith: 20 pts (20 pts/question) - 1 question de 20 sec');
 
-        // 9. Questions relais (pas dans le barème officiel, on garde les valeurs)
-        console.log('⏭️  Questions relais: conservé tel quel');
+        // 9. Questions relais
+        await db.query(`
+            UPDATE rubriques 
+            SET 
+                points_max = 30,
+                temps_par_question = 15,
+                criteres_evaluation = '{"exactitude": 10}'::jsonb,
+                description = 'Questions rapides en équipe - 10 pts/réponse - Arrêt si erreur'
+            WHERE nom = 'Questions relais'
+        `);
+        console.log('✅ Questions relais: 30 pts (10 pts/question) - Arrêt si erreur');
 
         // Afficher le récapitulatif
         const rubriques = await db.query(`
@@ -118,7 +127,6 @@ async function updateBaremes() {
 
             console.log(`\n📋 ${r.nom}`);
             console.log(`   • Total: ${r.points_max} pts`);
-            console.log(`   • Questions: ${r.nombre_questions}`);
             console.log(`   • Temps: ${r.temps_par_question ? r.temps_par_question + ' sec' : 'N/A'}`);
             console.log(`   • Critères: ${criteres}`);
             if (r.description) {
@@ -128,6 +136,7 @@ async function updateBaremes() {
 
         console.log('\n' + '='.repeat(80));
         console.log('✅ Mise à jour terminée');
+        console.log('💯 Total maximum possible par manche : 270 points');
 
         process.exit(0);
 

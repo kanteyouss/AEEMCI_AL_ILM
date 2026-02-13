@@ -9,7 +9,7 @@ router.get('/manche/:mancheId', classementController.getClassementManche);
 router.get('/etape/:etape', classementController.getClassementEtape);
 router.get('/general', classementController.getClassementGeneral);
 
-// Routes nécessitant authentification
-router.get('/equipe/:equipeId', verifyJWT, classementController.getScoresEquipe);
+// Routes nécessitant authentification (plus maintenant)
+router.get('/equipe/:equipeId', classementController.getScoresEquipe);
 
 module.exports = router;

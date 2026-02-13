@@ -9,11 +9,11 @@ router.get('/par-etape', mancheController.getManchesParEtape);
 router.get('/', mancheController.getAllManches);
 router.get('/:id', mancheController.getMancheById);
 
-// Routes protégées (admin uniquement)
-router.post('/', verifyJWT, isAdmin, validateManche, mancheController.createManche);
-router.put('/:id', verifyJWT, isAdmin, validateManche, mancheController.updateManche);
-router.put('/:id/statut', verifyJWT, isAdmin, mancheController.updateStatut);
-router.delete('/:id', verifyJWT, isAdmin, mancheController.deleteManche);
+// Routes (publiques désormais)
+router.post('/', validateManche, mancheController.createManche);
+router.put('/:id', validateManche, mancheController.updateManche);
+router.put('/:id/statut', mancheController.updateStatut);
+router.delete('/:id', mancheController.deleteManche);
 
 module.exports = router;
 

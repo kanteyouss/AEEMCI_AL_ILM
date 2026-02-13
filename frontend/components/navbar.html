@@ -5,26 +5,29 @@
         background: #2C5F2D;
         color: white;
         padding: 0.8rem 0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        position: relative;
-        z-index: 1000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
+        z-index: 10000;
+        /* Elevated to stay above overlay */
+        transition: all 0.3s ease;
     }
 
     .alilm-navbar-container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0 24px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        height: 60px;
+        height: 64px;
     }
 
     .alilm-navbar-logo {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        position: relative;
+        z-index: 10100;
     }
 
     .alilm-navbar-logo a {
@@ -37,132 +40,139 @@
     .alilm-navbar-logo h1 {
         color: white;
         margin: 0;
-        font-size: 1.6rem;
+        font-size: 1.5rem;
         line-height: 1.1;
-        font-weight: 700;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
     }
 
     .alilm-navbar-tagline {
-        font-style: italic;
         color: #FFD700;
         margin: 0;
-        font-size: 0.8rem;
-        font-weight: 500;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.9;
     }
 
     .alilm-navbar-nav {
         display: flex;
-        gap: 0.4rem;
+        gap: 0.5rem;
         align-items: center;
     }
 
     .alilm-navbar-nav a {
         color: white;
         text-decoration: none;
-        padding: 0.6rem 0.9rem;
-        border-radius: 8px;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 0.6rem 1rem;
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 0.9rem;
-        line-height: 1;
-        white-space: nowrap;
-        height: 42px;
+        gap: 10px;
+        font-size: 0.95rem;
+        position: relative;
     }
 
-    .alilm-navbar-nav a:hover {
-        background: rgba(255, 255, 255, 0.12);
+    .alilm-navbar-nav a:not(.alilm-btn-primary):not(.alilm-btn-secondary):hover {
+        background: rgba(255, 255, 255, 0.1);
         transform: translateY(-1px);
     }
 
-    .alilm-navbar-nav a .alilm-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 5px;
-        font-size: 1.1rem;
-
+    .alilm-navbar-nav a.active:not(.alilm-btn-primary):not(.alilm-btn-secondary) {
+        background: rgba(255, 255, 255, 0.15);
+        color: #FFD700;
     }
 
-    /* Primary Button - Yellow */
-    .alilm-navbar-nav a.alilm-btn-primary {
-        background-color: #FFD700 !important;
+    /* Professional Buttons */
+    .alilm-btn-primary {
+        background: #FFD700 !important;
         color: #2C5F2D !important;
-        background-image: none !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        padding-left: 1.25rem;
-        padding-right: 1.25rem;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
     }
 
-    .alilm-navbar-nav a.alilm-btn-primary:hover {
-        background-color: #f7cf00 !important;
+    .alilm-btn-primary:hover {
+        background: #f7cf00 !important;
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
     }
 
-    /* Secondary Button - Transparent with Border */
-    .alilm-navbar-nav a.alilm-btn-secondary {
+    .alilm-btn-secondary {
+        border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
         background: transparent !important;
-        border: 2px solid white !important;
-        color: white !important;
-        padding-top: 0;
-        padding-bottom: 0;
     }
 
-    .alilm-navbar-nav a.alilm-btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.15) !important;
+    .alilm-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: white !important;
         transform: translateY(-2px);
-    }
-
-    /* Active state style */
-    .alilm-navbar-nav a.active {
-        background: rgba(255, 255, 255, 0.2);
-        pointer-events: none;
-        cursor: default;
     }
 
     .alilm-navbar-toggle {
         display: none;
-        background: transparent;
-        border: 2px solid white;
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
         color: white;
-        padding: 0;
-        width: 42px;
-        height: 42px;
-        border-radius: 8px;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
         cursor: pointer;
-        font-size: 1.4rem;
-        z-index: 1060;
+        z-index: 10200;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
+        padding: 0;
+        /* Reset padding for perfect centering */
     }
 
-    .alilm-navbar-toggle:active {
-        transform: scale(0.92);
-        background: rgba(255, 255, 255, 0.1);
+    .alilm-navbar-toggle span {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background: white;
+        position: relative;
+        transition: all 0.3s ease;
     }
 
-    .alilm-navbar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
+    .alilm-navbar-toggle span::before,
+    .alilm-navbar-toggle span::after {
+        content: '';
+        position: absolute;
+        width: 22px;
+        height: 2px;
+        background: white;
+        transition: all 0.3s ease;
         left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 1040;
-        backdrop-filter: blur(4px);
+        /* Ensure alignment */
+    }
+
+    .alilm-navbar-toggle span::before {
+        top: -7px;
+    }
+
+    .alilm-navbar-toggle span::after {
+        bottom: -7px;
+    }
+
+    .alilm-navbar-toggle.active span {
+        background: transparent !important;
+    }
+
+    .alilm-navbar-toggle.active span::before {
+        transform: rotate(45deg);
+        top: 0;
+    }
+
+    .alilm-navbar-toggle.active span::after {
+        transform: rotate(-45deg);
+        bottom: 0px;
     }
 
     /* Mobile Responsive */
-    @media (max-width: 850px) {
-        .alilm-navbar-logo h1 {
-            font-size: 1.4rem;
-        }
-
+    @media (max-width: 991px) {
         .alilm-navbar-toggle {
             display: flex;
         }
@@ -171,53 +181,98 @@
             position: fixed;
             top: 0;
             right: -100%;
-            width: 300px;
+            width: 280px;
             height: 100vh;
-            background: #234d24;
+            background: #1B431C;
             flex-direction: column;
-            padding: 5.5rem 1.2rem 2rem;
-            gap: 0.8rem;
-            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.4);
-            z-index: 1050;
-            align-items: stretch;
+            padding: 90px 20px 40px;
+            gap: 12px;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: -10px 0 50px rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            align-items: center;
+            text-align: center;
+            display: flex !important;
         }
 
         .alilm-navbar-nav.active {
             right: 0;
+            transform: translateX(0);
         }
 
         .alilm-navbar-nav a {
-            padding: 0 1.25rem;
-            height: 52px;
-            font-size: 1.05rem;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            justify-content: flex-start;
-            gap: 15px;
+            padding: 16px 24px;
+            height: auto;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             width: 100%;
+            justify-content: center;
+            color: white !important;
+            transition: all 0.2s ease;
+            display: flex;
+            /* Ensure centering works */
         }
 
-        .alilm-navbar-nav a .alilm-icon {
-            width: 24px;
-            font-size: 1.2rem;
+        .alilm-navbar-nav a.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #FFD700;
+            color: #FFD700 !important;
         }
 
         .alilm-navbar-nav a.alilm-btn-primary {
-            margin-top: 1.2rem;
-            justify-content: center;
-            background-color: #FFD700 !important;
+            background: #FFD700 !important;
+            margin-top: 20px;
+            color: #1B431C !important;
+            font-weight: 800;
             border: none !important;
         }
 
-        .alilm-navbar-nav a.alilm-btn-secondary {
-            justify-content: center;
-            margin-top: 0;
+        .alilm-navbar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            z-index: 8000;
+            /* Lower than navbar */
+            pointer-events: auto;
         }
 
         .alilm-navbar-overlay.active {
-            display: block;
-            width: calc(100% - 300px);
+            opacity: 1;
+            visibility: visible;
+        }
+    }
+
+    /* Ultra narrow screens (< 450px) */
+    @media (max-width: 450px) {
+        .alilm-navbar-container {
+            padding: 0 15px;
+        }
+
+        .alilm-navbar-logo h1 {
+            font-size: 1.25rem;
+        }
+
+        .alilm-navbar-tagline {
+            font-size: 0.65rem;
+        }
+
+        .alilm-navbar-toggle {
+            width: 40px;
+            height: 40px;
+        }
+
+        .alilm-navbar-toggle span,
+        .alilm-navbar-toggle span::before,
+        .alilm-navbar-toggle span::after {
+            width: 20px;
         }
     }
 </style>
@@ -226,18 +281,20 @@
     <div class="alilm-navbar-container">
         <div class="alilm-navbar-logo">
             <a href="/">
-                <h1>🕌 AL ILM 2026</h1>
-                <p class="alilm-navbar-tagline">Pour une identité islamique !</p>
+                <h1>AL ILM 2026</h1>
+                <p class="alilm-navbar-tagline">Pour une identité islamique</p>
             </a>
         </div>
         <nav class="alilm-navbar-nav" id="alilm-nav">
-            <a href="/"><span class="alilm-icon"></span> Accueil</a>
-            <a href="/public/calendrier.html"><span class="alilm-icon"></span> Calendrier</a>
-            <a href="/public/classement.html"><span class="alilm-icon"></span> Classement</a>
+            <a href="/">Accueil</a>
+            <a href="/public/calendrier.html">Calendrier</a>
+            <a href="/public/classement.html">Classement</a>
             <a href="/public/inscription.html" class="alilm-btn-primary">S'inscrire</a>
             <a href="/login.html" class="alilm-btn-secondary">Connexion</a>
         </nav>
-        <button class="alilm-navbar-toggle" id="alilm-toggle" aria-label="Menu">☰</button>
+        <button class="alilm-navbar-toggle" id="alilm-toggle" aria-label="Menu">
+            <span></span>
+        </button>
     </div>
 </header>
 <div class="alilm-navbar-overlay" id="alilm-overlay"></div>

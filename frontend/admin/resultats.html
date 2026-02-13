@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +19,7 @@
             background: white;
             border-radius: 12px;
             padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             border-left: 4px solid var(--primary-color);
         }
 
@@ -139,7 +140,7 @@
             border-radius: 8px;
             overflow: hidden;
             margin-top: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .classement-preview table {
@@ -226,7 +227,7 @@
             border-radius: 8px;
             color: white;
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 1000;
             animation: slideIn 0.3s ease;
         }
@@ -248,6 +249,7 @@
                 transform: translateX(400px);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -261,7 +263,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 999;
             align-items: center;
             justify-content: center;
@@ -281,14 +283,27 @@
             overflow-y: auto;
         }
     </style>
+    <title>Résultats et Classement - AL ILM 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/admin.css">
 </head>
+
 <body>
     <header class="header-admin">
         <div class="container">
-            <h1>🏆 AL ILM 2026 - Résultats et Classement</h1>
-            <div class="user-info">
-                <span id="userName"></span>
-                <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+            <div class="logo-box">
+                <h1>AL ILM 2026</h1>
+                <p class="tagline">Administration - Résultats et Classement</p>
+            </div>
+            <div class="user-session-block">
+                <div class="user-identity">
+                    <span class="user-name" id="userName">Admin</span>
+                    <span class="admin-badge">Administrateur</span>
+                </div>
+                <button id="logoutBtn" class="btn-logout" title="Déconnexion">
+                    <i class="fas fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -312,13 +327,13 @@
                     Banque de Questions
                 </a>
                 <a href="jeu.html" class="nav-item">
-                     Jeu en Direct
+                    Jeu en Direct
                 </a>
                 <a href="notation.html" class="nav-item">
-                     Notation
+                    Notation
                 </a>
                 <a href="resultats.html" class="nav-item active">
-                     Résultats et Classement
+                    Résultats et Classement
                 </a>
             </nav>
         </aside>
@@ -343,35 +358,42 @@
 
             <!-- Section Configuration Page Publique -->
             <section style="margin-bottom: 2rem;">
-                <h2 style="margin-bottom: 1.5rem;">⚙️ Configuration Affichage Public</h2>
+                <h2 style="margin-bottom: 1.5rem;"> Configuration Affichage Public</h2>
                 <div class="result-card">
                     <h3>
-                        <span>👁️</span>
+                        <span></span>
                         Paramètres de la page publique
                     </h3>
                     <p style="color: #6b7280; margin-bottom: 1.5rem;">
-                        Contrôlez ce qui s'affiche sur <a href="/public/classement.html" target="_blank" style="color: var(--primary-color);">la page classement public</a>
+                        Contrôlez ce qui s'affiche sur <a href="/public/classement.html" target="_blank"
+                            style="color: var(--primary-color);">la page classement public</a>
                     </p>
-                    
+
                     <div style="display: grid; gap: 1rem; background: #f9fafb; padding: 1.5rem; border-radius: 8px;">
                         <!-- Onglets de Phases affichés -->
                         <div style="margin: 1rem 0; padding-top: 1rem; border-top: 1px solid #e0e6ed;">
-                            <strong style="display: block; margin-bottom: 0.5rem; color: #1e40af;">Onglets de Phases affichés :</strong>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                            <strong style="display: block; margin-bottom: 0.5rem; color: #1e40af;">Onglets de Phases
+                                affichés :</strong>
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="configAfficherPhasePreliminaire" class="config-checkbox" style="width: 18px; height: 18px;">
+                                    <input type="checkbox" id="configAfficherPhasePreliminaire" class="config-checkbox"
+                                        style="width: 18px; height: 18px;">
                                     <span>Phase Préliminaire</span>
                                 </label>
                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="configAfficherPhaseQuart" class="config-checkbox" style="width: 18px; height: 18px;">
+                                    <input type="checkbox" id="configAfficherPhaseQuart" class="config-checkbox"
+                                        style="width: 18px; height: 18px;">
                                     <span>Quart de Finale</span>
                                 </label>
                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="configAfficherPhaseDemi" class="config-checkbox" style="width: 18px; height: 18px;">
+                                    <input type="checkbox" id="configAfficherPhaseDemi" class="config-checkbox"
+                                        style="width: 18px; height: 18px;">
                                     <span>Demi-Finale</span>
                                 </label>
                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="configAfficherPhaseFinale" class="config-checkbox" style="width: 18px; height: 18px;">
+                                    <input type="checkbox" id="configAfficherPhaseFinale" class="config-checkbox"
+                                        style="width: 18px; height: 18px;">
                                     <span>Finale</span>
                                 </label>
                             </div>
@@ -379,23 +401,30 @@
 
                         <!-- Menu de navigation -->
                         <div style="margin: 1rem 0; padding-top: 1rem; border-top: 1px solid #e0e6ed;">
-                            <strong style="display: block; margin-bottom: 0.5rem; color: #1e40af;">Menu de Navigation (En-tête) :</strong>
-                            <p style="margin: 0 0 1rem 0; color: #6b7280; font-size: 0.85rem;">Cochez pour rendre visible les liens dans le menu</p>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                            <strong style="display: block; margin-bottom: 0.5rem; color: #1e40af;">Menu de Navigation
+                                (En-tête) :</strong>
+                            <p style="margin: 0 0 1rem 0; color: #6b7280; font-size: 0.85rem;">Cochez pour rendre
+                                visible les liens dans le menu</p>
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="configAfficherNavCalendrier" class="config-checkbox" style="width: 18px; height: 18px;">
-                                    <span>🌙 Calendrier</span>
+                                    <input type="checkbox" id="configAfficherNavCalendrier" class="config-checkbox"
+                                        style="width: 18px; height: 18px;">
+                                    <span> Calendrier</span>
                                 </label>
                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="configAfficherNavClassement" class="config-checkbox" style="width: 18px; height: 18px;">
-                                    <span>🏆 Classement</span>
+                                    <input type="checkbox" id="configAfficherNavClassement" class="config-checkbox"
+                                        style="width: 18px; height: 18px;">
+                                    <span> Classement</span>
                                 </label>
                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="configAfficherNavInscription" class="config-checkbox" style="width: 18px; height: 18px;">
+                                    <input type="checkbox" id="configAfficherNavInscription" class="config-checkbox"
+                                        style="width: 18px; height: 18px;">
                                     <span>S'inscrire</span>
                                 </label>
                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" id="configAfficherNavConnexion" class="config-checkbox" style="width: 18px; height: 18px;">
+                                    <input type="checkbox" id="configAfficherNavConnexion" class="config-checkbox"
+                                        style="width: 18px; height: 18px;">
                                     <span>Connexion</span>
                                 </label>
                             </div>
@@ -403,8 +432,8 @@
 
                         <!-- Afficher le podium -->
                         <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer;">
-                            <input type="checkbox" id="configAfficherPodium" class="config-checkbox" 
-                                   style="width: 20px; height: 20px; cursor: pointer;">
+                            <input type="checkbox" id="configAfficherPodium" class="config-checkbox"
+                                style="width: 20px; height: 20px; cursor: pointer;">
                             <div style="flex: 1;">
                                 <strong>Afficher le podium (Top 3)</strong>
                                 <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.9rem;">
@@ -416,7 +445,7 @@
                         <!-- Afficher les statistiques -->
                         <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer;">
                             <input type="checkbox" id="configAfficherStatistiques" class="config-checkbox"
-                                   style="width: 20px; height: 20px; cursor: pointer;">
+                                style="width: 20px; height: 20px; cursor: pointer;">
                             <div style="flex: 1;">
                                 <strong>Afficher les statistiques générales</strong>
                                 <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.9rem;">
@@ -428,7 +457,7 @@
                         <!-- Afficher les filtres -->
                         <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer;">
                             <input type="checkbox" id="configAfficherFiltres" class="config-checkbox"
-                                   style="width: 20px; height: 20px; cursor: pointer;">
+                                style="width: 20px; height: 20px; cursor: pointer;">
                             <div style="flex: 1;">
                                 <strong>Afficher les filtres</strong>
                                 <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.9rem;">
@@ -440,7 +469,7 @@
                         <!-- Classement complet ou limité -->
                         <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer;">
                             <input type="checkbox" id="configAfficherClassementComplet" class="config-checkbox"
-                                   style="width: 20px; height: 20px; cursor: pointer;">
+                                style="width: 20px; height: 20px; cursor: pointer;">
                             <div style="flex: 1;">
                                 <strong>Afficher toutes les équipes</strong>
                                 <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.9rem;">
@@ -451,42 +480,40 @@
 
                         <!-- Messages personnalisés par phase -->
                         <div style="margin-top: 1rem; border-top: 1px solid #e0e6ed; padding-top: 1rem;">
-                            <h4 style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--primary-color);">Messages spécifiques par phase</h4>
+                            <h4 style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--primary-color);">Messages
+                                spécifiques par phase</h4>
                             <p style="margin: 0 0 1rem 0; color: #6b7280; font-size: 0.85rem;">
                                 Ces messages s'afficheront en haut de la page publique pour chaque onglet spécifique
                             </p>
-                            
+
                             <div style="display: grid; gap: 1rem;">
                                 <!-- Phase Préliminaire -->
                                 <div style="display: grid; gap: 0.5rem;">
                                     <label style="font-weight: 600; font-size: 0.9rem;">Phase Préliminaire</label>
-                                    <textarea id="configMessagePreliminaire" 
-                                            placeholder="Message pour la phase préliminaire..."
-                                            style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+                                    <textarea id="configMessagePreliminaire"
+                                        placeholder="Message pour la phase préliminaire..."
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
                                 </div>
 
                                 <!-- Quart de Finale -->
                                 <div style="display: grid; gap: 0.5rem;">
                                     <label style="font-weight: 600; font-size: 0.9rem;">Quart de Finale</label>
-                                    <textarea id="configMessageQuart" 
-                                            placeholder="Message pour les quarts de finale..."
-                                            style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+                                    <textarea id="configMessageQuart" placeholder="Message pour les quarts de finale..."
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
                                 </div>
 
                                 <!-- Demi-Finale -->
                                 <div style="display: grid; gap: 0.5rem;">
                                     <label style="font-weight: 600; font-size: 0.9rem;">Demi-Finale</label>
-                                    <textarea id="configMessageDemi" 
-                                            placeholder="Message pour les demi-finales..."
-                                            style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+                                    <textarea id="configMessageDemi" placeholder="Message pour les demi-finales..."
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
                                 </div>
 
                                 <!-- Finale -->
                                 <div style="display: grid; gap: 0.5rem;">
                                     <label style="font-weight: 600; font-size: 0.9rem;">Grande Finale</label>
-                                    <textarea id="configMessageFinale" 
-                                            placeholder="Message pour la finale..."
-                                            style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
+                                    <textarea id="configMessageFinale" placeholder="Message pour la finale..."
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid #e0e6ed; border-radius: 6px; font-family: inherit; resize: vertical; min-height: 60px;"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -496,7 +523,8 @@
                         <button class="btn-publish" onclick="sauvegarderConfiguration()">
                             💾 Sauvegarder la configuration
                         </button>
-                        <button class="btn-publish btn-preview" onclick="window.open('/public/classement.html', '_blank')">
+                        <button class="btn-publish btn-preview"
+                            onclick="window.open('/public/classement.html', '_blank')">
                             🌐 Ouvrir la page publique
                         </button>
                     </div>
@@ -537,4 +565,5 @@
     <script src="/js/api.js?v=6"></script>
     <script src="/js/admin/resultats.js?v=7"></script>
 </body>
+
 </html>

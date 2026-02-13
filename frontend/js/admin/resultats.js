@@ -13,19 +13,39 @@ let notationsData = {};
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🏆 Initialisation page résultats');
 
-    // Vérifier l'authentification
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-        window.location.href = '/login.html';
-        return;
-    }
+    // Vérifier l'authentification (profonde)
+    // const isAuthenticated = await checkAuth();
+    // const user = getUser();
+
+    // if (!isAuthenticated || !user || user.role !== 'admin') {
+    //     window.location.href = '/login.html';
+    //     return;
+    // }
+
+    // Authentification facultative (Mode ouvert)
+    // await checkAuth();
+    // if (!getAuthToken()) window.location.href = '/login.html';
+    const user = getUser() || { prenom: 'Admin', nom: 'Public', role: 'admin' };
 
     // Charger les données utilisateur
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    document.getElementById('userName').textContent = user.prenom || 'Admin';
+    const userNameElement = document.getElementById('userName');
+    const adminBadge = document.querySelector('.admin-badge');
+
+    if (userNameElement) {
+        const displayName = user.prenom ? `${user.prenom} ${user.nom}` : (user.nom || 'Utilisateur');
+        userNameElement.textContent = displayName;
+    }
+
+    if (adminBadge && user.type === 'equipe') {
+        adminBadge.textContent = 'Session Équipe';
+        adminBadge.style.background = 'rgba(76, 175, 80, 0.1)';
+        adminBadge.style.color = '#4caf50';
+    }
 
     // Event listeners
-    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await logout();
+    });
 
     // Charger les données
     await loadAllData();

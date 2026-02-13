@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Participants - AL ILM 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/admin.css">
 </head>
+
 <body>
     <header class="header-admin">
         <div class="container">
-            <h1>🕌 AL ILM 2026 - Administration</h1>
-            <div class="user-info">
-                <span id="userName"></span>
-                <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+            <div class="logo-box">
+                <h1>AL ILM 2026</h1>
+                <p class="tagline">Administration - Pour une identité islamique !</p>
+            </div>
+            <div class="user-session-block">
+                <div class="user-identity">
+                    <span class="user-name" id="userName">Admin</span>
+                    <span class="admin-badge">Administrateur</span>
+                </div>
+                <button id="logoutBtn" class="btn-logout" title="Déconnexion">
+                    <i class="fas fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -37,13 +48,13 @@
                     Banque de Questions
                 </a>
                 <a href="jeu.html" class="nav-item">
-                     Jeu en Direct
+                    Jeu en Direct
                 </a>
                 <a href="notation.html" class="nav-item">
-                     Notation
+                    Notation
                 </a>
                 <a href="resultats.html" class="nav-item ">
-                     Résultats et Classement
+                    Résultats et Classement
                 </a>
             </nav>
         </aside>
@@ -51,13 +62,13 @@
         <main class="admin-content">
             <div class="section-header">
                 <div>
-                    <h2>👥 Gestion des Participants</h2>
+                    <h2>Gestion des Participants</h2>
                     <p style="color: #718096; font-size: 0.9rem; margin: 0.5rem 0 0 0;">
                         Liste complète des participants inscrits au concours
                     </p>
                 </div>
                 <button class="btn-primary" id="importCSVBtn">
-                    📥 Importer CSV
+                    Importer CSV
                 </button>
             </div>
 
@@ -79,7 +90,7 @@
 
             <!-- Filtres -->
             <div class="filters" style="margin-bottom: 2rem;">
-                <input type="text" id="searchParticipant" placeholder="🔍 Rechercher par nom, prénom..." style="flex: 2;">
+                <input type="text" id="searchParticipant" placeholder="Rechercher par nom, prénom..." style="flex: 2;">
                 <select id="filterEtablissement">
                     <option value="">Tous les établissements</option>
                     <option value="ESATIC">ESATIC</option>
@@ -129,9 +140,10 @@
     <!-- Modal Import CSV -->
     <div id="csvImportModal" class="modal">
         <div class="modal-content">
-            <h3>📥 Importer des participants depuis CSV</h3>
+            <h3>Importer des participants depuis CSV</h3>
             <p style="color: #718096; margin-bottom: 1rem;">
-                Le fichier CSV doit contenir les colonnes : nom, prenom, sexe, etablissement, telephone, email, niveau_coranique, memorisation_sourate
+                Le fichier CSV doit contenir les colonnes : nom, prenom, sexe, etablissement, telephone, email,
+                niveau_coranique, memorisation_sourate
             </p>
             <input type="file" id="csvFileInput" accept=".csv">
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
@@ -144,4 +156,5 @@
     <script src="/js/api.js"></script>
     <script src="/js/admin/participants.js"></script>
 </body>
+
 </html>

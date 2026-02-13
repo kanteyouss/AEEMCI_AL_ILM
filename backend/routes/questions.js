@@ -8,7 +8,7 @@ const { validateQuestion } = require('../middleware/validator');
  * GET /api/questions
  * Récupérer toutes les questions
  */
-router.get('/', verifyJWT, questionController.getAllQuestions);
+router.get('/', questionController.getAllQuestions);
 
 /**
  * GET /api/questions/random
@@ -20,31 +20,31 @@ router.get('/random', questionController.getRandomQuestion);
  * GET /api/questions/:id
  * Récupérer une question par ID
  */
-router.get('/:id', verifyJWT, questionController.getQuestionById);
+router.get('/:id', questionController.getQuestionById);
 
 /**
  * POST /api/questions
- * Créer une nouvelle question (Admin uniquement)
+ * Créer une nouvelle question
  */
-router.post('/', verifyJWT, isAdmin, validateQuestion, questionController.createQuestion);
+router.post('/', validateQuestion, questionController.createQuestion);
 
 /**
  * PUT /api/questions/:id
- * Mettre à jour une question (Admin uniquement)
+ * Mettre à jour une question
  */
-router.put('/:id', verifyJWT, isAdmin, questionController.updateQuestion);
+router.put('/:id', questionController.updateQuestion);
 
 /**
  * DELETE /api/questions/:id
- * Supprimer une question (Admin uniquement)
+ * Supprimer une question
  */
-router.delete('/:id', verifyJWT, isAdmin, questionController.deleteQuestion);
+router.delete('/:id', questionController.deleteQuestion);
 
 /**
  * PUT /api/questions/:id/mark-used
  * Marquer une question comme utilisée
  */
-router.put('/:id/mark-used', verifyJWT, isAdmin, questionController.markQuestionAsUsed);
+router.put('/:id/mark-used', questionController.markQuestionAsUsed);
 
 /**
  * GET /api/questions/rubrique/:rubriqueId/random

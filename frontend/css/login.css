@@ -2,26 +2,36 @@
    STYLES PAGE CONNEXION - AL ILM 2026
    ============================================ */
 
+body {
+    background: linear-gradient(135deg, #2C5F2D 0%, #1e4620 100%);
+    min-height: 100vh;
+}
+
 * {
     box-sizing: border-box;
 }
 
 .login-container {
-    min-height: 100vh;
+    min-height: calc(100vh - 100px);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    /* Aligner vers le haut plutôt que centrer verticalement */
     justify-content: center;
-    background: linear-gradient(135deg, #2C5F2D 0%, #1e4620 100%);
-    padding: 1rem;
+    background: transparent;
+    /* Fond géré par le body ou globalement */
+    padding: 3rem 1rem 5rem;
+    /* Augmenté */
 }
 
 .login-card {
     background: white;
     border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     max-width: 450px;
     width: 100%;
     overflow: hidden;
+    margin-top: 5rem;
+    /* Augmenté à ~80px de plus que les 100px du main */
 }
 
 .login-header {
@@ -141,7 +151,7 @@
 .btn-primary:hover {
     background: #1e4620;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:active {
@@ -189,37 +199,39 @@
 /* Responsive */
 @media (max-width: 480px) {
     .login-card {
-        margin: 0.5rem;
+        margin: 4rem 0.5rem 0.5rem;
+        /* Augmenté pour mobile */
         border-radius: 10px;
     }
-    
+
     .login-header {
         padding: 1.5rem 1rem;
     }
-    
+
     .login-header h1 {
         font-size: 1.5rem;
     }
-    
+
     .login-form {
         padding: 1.5rem;
     }
-    
+
     .tab-btn {
         padding: 0.8rem;
         font-size: 0.9rem;
     }
-    
+
     .form-group input {
-        font-size: 16px; /* Évite le zoom sur iOS */
+        font-size: 16px;
+        /* Évite le zoom sur iOS */
         padding: 0.75rem;
     }
-    
+
     .btn-primary {
         padding: 0.9rem;
         font-size: 1rem;
     }
-    
+
     .error-message {
         margin: 0 1.5rem 1rem 1.5rem;
         padding: 0.85rem;

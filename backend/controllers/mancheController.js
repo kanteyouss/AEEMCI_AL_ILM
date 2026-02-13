@@ -72,23 +72,47 @@ const getAllManches = async (req, res, next) => {
  */
 const createManche = async (req, res, next) => {
     try {
-        const { nom, type, date_manche, heure_debut, heure_fin, description, rubriques, equipes, note_bas_page } = req.body;
+        const { nom, type, date_manche, heure_debut, heure_fin, description, rubriques, equipes, note_bas_page, numero } = req.body;
+
 
         const client = await db.pool.connect();
 
         try {
             await client.query('BEGIN');
 
-            // Créer la manche
+            // Validation des champs obligatoires
+            if (!nom || !type || !date_manche) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({
+                    success: false,
+                    message: "Le nom, le type et la date sont obligatoires."
+                });
+            }
+
+            // Vérifier si une manche existe déjà avec ce nom et cette date
+            const existingManche = await client.query(
+                'SELECT id FROM manches WHERE nom = $1 AND date_manche = $2',
+                [nom, date_manche]
+            );
+
+            if (existingManche.rows.length > 0) {
+                await client.query('ROLLBACK');
+                return res.status(409).json({
+                    success: false,
+                    message: "Une manche avec ce nom existe déjà pour cette date."
+                });
+            }
+
+            // Créer la manche (Statut par défaut 'publie' pour simplifier)
             const mancheQuery = `
-                INSERT INTO manches (nom, type, date_manche, heure_debut, heure_fin, description, etape, note_bas_page)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                INSERT INTO manches (nom, type, date_manche, heure_debut, heure_fin, description, etape, note_bas_page, statut, numero)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'publie', $9)
                 RETURNING *
             `;
 
             // Utiliser le type comme etape par défaut
             const mancheResult = await client.query(mancheQuery, [
-                nom, type, date_manche, heure_debut, heure_fin, description, type, note_bas_page
+                nom, type, date_manche, heure_debut, heure_fin, description, type, note_bas_page, numero
             ]);
 
             const manche = mancheResult.rows[0];
@@ -226,7 +250,7 @@ const getMancheById = async (req, res, next) => {
 const updateManche = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { nom, type, date_manche, heure_debut, heure_fin, description, rubriques, equipes, note_bas_page } = req.body;
+        const { nom, type, date_manche, heure_debut, heure_fin, description, rubriques, equipes, note_bas_page, numero } = req.body;
 
         const client = await db.pool.connect();
 
@@ -257,19 +281,20 @@ const updateManche = async (req, res, next) => {
             const updatedHeureFin = heure_fin !== undefined ? heure_fin : current.heure_fin;
             const updatedDescription = description !== undefined ? description : current.description;
             const updatedNoteBasPage = note_bas_page !== undefined ? note_bas_page : current.note_bas_page;
+            const updatedNumero = numero !== undefined ? numero : current.numero;
 
-            // Mettre à jour la manche (sans modifier le numero qui est un identifiant fixe)
+            // Mettre à jour la manche
             const mancheQuery = `
                 UPDATE manches 
                 SET nom = $1, type = $2, date_manche = $3, 
-                    heure_debut = $4, heure_fin = $5, description = $6, note_bas_page = $7
-                WHERE id = $8
+                    heure_debut = $4, heure_fin = $5, description = $6, note_bas_page = $7, numero = $8
+                WHERE id = $9
                 RETURNING *
             `;
 
             const mancheResult = await client.query(mancheQuery, [
                 updatedNom, updatedType, updatedDateManche,
-                updatedHeureDebut, updatedHeureFin, updatedDescription, updatedNoteBasPage, id
+                updatedHeureDebut, updatedHeureFin, updatedDescription, updatedNoteBasPage, updatedNumero, id
             ]);
 
             const manche = mancheResult.rows[0];

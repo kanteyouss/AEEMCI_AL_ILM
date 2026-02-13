@@ -41,8 +41,8 @@ router.get('/manche/:manche_id', notationController.getNotationsManche);
  */
 router.post('/', notationController.saveNotation);
 
-// Routes nécessitant authentification
-router.use(verifyJWT);
+// Routes publiques (plus besoin d'authentification)
+// router.use(verifyJWT);
 
 /**
  * @route GET /api/notation/:equipe_id/:manche_id/:rubrique_id

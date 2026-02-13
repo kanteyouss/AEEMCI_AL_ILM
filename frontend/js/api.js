@@ -70,6 +70,12 @@ async function apiRequest(endpoint, options = {}) {
 
     try {
         const response = await fetch(url, config);
+
+        // Gérer le cas de session expirée (401 Unauthorized)
+        if (response.status === 401) {
+            console.warn('⚠️ Session expirée ou invalide (401)');
+        }
+
         const data = await response.json();
 
         if (!response.ok) {
@@ -78,6 +84,23 @@ async function apiRequest(endpoint, options = {}) {
 
         return data;
     } catch (error) {
+        if (error.name === 'AbortError') {
+            console.log('📡 Requête API annulée (Abort)');
+            return null;
+        }
+
+        // Diagnostic automatique si erreur réseau
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            console.error('🚨 [NETWORK ERROR] Tentative de diagnostic...');
+            try {
+                const healthCheck = await fetch(`${window.location.origin}/api/health`).then(r => r.json());
+                console.log('✅ Le serveur répond au health check:', healthCheck);
+                console.warn('💡 Le serveur est en ligne, le problème vient probablement de la route spécifique ou de CORS.');
+            } catch (e) {
+                console.error('❌ Le serveur semble être HORS LIGNE (Health check échoué).');
+            }
+        }
+
         console.error('API Error:', error);
         throw error;
     }
@@ -209,6 +232,17 @@ async function applyGlobalNavConfig() {
  * Fonction helper pour appliquer la visibilité (évite la duplication)
  */
 function applyNavVisibility(config) {
+    // Si une équipe est connectée, on ne touche pas à la navbar (gérée par init-navbar.js)
+    try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            if (user && user.type === 'equipe') return;
+        }
+    } catch (e) {
+        // Ignorer erreur parsing
+    }
+
     // Sélecteurs pour les liens de navigation (basés sur les attributs href standards)
     // On cible spécifiquement les liens dans la barre de navigation (.nav)
     const navLinks = {

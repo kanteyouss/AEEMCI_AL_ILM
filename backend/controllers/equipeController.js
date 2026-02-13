@@ -15,15 +15,15 @@ const getAllEquipes = async (req, res, next) => {
             GROUP BY e.id
             ORDER BY e.nom
         `;
-        
+
         const result = await db.query(query);
-        
+
         res.json({
             success: true,
             data: result.rows,
             count: result.rows.length
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -35,22 +35,22 @@ const getAllEquipes = async (req, res, next) => {
 const getEquipeById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+
         // Récupérer les infos de l'équipe
         const equipeQuery = `
             SELECT * FROM equipes WHERE id = $1
         `;
         const equipeResult = await db.query(equipeQuery, [id]);
-        
+
         if (equipeResult.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Équipe non trouvée'
             });
         }
-        
+
         const equipe = equipeResult.rows[0];
-        
+
         // Récupérer les membres avec leurs rôles
         const membresQuery = `
             SELECT 
@@ -60,6 +60,7 @@ const getEquipeById = async (req, res, next) => {
                 p.email,
                 p.telephone,
                 p.etablissement,
+                p.genre,
                 p.photo_url,
                 me.est_capitaine,
                 me.role_adhan,
@@ -71,9 +72,9 @@ const getEquipeById = async (req, res, next) => {
             WHERE me.equipe_id = $1
             ORDER BY me.est_capitaine DESC, p.nom
         `;
-        
+
         const membresResult = await db.query(membresQuery, [id]);
-        
+
         res.json({
             success: true,
             data: {
@@ -81,7 +82,7 @@ const getEquipeById = async (req, res, next) => {
                 membres: membresResult.rows
             }
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -93,21 +94,21 @@ const getEquipeById = async (req, res, next) => {
 const createEquipe = async (req, res, next) => {
     try {
         const { nom, signification, couleur, symbole, code_acces } = req.body;
-        
+
         const query = `
             INSERT INTO equipes (nom, signification, couleur, symbole, code_acces)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
         `;
-        
+
         const result = await db.query(query, [nom, signification, couleur, symbole, code_acces]);
-        
+
         res.status(201).json({
             success: true,
             message: 'Équipe créée avec succès',
             data: result.rows[0]
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -120,35 +121,35 @@ const addMember = async (req, res, next) => {
     try {
         const { id } = req.params; // equipe_id
         const { participant_id, est_capitaine } = req.body;
-        
+
         // Vérifier que le participant existe
         const participantCheck = await db.query(
             'SELECT * FROM participants WHERE id = $1',
             [participant_id]
         );
-        
+
         if (participantCheck.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Participant non trouvé'
             });
         }
-        
+
         // Ajouter le membre
         const query = `
             INSERT INTO membres_equipe (equipe_id, participant_id, est_capitaine)
             VALUES ($1, $2, $3)
             RETURNING *
         `;
-        
+
         const result = await db.query(query, [id, participant_id, est_capitaine || false]);
-        
+
         res.status(201).json({
             success: true,
             message: 'Membre ajouté à l\'équipe',
             data: result.rows[0]
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -160,18 +161,18 @@ const addMember = async (req, res, next) => {
 const removeMember = async (req, res, next) => {
     try {
         const { id, participantId } = req.params;
-        
+
         console.log('\n🗑️ === REMOVE MEMBER ===');
         console.log(`Équipe ID: ${id}, Participant ID: ${participantId}`);
-        
+
         const query = `
             DELETE FROM membres_equipe 
             WHERE equipe_id = $1 AND participant_id = $2
             RETURNING *
         `;
-        
+
         const result = await db.query(query, [id, participantId]);
-        
+
         if (result.rows.length === 0) {
             console.log('⚠️ Membre non trouvé dans cette équipe');
             return res.status(404).json({
@@ -179,9 +180,9 @@ const removeMember = async (req, res, next) => {
                 message: 'Membre non trouvé dans cette équipe'
             });
         }
-        
+
         console.log('✅ Membre supprimé:', result.rows[0]);
-        
+
         // Vérifier s'il reste des membres dans l'équipe
         const checkQuery = `
             SELECT COUNT(*) as nb_membres 
@@ -190,9 +191,9 @@ const removeMember = async (req, res, next) => {
         `;
         const checkResult = await db.query(checkQuery, [id]);
         const nbMembres = parseInt(checkResult.rows[0].nb_membres);
-        
+
         console.log(`📊 Nombre de membres restants: ${nbMembres}`);
-        
+
         // Si l'équipe est vide, réinitialiser le code d'accès
         if (nbMembres === 0) {
             console.log('🔄 Équipe vide détectée - Réinitialisation du code_acces');
@@ -202,15 +203,15 @@ const removeMember = async (req, res, next) => {
             );
             console.log('✅ Code accès réinitialisé:', resetResult.rows[0]);
         }
-        
+
         console.log('=== FIN REMOVE MEMBER ===\n');
-        
+
         res.json({
             success: true,
             message: 'Membre retiré de l\'équipe',
             equipe_vide: nbMembres === 0
         });
-        
+
     } catch (error) {
         console.error('❌ Erreur dans removeMember:', error);
         next(error);
@@ -224,16 +225,16 @@ const setCapitaine = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { participant_id } = req.body;
-        
+
         // Débuter une transaction
         await db.query('BEGIN');
-        
+
         // Retirer tous les capitaines de l'équipe
         await db.query(
             'UPDATE membres_equipe SET est_capitaine = false WHERE equipe_id = $1',
             [id]
         );
-        
+
         // Définir le nouveau capitaine
         const result = await db.query(
             `UPDATE membres_equipe 
@@ -242,7 +243,7 @@ const setCapitaine = async (req, res, next) => {
              RETURNING *`,
             [id, participant_id]
         );
-        
+
         if (result.rows.length === 0) {
             await db.query('ROLLBACK');
             return res.status(404).json({
@@ -250,15 +251,15 @@ const setCapitaine = async (req, res, next) => {
                 message: 'Membre non trouvé dans cette équipe'
             });
         }
-        
+
         await db.query('COMMIT');
-        
+
         res.json({
             success: true,
             message: 'Capitaine défini avec succès',
             data: result.rows[0]
         });
-        
+
     } catch (error) {
         await db.query('ROLLBACK');
         next(error);
@@ -272,7 +273,7 @@ const setRoles = async (req, res, next) => {
     try {
         const { id, participantId } = req.params;
         const { role_adhan, role_coran_ouvert, role_coran_ferme, role_hadith } = req.body;
-        
+
         const query = `
             UPDATE membres_equipe
             SET 
@@ -283,29 +284,29 @@ const setRoles = async (req, res, next) => {
             WHERE equipe_id = $1 AND participant_id = $2
             RETURNING *
         `;
-        
+
         const result = await db.query(query, [
-            id, 
-            participantId, 
-            role_adhan, 
-            role_coran_ouvert, 
-            role_coran_ferme, 
+            id,
+            participantId,
+            role_adhan,
+            role_coran_ouvert,
+            role_coran_ferme,
             role_hadith
         ]);
-        
+
         if (result.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Membre non trouvé dans cette équipe'
             });
         }
-        
+
         res.json({
             success: true,
             message: 'Rôles mis à jour',
             data: result.rows[0]
         });
-        
+
     } catch (error) {
         next(error);
     }
@@ -317,20 +318,20 @@ const setRoles = async (req, res, next) => {
 const sendAccessCode = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+
         // Récupérer l'équipe
         const equipeQuery = 'SELECT * FROM equipes WHERE id = $1';
         const equipeResult = await db.query(equipeQuery, [id]);
-        
+
         if (equipeResult.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Équipe non trouvée'
             });
         }
-        
+
         const equipe = equipeResult.rows[0];
-        
+
         // Récupérer le capitaine
         const capitaineQuery = `
             SELECT p.* 
@@ -338,21 +339,21 @@ const sendAccessCode = async (req, res, next) => {
             JOIN membres_equipe me ON p.id = me.participant_id
             WHERE me.equipe_id = $1 AND me.est_capitaine = true
         `;
-        
+
         const capitaineResult = await db.query(capitaineQuery, [id]);
-        
+
         if (capitaineResult.rows.length === 0) {
             return res.status(400).json({
                 success: false,
                 message: 'Aucun capitaine défini pour cette équipe'
             });
         }
-        
+
         const capitaine = capitaineResult.rows[0];
-        
+
         // Envoyer l'email
         const emailResult = await sendTeamAccessCode(equipe, capitaine);
-        
+
         if (emailResult.success) {
             res.json({
                 success: true,
@@ -365,7 +366,7 @@ const sendAccessCode = async (req, res, next) => {
                 error: emailResult.error
             });
         }
-        
+
     } catch (error) {
         next(error);
     }
@@ -376,30 +377,30 @@ const sendAccessCode = async (req, res, next) => {
  */
 const validateAllEquipes = async (req, res, next) => {
     const client = await db.pool.connect();
-    
+
     try {
         const { equipes } = req.body;
-        
+
         if (!equipes || !Array.isArray(equipes)) {
             return res.status(400).json({
                 success: false,
                 message: 'Format de données invalide'
             });
         }
-        
+
         await client.query('BEGIN');
-        
+
         const results = [];
-        
+
         for (const equipeData of equipes) {
             const { equipe_id, membres, capitaine_id } = equipeData;
-            
+
             // Supprimer les anciennes associations (pour toutes les équipes, même vides)
             await client.query(
                 'DELETE FROM membres_equipe WHERE equipe_id = $1',
                 [equipe_id]
             );
-            
+
             // Si l'équipe est vide, réinitialiser le code d'accès et continuer
             if (!membres || membres.length === 0) {
                 await client.query(
@@ -408,7 +409,7 @@ const validateAllEquipes = async (req, res, next) => {
                 );
                 continue;
             }
-            
+
             // Vérifier que le capitaine est défini
             if (!capitaine_id) {
                 await client.query('ROLLBACK');
@@ -417,7 +418,7 @@ const validateAllEquipes = async (req, res, next) => {
                     message: `L'équipe ${equipe_id} n'a pas de capitaine`
                 });
             }
-            
+
             // Vérifier que le capitaine fait partie des membres
             if (!membres.includes(capitaine_id)) {
                 await client.query('ROLLBACK');
@@ -426,40 +427,40 @@ const validateAllEquipes = async (req, res, next) => {
                     message: `Le capitaine doit faire partie de l'équipe ${equipe_id}`
                 });
             }
-            
+
             // Ajouter les nouveaux membres
             for (const participantId of membres) {
                 const estCapitaine = participantId === capitaine_id;
-                
+
                 await client.query(
                     `INSERT INTO membres_equipe (equipe_id, participant_id, est_capitaine) 
                      VALUES ($1, $2, $3)`,
                     [equipe_id, participantId, estCapitaine]
                 );
             }
-            
+
             // Générer un code d'accès unique si non existant
             const equipeQuery = await client.query(
                 'SELECT * FROM equipes WHERE id = $1',
                 [equipe_id]
             );
-            
+
             let code = equipeQuery.rows[0].code_acces;
-            
+
             if (!code) {
                 // Générer un code aléatoire de 6 caractères
                 code = Math.random().toString(36).substring(2, 8).toUpperCase();
-                
+
                 // Vérifier l'unicité du code
                 let isUnique = false;
                 let attempts = 0;
-                
+
                 while (!isUnique && attempts < 10) {
                     const checkCode = await client.query(
                         'SELECT id FROM equipes WHERE code_acces = $1 AND id != $2',
                         [code, equipe_id]
                     );
-                    
+
                     if (checkCode.rows.length === 0) {
                         isUnique = true;
                     } else {
@@ -467,29 +468,29 @@ const validateAllEquipes = async (req, res, next) => {
                         attempts++;
                     }
                 }
-                
+
                 // Mettre à jour l'équipe avec le code
                 await client.query(
                     'UPDATE equipes SET code_acces = $1 WHERE id = $2',
                     [code, equipe_id]
                 );
             }
-            
+
             results.push({
                 equipe_id,
                 code_acces: code,
                 nb_membres: membres.length
             });
         }
-        
+
         await client.query('COMMIT');
-        
+
         res.json({
             success: true,
             message: 'Équipes validées avec succès',
             data: results
         });
-        
+
     } catch (error) {
         await client.query('ROLLBACK');
         next(error);
@@ -504,12 +505,12 @@ const validateAllEquipes = async (req, res, next) => {
 const getValidatedEquipes = async (req, res, next) => {
     try {
         console.log('\n🔍 === GET VALIDATED EQUIPES ===');
-        
+
         // Désactiver le cache
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         res.set('Pragma', 'no-cache');
         res.set('Expires', '0');
-        
+
         const query = `
             SELECT 
                 e.id,
@@ -532,21 +533,21 @@ const getValidatedEquipes = async (req, res, next) => {
             GROUP BY e.id
             ORDER BY e.nom
         `;
-        
+
         const result = await db.query(query);
-        
+
         console.log(`📊 Nombre d'équipes trouvées: ${result.rows.length}`);
-        
+
         // Formater les données pour l'affichage
         const equipesFormatted = result.rows.map(eq => {
             const capitaine = eq.membres?.find(m => m.est_capitaine);
-            
+
             console.log(`\n📋 Équipe: ${eq.nom}`);
             console.log(`   - Code accès: ${eq.code_acces}`);
             console.log(`   - Nombre membres: ${eq.nb_membres}`);
             console.log(`   - Membres bruts:`, eq.membres);
             console.log(`   - Capitaine:`, capitaine ? `${capitaine.prenom} ${capitaine.nom}` : 'Aucun');
-            
+
             return {
                 id: eq.id,
                 nom: eq.nom,
@@ -558,16 +559,16 @@ const getValidatedEquipes = async (req, res, next) => {
                 } : null
             };
         });
-        
+
         console.log(`\n✅ Données formatées:`, JSON.stringify(equipesFormatted, null, 2));
         console.log('=== FIN GET VALIDATED EQUIPES ===\n');
-        
+
         res.json({
             success: true,
             data: equipesFormatted,
             count: equipesFormatted.length
         });
-        
+
     } catch (error) {
         console.error('❌ Erreur dans getValidatedEquipes:', error);
         next(error);
@@ -580,12 +581,12 @@ const getValidatedEquipes = async (req, res, next) => {
 const getEquipeMembres = async (req, res, next) => {
     try {
         const { nom } = req.params;
-        
+
         // Désactiver le cache
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         res.set('Pragma', 'no-cache');
         res.set('Expires', '0');
-        
+
         // Récupérer l'équipe et ses membres
         const query = `
             SELECT 
@@ -608,21 +609,21 @@ const getEquipeMembres = async (req, res, next) => {
             WHERE e.nom = $1 AND e.code_acces IS NOT NULL
             GROUP BY e.id
         `;
-        
+
         const result = await db.query(query, [nom]);
-        
+
         if (result.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Equipe non trouvee ou non validee'
             });
         }
-        
+
         res.json({
             success: true,
             data: result.rows[0]
         });
-        
+
     } catch (error) {
         next(error);
     }

@@ -280,16 +280,16 @@ function renderManchesList() {
                             <span class="detail-text">${dateStr}</span>
                         </div>
                         <div class="manche-detail-item">
-                            <span class="detail-icon">🕐</span>
+                            <span class="detail-icon"></span>
                             <span class="detail-text">${timeStr}</span>
                         </div>
                         <div class="manche-detail-item">
-                            <span class="detail-icon">🌙</span>
+                            <span class="detail-icon"></span>
                             <span class="detail-text">${hijriDate}</span>
                         </div>
                         ${manche.lieu ? `
                         <div class="manche-detail-item">
-                            <span class="detail-icon">📍</span>
+                            <span class="detail-icon"></span>
                             <span class="detail-text">${manche.lieu}</span>
                         </div>
                         ` : ''}
@@ -431,76 +431,91 @@ function openMancheModal(manche) {
 
     // Préparer l'affichage des rubriques
     const rubriquesHTML = manche.rubriques && manche.rubriques.length > 0
-        ? `<ul style="margin: 0; padding-left: 1.5rem;">
-            ${manche.rubriques.map(r => `<li>${r.nom}</li>`).join('')}
-           </ul>`
-        : '<p>Toutes les rubriques (8 au total)</p>';
+        ? `<div class="modal-rubriques-list">
+            ${manche.rubriques.map(r => `<span class="rubrique-chip">${r.nom}</span>`).join('')}
+           </div>`
+        : '<p class="no-rubrique">Toutes les rubriques habituelles (8 au total)</p>';
 
     modalBody.innerHTML = `
-        <h2 class="modal-manche-title">
-            ${manche.nom || `Manche ${manche.numero || '?'}`} - ${getMancheTypeLabel(mancheType)}
-        </h2>
+        <div class="modal-manche-header type-${mancheType}">
+            <div class="header-icon-box">
+                <span class="manche-icon-main">🕌</span>
+            </div>
+            <div class="header-text-box">
+                <h2 class="modal-manche-title">${manche.nom || `Manche ${manche.numero || '?'}`}</h2>
+                <span class="manche-type-tag">${getMancheTypeLabel(mancheType)}</span>
+            </div>
+        </div>
         
         <div class="modal-info-grid">
-            <div class="modal-info-item">
-                <span class="modal-info-icon">📅</span>
-                <div class="modal-info-content">
-                    <h4>Date (Grégorien)</h4>
+            <div class="modal-info-card">
+                <div class="card-icon"></div>
+                <div class="card-content">
+                    <label>Calendrier Grégorien</label>
                     <p>${dateStr}</p>
                 </div>
             </div>
             
-            <div class="modal-info-item">
-                <span class="modal-info-icon">🌙</span>
-                <div class="modal-info-content">
-                    <h4>Date (Hégirien)</h4>
+            <div class="modal-info-card">
+                <div class="card-icon"></div>
+                <div class="card-content">
+                    <label>Calendrier Hégirien</label>
                     <p>${hijriDate}</p>
                 </div>
             </div>
             
-            <div class="modal-info-item">
-                <span class="modal-info-icon">🕐</span>
-                <div class="modal-info-content">
-                    <h4>Horaire</h4>
+            <div class="modal-info-card">
+                <div class="card-icon"></div>
+                <div class="card-content">
+                    <label>Horaire Prévu</label>
                     <p>${timeStr}</p>
                 </div>
             </div>
             
-            ${manche.lieu ? `
-            <div class="modal-info-item">
-                <span class="modal-info-icon">📍</span>
-                <div class="modal-info-content">
-                    <h4>Lieu</h4>
-                    <p>${manche.lieu}</p>
-                </div>
-            </div>
-            ` : ''}
-            
-            <div class="modal-info-item">
-                <span class="modal-info-icon">🎯</span>
-                <div class="modal-info-content">
-                    <h4>Type de manche</h4>
-                    <p>${getMancheTypeLabel(mancheType)}</p>
+            <div class="modal-info-card">
+                <div class="card-icon"></div>
+                <div class="card-content">
+                    <label>Lieu de la Rencontre</label>
+                    <p>${manche.lieu || 'Mosquée ESATIC'}</p>
                 </div>
             </div>
             
-            <div class="modal-info-item">
-                <span class="modal-info-icon">📚</span>
-                <div class="modal-info-content">
-                    <h4>Rubriques</h4>
+            <div class="modal-full-card">
+                <div class="card-header">
+                    <span class="icon"></span>
+                    <h3>Domaines & Rubriques</h3>
+                </div>
+                <div class="card-body">
                     ${rubriquesHTML}
                 </div>
             </div>
             
             ${manche.description ? `
-            <div class="modal-info-item" style="grid-column: 1 / -1;">
-                <span class="modal-info-icon">📝</span>
-                <div class="modal-info-content">
-                    <h4>Description</h4>
+            <div class="modal-full-card description-card">
+                <div class="card-header">
+                    <span class="icon"></span>
+                    <h3>Note des Organisateurs</h3>
+                </div>
+                <div class="card-body">
                     <p>${manche.description}</p>
                 </div>
             </div>
             ` : ''}
+        </div>
+
+        <div class="modal-footer-teams">
+            <h3>Équipes en Compétition</h3>
+            <div class="modal-teams-list">
+                ${manche.equipes && manche.equipes.length > 0
+            ? manche.equipes.map(eq => `
+                        <a href="/public/equipe-details.html?equipe=${encodeURIComponent(eq.nom)}" class="team-link">
+                            <span class="team-icon">🛡️</span>
+                            <span class="team-name">${eq.nom}</span>
+                        </a>
+                    `).join('')
+            : '<p class="no-teams">Aucune équipe affectée pour le moment</p>'
+        }
+            </div>
         </div>
     `;
 

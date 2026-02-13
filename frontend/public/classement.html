@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classement - AL ILM 2026 🏆</title>
+    <title>Classement - AL ILM 2026</title>
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/classement.css">
 </head>
@@ -17,10 +17,10 @@
         <!-- Hero Section -->
         <section class="hero-classement">
             <div class="container">
-                <h1>🏆 Classement Général</h1>
+                <h1>Classement Général</h1>
                 <p class="subtitle">Suivez la compétition en temps réel</p>
                 <div class="refresh-info">
-                    <span class="refresh-icon">🔄</span>
+                    <span class="refresh-icon"></span>
                     <span>Mise à jour automatique toutes les 30 secondes</span>
                     <span id="lastUpdate" class="last-update"></span>
                 </div>
@@ -212,12 +212,8 @@
 
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 AEEMCI - Association des Élèves et Étudiants Musulmans de Côte d'Ivoire</p>
-            <p>Section ESATIC - "Pour une identité islamique !"</p>
-        </div>
-    </footer>
+    <div id="footer-root"></div>
+    <script src="/js/init-footer.js"></script>
 
     <script src="/js/api.js?v=6"></script>
     <script src="/js/public/classement.js?v=8"></script>

@@ -31,6 +31,11 @@ module.exports = (server) => {
                 console.log(`Client ${socket.id} joined public_room`);
             }
 
+            if (role === 'admin') {
+                socket.join('admin_room');
+                console.log(`Client ${socket.id} joined admin_room`);
+            }
+
             if (mancheId && mancheId !== 'all') {
                 socket.join(`manche_${mancheId}`);
             }
@@ -122,6 +127,29 @@ module.exports = (server) => {
             gameState.tempsRestant = data.tempsRestant;
             io.to('public_room').emit('timer_update', { tempsRestant: data.tempsRestant });
         });
+
+        // --- NOUVEAU : MODE COLLECTIF TEMPS RÉEL ---
+
+        // ADMIN: Lancer le timer (après délai 3s)
+        socket.on('admin_start_timer', (data) => {
+            console.log('⏱️ Timer Start broadcasté');
+            io.to('public_room').emit('timer_start', data);
+        });
+
+        // TEAM: Soumettre une réponse
+        socket.on('team_submit_answer', (data) => {
+            console.log(`📩 Réponse reçue de l'équipe ${data.equipeId}`);
+            // Transmettre aux admins uniquement
+            io.to('admin_room').emit('team_answered', data);
+        });
+
+        // ADMIN: Forcer la soumission (STOP)
+        socket.on('admin_force_submit', () => {
+            console.log('🛑 Force Submit broadcasté');
+            io.to('public_room').emit('force_submit');
+        });
+
+        // -------------------------------------------
 
         // ADMIN: Fin du timer / Validation
         socket.on('end_question', (data) => {

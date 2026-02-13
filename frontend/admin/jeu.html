@@ -5,13 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jeu en Direct - AL ILM 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/admin.css">
     <style>
         .jeu-container {
-            max-width: 1400px;
-            margin: 0 auto;
+            margin: 120px auto;
             padding: 2rem;
+            max-width: 1400px;
         }
 
         .jeu-grid {
@@ -394,10 +395,18 @@
 <body>
     <header class="header-admin">
         <div class="container">
-            <h1>🎮 AL ILM 2026 - Jeu en Direct</h1>
-            <div class="user-info">
-                <span id="userName"></span>
-                <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+            <div class="logo-box">
+                <h1>AL ILM 2026</h1>
+                <p class="tagline">Administration - Contrôle du Jeu en Direct</p>
+            </div>
+            <div class="user-session-block">
+                <div class="user-identity">
+                    <span class="user-name" id="userName">Admin</span>
+                    <span class="admin-badge">Administrateur</span>
+                </div>
+                <button id="logoutBtn" class="btn-logout" title="Déconnexion">
+                    <i class="fas fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
     </header>

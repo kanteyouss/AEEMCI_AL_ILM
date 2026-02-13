@@ -9,7 +9,7 @@ const db = require('../config/database');
  * POST /api/upload/participants
  * Import CSV de participants
  */
-router.post('/participants', verifyJWT, upload.single('file'), handleMulterError, async (req, res, next) => {
+router.post('/participants', upload.single('file'), handleMulterError, async (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({
@@ -17,12 +17,12 @@ router.post('/participants', verifyJWT, upload.single('file'), handleMulterError
                 message: 'Aucun fichier CSV fourni'
             });
         }
-        
+
         console.log('📥 Import CSV participants:', req.file.originalname);
-        
+
         // Lire le contenu du fichier CSV
         const csvContent = req.file.buffer.toString('utf-8');
-        
+
         // Parser le CSV
         const records = csvParser.parse(csvContent, {
             columns: true,
@@ -30,13 +30,13 @@ router.post('/participants', verifyJWT, upload.single('file'), handleMulterError
             delimiter: ',',
             trim: true
         });
-        
+
         console.log('📊 Nombre de lignes:', records.length);
-        
+
         let successCount = 0;
         let errorCount = 0;
         const errors = [];
-        
+
         // Insérer chaque participant
         for (const [index, record] of records.entries()) {
             try {
@@ -44,12 +44,12 @@ router.post('/participants', verifyJWT, upload.single('file'), handleMulterError
                 if (!record.nom || !record.prenom || !record.telephone || !record.etablissement) {
                     throw new Error('Champs requis manquants (nom, prenom, telephone, etablissement)');
                 }
-                
+
                 // Vérifier que l'établissement est valide
                 if (!['ESATIC', 'EMSP'].includes(record.etablissement.toUpperCase())) {
                     throw new Error('Établissement invalide (doit être ESATIC ou EMSP)');
                 }
-                
+
                 // Insérer le participant
                 await db.query(
                     `INSERT INTO participants 
@@ -67,9 +67,9 @@ router.post('/participants', verifyJWT, upload.single('file'), handleMulterError
                         record.memorisation_sourate || null
                     ]
                 );
-                
+
                 successCount++;
-                
+
             } catch (error) {
                 errorCount++;
                 errors.push({
@@ -80,9 +80,9 @@ router.post('/participants', verifyJWT, upload.single('file'), handleMulterError
                 console.error(`❌ Erreur ligne ${index + 2}:`, error.message);
             }
         }
-        
+
         console.log(`✅ Import terminé: ${successCount} succès, ${errorCount} erreurs`);
-        
+
         res.json({
             success: true,
             message: `Import terminé: ${successCount} participant(s) importé(s)`,
@@ -92,7 +92,7 @@ router.post('/participants', verifyJWT, upload.single('file'), handleMulterError
                 details: errorCount > 0 ? errors : undefined
             }
         });
-        
+
     } catch (error) {
         console.error('❌ Erreur import CSV:', error);
         next(error);
@@ -103,16 +103,16 @@ router.post('/participants', verifyJWT, upload.single('file'), handleMulterError
  * POST /api/upload/audio
  * Upload d'un fichier audio (Adhan, Coran, Hadith)
  */
-router.post('/audio', verifyJWT, upload.single('audioFile'), handleMulterError, (req, res) => {
+router.post('/audio', upload.single('audioFile'), handleMulterError, (req, res) => {
     if (!req.file) {
         return res.status(400).json({
             success: false,
             message: 'Aucun fichier fourni'
         });
     }
-    
+
     const fileUrl = `/uploads/${req.body.type || 'autres'}/${req.file.filename}`;
-    
+
     res.json({
         success: true,
         message: 'Fichier uploadé avec succès',

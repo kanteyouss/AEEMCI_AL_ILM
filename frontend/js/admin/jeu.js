@@ -67,7 +67,7 @@ function setupInitialUI() {
     const selects = document.querySelectorAll('.selection-grid');
     selects.forEach(el => el.style.display = 'none');
 
-    ui.alertInfo.textContent = "⏳ En attente du Jury...";
+    ui.alertInfo.textContent = "En attente du Jury...";
     ui.alertInfo.style.display = 'block';
 
     // Cacher le reste
@@ -107,7 +107,7 @@ function setupSocket() {
             equipeId: state.equipeId
         });
 
-        ui.btnGenerer.textContent = "⏳ Tirage...";
+        ui.btnGenerer.textContent = "Tirage...";
         ui.btnGenerer.disabled = true;
     });
 }
@@ -136,13 +136,13 @@ function handleStateUpdate(data) {
         // Montrer le bouton générer
         ui.btnGenerer.style.display = 'block';
         ui.btnGenerer.disabled = false;
-        ui.btnGenerer.textContent = "🎲 GÉNÉRER LA QUESTION";
+        ui.btnGenerer.textContent = "GÉNÉRER LA QUESTION";
 
         state.isActive = true; // On assume que si une équipe est set, c'est pour jouer
     } else {
         // En attente
         ui.alertInfo.style.display = 'block';
-        ui.alertInfo.textContent = "⏸️ Pause / En attente du Jury";
+        ui.alertInfo.textContent = "Pause / En attente du Jury";
         ui.mainPanel.style.display = 'none';
         state.isActive = false;
     }
@@ -188,7 +188,7 @@ function updateTimer(seconds) {
 
 function showResult(result) {
     const isCorrect = result === 'correct';
-    const msg = isCorrect ? "✅ BONNE RÉPONSE !" : "❌ MAUVAISE RÉPONSE";
+    const msg = isCorrect ? "BONNE RÉPONSE !" : "MAUVAISE RÉPONSE";
     const color = isCorrect ? "#4ade80" : "#f87171";
 
     showOverlay(msg, isCorrect ? "+ Points" : "Dommage...", color);

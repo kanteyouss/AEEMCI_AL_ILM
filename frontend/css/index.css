@@ -12,21 +12,28 @@
 
 .verset-section::before,
 .verset-section::after {
-    content: '☪️';
+    content: '';
     position: absolute;
-    font-size: 15rem;
-    opacity: 0.3; /* Augmenté de 0.02 à 0.1 pour plus de visibilité */
-    animation: rotate 20s linear infinite;
+    width: 250px;
+    height: 250px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.15;
+    animation: rotate 25s linear infinite;
+    z-index: 0;
 }
 
 .verset-section::before {
-    top: -5rem;
-    left: -5rem;
+    top: -2rem;
+    left: -2rem;
+    background-image: url('/assets/images/logoAEEMCIESATIC.png');
 }
 
 .verset-section::after {
-    bottom: -5rem;
-    right: -5rem;
+    bottom: -2rem;
+    right: -2rem;
+    background-image: url('/assets/images/logoAEEMCIESATIC.png');
     animation-direction: reverse;
 }
 
@@ -34,6 +41,7 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -58,27 +66,8 @@
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
 }
 
-.verset-card::before {
-    content: '☪️';
-    position: absolute;
-    font-size: 8rem;
-    opacity: 0.01; /* Diminué de 0.05 à 0.02 pour ne pas gêner le texte */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    animation: pulse 4s ease-in-out infinite;
-    z-index: 0; /* Placer derrière le contenu */
-}
 
-/* S'assurer que le contenu reste au-dessus du filigrane */
-.verset-icon,
-.verset-arabe,
-.verset-traduction,
-.verset-reference {
-    position: relative;
-    z-index: 1;
-}
-
+/* Reste du contenu du verset */
 .verset-icon {
     font-size: 3rem;
     margin-bottom: 1rem;
@@ -178,9 +167,12 @@
 }
 
 @keyframes pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
     }
+
     50% {
         opacity: 0.7;
     }
@@ -261,15 +253,24 @@
         opacity: 0;
         transform: scale(0.8);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
     }
 }
 
-.hero-stats .stat-card:nth-child(1) { animation-delay: 0.2s; }
-.hero-stats .stat-card:nth-child(2) { animation-delay: 0.4s; }
-.hero-stats .stat-card:nth-child(3) { animation-delay: 0.6s; }
+.hero-stats .stat-card:nth-child(1) {
+    animation-delay: 0.2s;
+}
+
+.hero-stats .stat-card:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.hero-stats .stat-card:nth-child(3) {
+    animation-delay: 0.6s;
+}
 
 .hero-stats .stat-card:hover {
     transform: translateY(-10px) scale(1.05);
@@ -332,14 +333,16 @@
 
 .rubriques-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* Forcer 4 colonnes si l'espace le permet (~1200px / 4 = 250px + gaps) */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
     margin-top: 2rem;
 }
 
 .rubrique-card {
     background: white;
-    padding: 2rem;
+    padding: 1.5rem;
+    /* Réduit légèrement le padding vertical pour laisser plus de place au contenu */
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     text-align: center;
@@ -348,6 +351,12 @@
     position: relative;
     overflow: hidden;
     border: 2px solid transparent;
+
+    /* Flexbox pour l'alignement vertical */
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    /* S'assurer que chaque carte prend toute la hauteur de sa cellule de grille */
 }
 
 .rubrique-card::before {
@@ -384,6 +393,8 @@
 }
 
 .rubrique-points {
+    margin-top: auto;
+    /* Pousse ce bloc et les suivants vers le bas de la carte */
     display: inline-block;
     background: linear-gradient(135deg, var(--primary-color), #1d4e1f);
     color: white;
@@ -392,6 +403,8 @@
     font-weight: 600;
     font-size: 0.9rem;
     margin-bottom: 1rem;
+    align-self: center;
+    /* Centrer horizontalement puisque la carte est en flex column */
 }
 
 .btn-details {
@@ -433,119 +446,176 @@
 }
 
 .equipe-card {
-    background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    padding: 2.5rem 1.5rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     text-align: center;
-    transition: all 0.3s ease;
-    border-left: 5px solid var(--primary-color);
-    opacity: 0;
-    animation: fadeInUp 0.6s ease forwards;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #edf2f7;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.equipe-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--team-color, var(--primary-color));
+    transition: height 0.3s ease;
 }
-
-.equipe-card:nth-child(1) { animation-delay: 0.1s; }
-.equipe-card:nth-child(2) { animation-delay: 0.2s; }
-.equipe-card:nth-child(3) { animation-delay: 0.3s; }
-.equipe-card:nth-child(4) { animation-delay: 0.4s; }
-.equipe-card:nth-child(5) { animation-delay: 0.5s; }
-.equipe-card:nth-child(6) { animation-delay: 0.6s; }
-.equipe-card:nth-child(7) { animation-delay: 0.7s; }
-.equipe-card:nth-child(8) { animation-delay: 0.8s; }
-.equipe-card:nth-child(9) { animation-delay: 0.9s; }
-.equipe-card:nth-child(10) { animation-delay: 1s; }
 
 .equipe-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 10px 25px rgba(44, 95, 45, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: rgba(44, 95, 45, 0.1);
 }
 
-.equipe-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+.equipe-card:hover::before {
+    height: 8px;
 }
 
 .equipe-logo {
-    margin-bottom: 1rem;
-    height: 80px;
+    width: 100px;
+    height: 100px;
+    background: #f8fafc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #f1f5f9;
+    transition: all 0.4s ease;
+}
+
+.equipe-card:hover .equipe-logo {
+    background: #ffffff;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.equipe-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.equipe-card:hover .equipe-logo img {
+    transform: scale(1.15);
+}
+
+.equipe-symbole {
+    font-size: 3.5rem;
+}
+
+.equipe-card h3 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+    color: #1a202c;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+.equipe-card .signification {
+    color: #718096;
+    font-size: 0.9rem;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+    min-height: 2.8rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.equipe-logo img {
-    max-width: 80px;
-    max-height: 80px;
-    object-fit: contain;
-    transition: transform 0.3s ease;
+/* Badges de statut raffinés */
+.equipe-status {
+    width: 100%;
+    margin-bottom: 1.5rem;
 }
 
-.equipe-card:hover .equipe-logo img {
-    transform: scale(1.1) rotate(5deg);
-}
-
-.equipe-symbole {
-    font-size: 3rem;
-}
-
-.equipe-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary-color);
-    font-weight: 700;
-}
-
-.equipe-card .signification {
-    color: #718096;
-    font-size: 0.95rem;
-    font-style: italic;
-    margin-bottom: 1rem;
-}
-
-.equipe-card .membres-count {
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    padding: 0.4rem 1rem;
-    border-radius: 15px;
-    font-size: 0.85rem;
-    font-weight: 600;
+.badge-validated,
+.badge-pending {
     display: inline-block;
+    padding: 0.35rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-/* Statut des équipes */
-.equipe-validated {
-    background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
-    border-left-color: #28a745 !important;
-    position: relative;
-    overflow: hidden;
+.badge-validated {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #d1fae5;
 }
 
-.equipe-validated::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(40, 167, 69, 0.1), transparent);
-    animation: shine 3s ease-in-out infinite;
+.badge-pending {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fef3c7;
 }
+
+.equipe-info {
+    font-size: 0.85rem;
+    color: #4a5568;
+    margin-top: 0.5rem;
+}
+
+.equipe-capitaine {
+    font-size: 0.85rem;
+    color: #4a5568;
+    margin: 0.75rem auto 0;
+    /* Centré horizontalement */
+    border-top: 1px solid #edf2f7;
+    padding: 0.75rem 0.5rem;
+    width: 90%;
+    background: rgba(248, 250, 252, 0.5);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.capitaine-label {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-bottom: 0.25rem;
+}
+
+.equipe-link {
+    margin-top: auto;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: gap 0.3s ease;
+}
+
+.equipe-card:hover .equipe-link {
+    gap: 0.8rem;
+}
+
 
 @keyframes shine {
     0% {
         transform: translateX(-100%) translateY(-100%) rotate(45deg);
     }
+
     100% {
         transform: translateX(100%) translateY(100%) rotate(45deg);
     }
@@ -559,62 +629,19 @@
     z-index: 1;
 }
 
-.badge-validated {
-    display: inline-block;
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-    animation: shimmer 2s ease-in-out infinite;
-}
-
 @keyframes shimmer {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
     }
+
     50% {
         box-shadow: 0 4px 16px rgba(40, 167, 69, 0.5), 0 0 20px rgba(40, 167, 69, 0.2);
     }
 }
 
-.badge-pending {
-    display: inline-block;
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
-}
-
-.equipe-info {
-    font-size: 0.9rem;
-    color: #2d3748;
-    margin: 0.5rem 0;
-}
-
-.equipe-capitaine {
-    font-size: 0.85rem;
-    color: #4a5568;
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 8px;
-}
-
-.capitaine-label {
-    font-weight: 600;
-    color: var(--primary-color);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
+/* Définitions fusionnées plus haut */
 .equipe-signification {
     color: #718096;
     font-size: 0.95rem;
@@ -752,41 +779,125 @@
 }
 
 /* Styles pour le contenu du modal */
+/* Styles pour le contenu du modal */
 #modalBody {
     line-height: 1.8;
+    color: #2D3E50;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.rubrique-detail-container {
+    animation: fadeIn 0.4s ease-out;
+}
+
+#modalBody .modal-header-accent {
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2.5rem;
+    text-align: center;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+#modalBody .modal-header-accent h2 {
+    margin: 0;
+    font-size: 2.2rem;
+    color: var(--primary-color);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+#modalBody .points-tag {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-top: 1.25rem;
+    border: 1px solid #e2e8f0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 #modalBody h3 {
-    color: var(--primary-color);
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
-    font-size: 1.3rem;
+    color: #1e293b;
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#modalBody h3::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e2e8f0;
 }
 
 #modalBody ul {
-    margin: 1rem 0;
-    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    padding-left: 0;
+    list-style: none;
 }
 
 #modalBody li {
-    margin: 0.5rem 0;
-}
-
-.info-box, .warning-box {
-    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+    padding: 1rem 1.25rem;
+    background: #f8fafc;
     border-radius: 8px;
-    margin: 1.5rem 0;
-    border-left: 4px solid;
+    border-left: 3px solid #cbd5e1;
+    color: #475569;
+    font-size: 1.05rem;
+    transition: transform 0.2s ease;
 }
 
-.info-box {
-    background: #e8f5e9;
-    border-color: #4caf50;
+#modalBody li:hover {
+    transform: translateX(5px);
+    border-left-color: var(--primary-color);
 }
 
-.warning-box {
-    background: #fff3e0;
-    border-color: #ff9800;
+#modalBody li strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.info-box-minimal,
+.warning-box-minimal {
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    margin: 2.5rem 0;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.info-box-minimal {
+    background: #f0fdf4;
+    border: 1px solid #dcfce7;
+    color: #166534;
+}
+
+.warning-box-minimal {
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    color: #92400e;
+}
+
+.info-box-minimal strong,
+.warning-box-minimal strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
 }
 
 /* Animations */
@@ -794,6 +905,7 @@
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -804,6 +916,7 @@
         opacity: 0;
         transform: translateY(-30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -815,6 +928,7 @@
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -826,6 +940,7 @@
         opacity: 0;
         transform: scale(0.8);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -837,51 +952,51 @@
     .verset-arabe {
         font-size: 1.5rem;
     }
-    
+
     .verset-traduction {
         font-size: 1rem;
     }
-    
+
     .countdown {
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
     }
-    
+
     .countdown-value {
         font-size: 2.5rem;
     }
-    
+
     .countdown-section h2 {
         font-size: 1.5rem;
     }
-    
+
     .hero h2 {
         font-size: 1.8rem;
     }
-    
+
     .subtitle {
         font-size: 1rem;
     }
-    
+
     .hero-stats {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
+
     .rubriques-grid,
     .equipes-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .cta h2 {
         font-size: 1.8rem;
     }
-    
+
     .btn-large {
         padding: 1rem 2rem;
         font-size: 1rem;
     }
-    
+
     .modal-content {
         padding: 1.5rem;
         width: 95%;

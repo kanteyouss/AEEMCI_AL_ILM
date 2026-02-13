@@ -7,36 +7,36 @@ const { verifyJWT, isEquipe, isAdmin } = require('../middleware/auth');
  * GET /api/soumissions
  * Récupérer toutes les soumissions
  */
-router.get('/', verifyJWT, soumissionController.getAllSoumissions);
+router.get('/', soumissionController.getAllSoumissions);
 
 /**
  * GET /api/soumissions/:id
  * Récupérer une soumission par ID
  */
-router.get('/:id', verifyJWT, soumissionController.getSoumissionById);
+router.get('/:id', soumissionController.getSoumissionById);
 
 /**
  * POST /api/soumissions
- * Créer une nouvelle soumission (Équipe uniquement)
+ * Créer une nouvelle soumission
  */
-router.post('/', verifyJWT, isEquipe, soumissionController.createSoumission);
+router.post('/', soumissionController.createSoumission);
 
 /**
  * PUT /api/soumissions/:id
  * Mettre à jour une soumission
  */
-router.put('/:id', verifyJWT, isEquipe, soumissionController.updateSoumission);
+router.put('/:id', soumissionController.updateSoumission);
 
 /**
  * DELETE /api/soumissions/:id
- * Supprimer une soumission (Admin uniquement)
+ * Supprimer une soumission
  */
-router.delete('/:id', verifyJWT, isAdmin, soumissionController.deleteSoumission);
+router.delete('/:id', soumissionController.deleteSoumission);
 
 /**
  * GET /api/soumissions/equipe/:equipeId/manche/:mancheId
  * Récupérer les soumissions d'une équipe pour une manche
  */
-router.get('/equipe/:equipeId/manche/:mancheId', verifyJWT, soumissionController.getSoumissionsByEquipeAndManche);
+router.get('/equipe/:equipeId/manche/:mancheId', soumissionController.getSoumissionsByEquipeAndManche);
 
 module.exports = router;

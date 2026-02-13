@@ -4,12 +4,13 @@
 -- BARÈME OFFICIEL
 -- ============================================
 
-INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, criteres_evaluation) VALUES
+INSERT INTO rubriques (nom, type, points_max, temps_par_question, mode_affichage, description, criteres_evaluation) VALUES
 (
     'Adhan',
     'recitation',
     10,
     180,
+    'individuel',
     'Récitation de l''Adhan avec Tajwid. 1 participant par équipe. 3 min max pour l''exécution.',
     '{"voix": 3, "prononciation": 7}'::jsonb
 ),
@@ -18,6 +19,7 @@ INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, c
     'recitation',
     15,
     NULL,
+    'individuel',
     'Lecture d''une partie imposée (Juz Amma). Voix: 5 pts, Prononciation: 10 pts.',
     '{"voix": 5, "prononciation": 10}'::jsonb
 ),
@@ -26,6 +28,7 @@ INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, c
     'recitation',
     15,
     NULL,
+    'individuel',
     'Lecture sans consultation (Sabi). Voix: 5 pts, Prononciation: 10 pts.',
     '{"voix": 5, "prononciation": 10}'::jsonb
 ),
@@ -34,6 +37,7 @@ INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, c
     'questions_ecrites',
     30,
     15,
+    'individuel',
     '2 questions sur le Prophète (ﷺ) et Compagnons. 15 pts par bonne réponse. 15 sec par question.',
     '{"exactitude": 30}'::jsonb
 ),
@@ -42,6 +46,7 @@ INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, c
     'questions_ecrites',
     50,
     15,
+    'individuel',
     '2 questions. 25 pts par bonne réponse. 15 sec par question.',
     '{"exactitude": 50}'::jsonb
 ),
@@ -50,6 +55,7 @@ INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, c
     'questions_ecrites',
     100,
     15,
+    'collectif',
     '4 questions. 25 pts par bonne réponse. 15 sec par question.',
     '{"exactitude": 100}'::jsonb
 ),
@@ -58,6 +64,7 @@ INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, c
     'hadith',
     20,
     20,
+    'individuel',
     '1 question. 20 pts par bonne réponse. 20 sec par question.',
     '{"exactitude": 20}'::jsonb
 ),
@@ -66,6 +73,7 @@ INSERT INTO rubriques (nom, type, points_max, temps_par_question, description, c
     'relais',
     40,
     15,
+    'individuel',
     'Relais avec 4 participants max (1 question par personne). Bonne réponse = 10 pts + passage au suivant. Mauvaise réponse = 0 pt + fin du relais. 15 sec par question.',
     '{"exactitude": 10}'::jsonb
 );
@@ -85,8 +93,8 @@ BEGIN
     RAISE NOTICE '   5️⃣  Jurisprudence (50 pts - 2x 15 sec)';
     RAISE NOTICE '   6️⃣  Culture générale (100 pts - 4x 15 sec)';
     RAISE NOTICE '   7️⃣  Hadith (20 pts - 1x 20 sec)';
-    RAISE NOTICE '   8️⃣  Questions relais (40 pts max - 4 participants - 10 pts/question - arrêt si erreur)';
+    RAISE NOTICE '   8️⃣  Questions relais (30 pts max - 4 participants - 10 pts/question - arrêt si erreur)';
     RAISE NOTICE '';
     RAISE NOTICE '💯 Total maximum possible : 280 points par manche';
-    RAISE NOTICE '   (10 + 15 + 15 + 30 + 50 + 100 + 20 + 40 = 280)';
+    RAISE NOTICE '   (10 + 15 + 15 + 30 + 50 + 100 + 20 + 30 = 270)';
 END $$;

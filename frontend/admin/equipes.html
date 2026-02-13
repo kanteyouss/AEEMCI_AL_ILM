@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Équipes - AL ILM 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/admin.css">
     <style>
@@ -11,7 +13,8 @@
             display: grid;
             grid-template-columns: 300px 1fr;
             gap: 2rem;
-            padding: 0; /* Retirer le padding car maintenant dans admin-content */
+            padding: 0;
+            /* Retirer le padding car maintenant dans admin-content */
             align-items: center;
         }
 
@@ -27,22 +30,22 @@
             position: sticky;
             top: 2rem;
         }
-        
+
         .participants-pool #participantsList {
             overflow-y: auto;
             flex: 1;
             padding-right: 0.5rem;
         }
-        
+
         .participants-pool #participantsList::-webkit-scrollbar {
             width: 6px;
         }
-        
+
         .participants-pool #participantsList::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 10px;
         }
-        
+
         .participants-pool #participantsList::-webkit-scrollbar-thumb {
             background: var(--primary-color);
             border-radius: 10px;
@@ -190,7 +193,7 @@
             box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
             border-width: 3px;
         }
-        
+
         .member-card.captain::before {
             content: '';
             position: absolute;
@@ -380,7 +383,7 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .equipe-summary .equipe-stats {
             background: white;
             padding: 0.5rem;
@@ -419,7 +422,7 @@
             align-items: center;
             gap: 0.3rem;
         }
-        
+
         .warning-box {
             background: #fff3cd;
             border-left: 4px solid #ffc107;
@@ -427,14 +430,14 @@
             margin-bottom: 1rem;
             border-radius: 5px;
         }
-        
+
         .warning-box strong {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             margin-bottom: 0.5rem;
         }
-        
+
         .warning-box ul {
             margin: 0.5rem 0 0 1.5rem;
         }
@@ -449,19 +452,38 @@
             }
 
             .actions-bar {
-                flex-direction: column;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8rem;
+                padding: 1rem;
+            }
+
+            .btn-action {
+                padding: 0.8rem 0.5rem;
+                font-size: 0.85rem;
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Header Admin -->
     <header class="header-admin">
         <div class="container">
-            <h1>🕌 AL ILM 2026 - Administration</h1>
-            <div class="user-info">
-                <span id="userName"></span>
-                <button id="logoutBtn" class="btn-secondary">Déconnexion</button>
+            <div class="logo-box">
+                <h1>AL ILM 2026</h1>
+                <p class="tagline">Administration - Pour une identité islamique !</p>
+            </div>
+            <div class="user-session-block">
+                <div class="user-identity">
+                    <span class="user-name" id="userName">Admin</span>
+                    <span class="admin-badge">Administrateur</span>
+                </div>
+                <button id="logoutBtn" class="btn-logout" title="Déconnexion">
+                    <i class="fas fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -486,33 +508,39 @@
                     Banque de Questions
                 </a>
                 <a href="jeu.html" class="nav-item">
-                     Jeu en Direct
+                    Jeu en Direct
                 </a>
                 <a href="notation.html" class="nav-item">
-                     Notation
+                    Notation
                 </a>
                 <a href="resultats.html" class="nav-item ">
-                     Résultats et Classement
+                    Résultats et Classement
                 </a>
             </nav>
         </aside>
 
         <main class="admin-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                 <div>
-                    <h2 style="margin: 0; color: var(--primary-color);">👥 Formation des Équipes</h2>
-                    <p style="margin: 0.5rem 0 0 0; color: #718096; font-size: 0.9rem;">Glissez-déposez les participants, désignez les capitaines et validez</p>
+                    <h2 style="margin: 0; color: var(--primary-color);">Formation des Équipes</h2>
+                    <p style="margin: 0.5rem 0 0 0; color: #718096; font-size: 0.9rem;">Glissez-déposez les
+                        participants, désignez les capitaines et validez</p>
                 </div>
-                <button onclick="showHelp()" style="background: #3498db; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(52,152,219,0.3);">
-                    ❓ Guide d'utilisation
+                <button onclick="showHelp()"
+                    style="background: #3498db; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(52,152,219,0.3);">
+                    Guide d'utilisation
                 </button>
             </div>
-            
+
             <!-- Barre de progression -->
-            <div id="progressBar" style="display: none; background: white; padding: 1rem; margin-bottom: 1.5rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <div style="display: flex; justify-content: space-around; text-align: center; flex-wrap: wrap; gap: 1rem;">
+            <div id="progressBar"
+                style="display: none; background: white; padding: 1rem; margin-bottom: 1.5rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div
+                    style="display: flex; justify-content: space-around; text-align: center; flex-wrap: wrap; gap: 1rem;">
                     <div>
-                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);" id="statsEquipes">0</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);" id="statsEquipes">
+                            0</div>
                         <div style="font-size: 0.85rem; color: #718096;">Équipes formées</div>
                     </div>
                     <div>
@@ -520,7 +548,8 @@
                         <div style="font-size: 0.85rem; color: #718096;">Participants assignés</div>
                     </div>
                     <div>
-                        <div style="font-size: 2rem; font-weight: bold; color: var(--secondary-color);" id="statsCapitaines">0</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--secondary-color);"
+                            id="statsCapitaines">0</div>
                         <div style="font-size: 0.85rem; color: #718096;">Capitaines désignés</div>
                     </div>
                     <div>
@@ -528,51 +557,52 @@
                         <div style="font-size: 0.85rem; color: #718096;">Non assignés</div>
                     </div>
                 </div>
-                <div id="readyIndicator" style="margin-top: 1rem; padding: 0.75rem; border-radius: 8px; text-align: center; font-weight: 600; display: none;">
+                <div id="readyIndicator"
+                    style="margin-top: 1rem; padding: 0.75rem; border-radius: 8px; text-align: center; font-weight: 600; display: none;">
                 </div>
             </div>
-            
+
             <!-- Conteneur principal -->
             <div class="equipes-container">
-        <!-- Pool de participants non assignés -->
-        <div class="participants-pool">
-            <div class="pool-header">
-                <h3>📋 Participants</h3>
-                <span class="pool-count" id="poolCount">0</span>
+                <!-- Pool de participants non assignés -->
+                <div class="participants-pool">
+                    <div class="pool-header">
+                        <h3>Participants</h3>
+                        <span class="pool-count" id="poolCount">0</span>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="searchParticipants" placeholder="Rechercher un participant...">
+                    </div>
+
+                    <div id="participantsList">
+                        <!-- Participants générés dynamiquement -->
+                    </div>
+                </div>
+
+                <!-- Grille des 8 équipes -->
+                <div class="equipes-grid" id="equipesGrid">
+                    <!-- Équipes générées dynamiquement -->
+                </div>
             </div>
 
-            <div class="search-box">
-                <input type="text" id="searchParticipants" placeholder="🔍 Rechercher un participant...">
+            <!-- Barre d'actions -->
+            <div class="actions-bar">
+                <button class="btn-action btn-auto" id="btnAutoAssign">
+                    Répartition Automatique
+                </button>
+                <button class="btn-action btn-reset" id="btnReset">
+                    Tout Réinitialiser
+                </button>
+                <button class="btn-action btn-validate" id="btnValidate">
+                    Valider & Générer les Codes
+                </button>
+                <button class="btn-action btn-primary" id="btnGeneratePDF" style="background: #3498db;">
+                    Télécharger Fiches PDF
+                </button>
             </div>
-
-            <div id="participantsList">
-                <!-- Participants générés dynamiquement -->
-            </div>
-        </div>
-
-        <!-- Grille des 10 équipes -->
-        <div class="equipes-grid" id="equipesGrid">
-            <!-- Équipes générées dynamiquement -->
-        </div>
     </div>
-
-    <!-- Barre d'actions -->
-    <div class="actions-bar">
-        <button class="btn-action btn-auto" id="btnAutoAssign">
-            🎲 Répartition Automatique
-        </button>
-        <button class="btn-action btn-reset" id="btnReset">
-            🔄 Tout Réinitialiser
-        </button>
-        <button class="btn-action btn-validate" id="btnValidate">
-            ✅ Valider & Générer les Codes
-        </button>
-        <button class="btn-action btn-primary" id="btnGeneratePDF" style="background: #3498db;">
-            📄 Télécharger Fiches PDF
-        </button>
-    </div>
-            </div>
-        </main>
+    </main>
     </div>
 
     <!-- Modal de validation -->
@@ -600,4 +630,5 @@
     <script src="../js/api.js"></script>
     <script src="../js/admin/equipes.js"></script>
 </body>
+
 </html>

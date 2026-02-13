@@ -8,55 +8,55 @@ const { validateEquipe, validateId } = require('../middleware/validator');
  * GET /api/equipes
  * Récupérer toutes les équipes
  */
-router.get('/', verifyJWT, equipeController.getAllEquipes);
+router.get('/', equipeController.getAllEquipes);
 
 /**
  * GET /api/equipes/:id
  * Récupérer une équipe par ID avec ses membres
  */
-router.get('/:id', verifyJWT, isOwnEquipe, validateId, equipeController.getEquipeById);
+router.get('/:id', validateId, equipeController.getEquipeById);
 
 /**
  * POST /api/equipes
- * Créer une nouvelle équipe (Admin uniquement)
+ * Créer une nouvelle équipe
  */
-router.post('/', verifyJWT, isAdmin, validateEquipe, equipeController.createEquipe);
+router.post('/', validateEquipe, equipeController.createEquipe);
 
 /**
  * POST /api/equipes/:id/membres
- * Ajouter un membre à une équipe (Admin uniquement)
+ * Ajouter un membre à une équipe
  */
-router.post('/:id/membres', verifyJWT, isAdmin, validateId, equipeController.addMember);
+router.post('/:id/membres', validateId, equipeController.addMember);
 
 /**
  * DELETE /api/equipes/:id/membres/:participantId
- * Retirer un membre d'une équipe (Admin uniquement)
+ * Retirer un membre d'une équipe
  */
-router.delete('/:id/membres/:participantId', verifyJWT, isAdmin, equipeController.removeMember);
+router.delete('/:id/membres/:participantId', equipeController.removeMember);
 
 /**
  * PUT /api/equipes/:id/capitaine
- * Définir le capitaine d'une équipe (Admin uniquement)
+ * Définir le capitaine d'une équipe
  */
-router.put('/:id/capitaine', verifyJWT, isAdmin, validateId, equipeController.setCapitaine);
+router.put('/:id/capitaine', validateId, equipeController.setCapitaine);
 
 /**
  * PUT /api/equipes/:id/membres/:participantId/roles
- * Définir les rôles d'un membre (Capitaine ou Admin)
+ * Définir les rôles d'un membre
  */
-router.put('/:id/membres/:participantId/roles', verifyJWT, equipeController.setRoles);
+router.put('/:id/membres/:participantId/roles', equipeController.setRoles);
 
 /**
  * POST /api/equipes/:id/send-code
- * Envoyer le code d'accès au capitaine par email (Admin uniquement)
+ * Envoyer le code d'accès au capitaine par email
  */
-router.post('/:id/send-code', verifyJWT, isAdmin, validateId, equipeController.sendAccessCode);
+router.post('/:id/send-code', validateId, equipeController.sendAccessCode);
 
 /**
  * POST /api/equipes/validate
- * Valider et générer les codes pour toutes les équipes (Admin uniquement)
+ * Valider et générer les codes pour toutes les équipes
  */
-router.post('/validate', verifyJWT, isAdmin, equipeController.validateAllEquipes);
+router.post('/validate', equipeController.validateAllEquipes);
 
 /**
  * GET /api/equipes/public/validated

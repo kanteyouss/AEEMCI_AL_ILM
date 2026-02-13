@@ -9,7 +9,7 @@ Ce projet digitalise l'intégralité du concours : inscription des participants,
 ## 🎯 Fonctionnalités principales
 
 - ✅ **Gestion des participants** (import Google Forms)
-- ✅ **Formation intelligente des équipes** (10 équipes)
+- ✅ **Formation intelligente des équipes** (8 équipes)
 - ✅ **Organisation des manches** avec génération automatique du programme
 - ✅ **Rubriques du concours** : Adhan, Coran ouvert/fermé, Hadith, Jurisprudence, Culture générale, Questions Relais
 - ✅ **Système de notation** avec jury
@@ -220,7 +220,7 @@ Toutes les rubriques **ne génèrent pas de questions**
   * Rubrique : (en attente)
 * Statut : **Aucune question active**
 
-### 19h05
+
 
 * Les candidats sont installés
 * Chaque équipe a accès à `jeu.html`
@@ -396,3 +396,55 @@ Si tu veux, au prochain message je peux :
 * ou écrire les **règles métier formelles**
 
 Dis-moi 👍
+
+
+
+
+Pour rendre votre application AL ILM 2026 accessible en ligne rapidement (et gratuitement pour commencer), la plateforme la plus simple est Render.com.
+
+Voici les étapes précises à suivre :
+
+1. Mettre votre code sur GitHub
+Si ce n'est pas déjà fait, créez un dépôt (privé ou public) sur GitHub et poussez votre code. Render se connectera à ce dépôt pour lire votre code.
+
+2. Créer la Base de Données (PostgreSQL) sur Render
+Connectez-vous sur Render.com.
+Cliquez sur New + > PostgreSQL.
+Donnez-lui un nom (ex: alilm-db).
+Choisissez le plan Free (Gratuit).
+Une fois créée, copiez l'Internal Database URL (elle servira pour l'étape suivante).
+3. Créer le Serveur (Web Service) sur Render
+Cliquez sur New + > Web Service.
+Connectez votre dépôt GitHub.
+Donnez un nom (ex: alilm-2026).
+Root Directory : Laissez vide ou mettez le chemin si vous avez une structure particulière (ici, le 
+package.json
+ est dans /backend, donc mettez backend).
+Runtime : Node.
+Build Command : npm install
+Start Command : node server.js
+4. Configurer les Variables d'Environnement
+Dans l'onglet Environment de votre Web Service sur Render, ajoutez les variables suivantes :
+
+Clé	Valeur
+DATABASE_URL	(L'URL que vous avez copiée à l'étape 2)
+JWT_SECRET	(Une phrase secrète au hasard)
+NODE_ENV	production
+PORT	3000
+5. Initialiser les données (Schéma SQL)
+La base de données sur Render sera vide au départ. Pour y injecter vos tables :
+
+Sur Render, allez dans l'onglet Dashboard de votre PostgreSQL.
+Utilisez l'outil External Connection String avec un logiciel comme DBeaver ou pgAdmin sur votre PC pour vous connecter à distance.
+Copiez-collez le contenu de votre fichier database/schema.sql et exécutez-le.
+
+
+
+AL MOUDJAHIDOUNE : MOUDJAHIDOUNE024
+AL MOUHTADOUNE : MOUHTADOUNE024
+AL YAQRA'OUN : YAQRAOUN024
+ASH-SHAKIROUNE : SHAKIROUNE024
+AS-SOLIHATE : SOLIHATE024
+AS SORBIROUNE : SORBIROUNE024
+AT-TAWWABOUNE : TAWWABOUNE024
+AZ-ZAKIROUNE : ZAKIROUNE024
