@@ -271,7 +271,7 @@ const getQuestionsRestantes = async (req, res, next) => {
                     WHEN nom = 'Culture générale' THEN 4
                     WHEN nom = 'Vie du Prophète' THEN 2
                     WHEN nom = 'Jurisprudence' THEN 2
-                    WHEN nom = 'Questions relais' THEN 2
+                    WHEN nom = 'Questions relais' THEN 3
                     WHEN nom = 'Hadith' THEN 1
                     ELSE 1
                 END as nb_questions_max
