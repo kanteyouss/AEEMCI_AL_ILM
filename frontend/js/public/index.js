@@ -523,9 +523,9 @@ function initRubriquesModal() {
                     
                     <h3>Organisation de l'Épreuve</h3>
                     <ul>
-                        <li><strong>Format :</strong> Rédaction collective de fiches de réponses.</li>
+                        <li><strong>Format :</strong> 10 questions à choix multiples ou réponses courtes.</li>
+                        <li><strong>Barème :</strong> 5 points par bonne réponse (Total 50 pts).</li>
                         <li><strong>Thématiques :</strong> Piliers de l'Islam (Salat, Sawm, Zakat, Hajj) et Purification.</li>
-                        <li><strong>Réactivité :</strong> Temps de réflexion limité pour chaque interrogation.</li>
                     </ul>
                     
                     <div class="info-box-minimal">
@@ -546,14 +546,14 @@ function initRubriquesModal() {
                     
                     <h3>Structure de l'Évaluation</h3>
                     <ul>
+                        <li><strong>Format :</strong> 5 questions à choix multiples ou réponses courtes.</li>
+                        <li><strong>Barème :</strong> 6 points par bonne réponse (Total 30 pts).</li>
                         <li><strong>Chronologie :</strong> Maîtrise des événements clés de la période médinoise et mecquoise.</li>
-                        <li><strong>Héritage :</strong> Connaissance des vertus et des rôles des Sahaba.</li>
-                        <li><strong>Analyse :</strong> Compréhension des enseignements moraux.</li>
                     </ul>
                     
                     <div class="info-box-minimal">
-                        <strong>Format</strong>
-                        Questions à choix multiples et réponses courtes en équipe.
+                        <strong>Héritage</strong>
+                        Connaissance des vertus Sahaba et compréhension des enseignements moraux.
                     </div>
                 </div>
             `
@@ -569,9 +569,9 @@ function initRubriquesModal() {
                     
                     <h3>Composantes Clés</h3>
                     <ul>
-                        <li><strong>Sciences et Savoirs :</strong> Grands savants et contributions historiques.</li>
-                        <li><strong>Géographie :</strong> Lieux saints et organisation du monde musulman.</li>
-                        <li><strong>Patrimoine :</strong> Art, architecture et moments charnières.</li>
+                        <li><strong>Format :</strong> 10 questions variées.</li>
+                        <li><strong>Barème :</strong> 10 points par bonne réponse (Total 100 pts).</li>
+                        <li><strong>Sujets :</strong> Sciences, Géographie, Histoire et Patrimoine.</li>
                     </ul>
                     
                     <div class="info-box-minimal">
@@ -592,18 +592,14 @@ function initRubriquesModal() {
                     
                     <h3>Règles Fondamentales</h3>
                     <ul>
-                        <li><strong>Réponse Correcte :</strong> Validation des points et transmission immédiate du relais.</li>
-                        <li><strong>Erreur :</strong> Perte des points potentiels et fin immédiate de la session de l'équipe.</li>
+                        <li><strong>Format :</strong> 3 questions successives (1 par membre).</li>
+                        <li><strong>Barème :</strong> 10 points par bonne réponse (Total 30 pts).</li>
+                        <li><strong>Relais :</strong> Transmission immédiate du tour au membre suivant après réponse.</li>
                     </ul>
                     
                     <div class="warning-box-minimal">
                         <strong>Engagement Maximum</strong>
                         Rubrique exigeant une coordination parfaite et une réactivité optimale du groupe.
-                    </div>
-                    
-                    <div class="info-box-minimal">
-                        <strong>Conseil Stratégique</strong>
-                        Établissez votre ordre de passage selon les expertises spécifiques de chaque membre.
                     </div>
                 </div>
             `
@@ -619,9 +615,9 @@ function initRubriquesModal() {
                     
                     <h3>Mode Opératoire</h3>
                     <ul>
-                        <li><strong>Tirage :</strong> Sélection aléatoire d'un Hadith parmi les dix premiers.</li>
-                        <li><strong>Récitation :</strong> Déclamation bilingue (Arabe et Français).</li>
-                        <li><strong>Fidélité :</strong> Conformité stricte au texte original.</li>
+                        <li><strong>Tirage :</strong> 1 Hadith tiré au sort parmi les 10 premiers.</li>
+                        <li><strong>Barème :</strong> 20 points pour une restitution parfaite (Arabe & Français).</li>
+                        <li><strong>Critères :</strong> Fidélité au texte, fluidité et prononciation.</li>
                     </ul>
                     
                     <div class="info-box-minimal">
