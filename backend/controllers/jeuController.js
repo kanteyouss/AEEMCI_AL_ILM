@@ -268,9 +268,9 @@ const getQuestionsRestantes = async (req, res, next) => {
         const rubriqueInfo = await db.query(
             `SELECT 
                 CASE 
-                    WHEN nom = 'Culture générale' THEN 4
-                    WHEN nom = 'Vie du Prophète' THEN 2
-                    WHEN nom = 'Jurisprudence' THEN 2
+                    WHEN nom = 'Culture générale' THEN 10
+                    WHEN nom = 'Vie du Prophète' THEN 5
+                    WHEN nom = 'Jurisprudence' THEN 10
                     WHEN nom = 'Questions relais' THEN 3
                     WHEN nom = 'Hadith' THEN 1
                     ELSE 1
