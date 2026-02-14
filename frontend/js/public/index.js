@@ -442,16 +442,13 @@ function initRubriquesModal() {
     if (!modal || !modalBody || !closeBtn) return;
 
     // Données détaillées des rubriques
+    // Données détaillées des rubriques
     const rubriquesDetails = {
         'coran-ouvert': {
             titre: 'Coran Ouvert',
             points: 15,
-            couleur: '#f0f9ff',
-            'coran-ouvert': {
-                titre: 'Coran Ouvert',
-                points: 15,
-                couleur: '#fffbf0',
-                contenu: `
+            couleur: '#fffbf0',
+            contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Cette épreuve consiste en une lecture psalmodiée du Saint Coran, effectuée directement depuis le Mushaf (support physique).</p>
@@ -469,12 +466,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-            },
-            'coran-ferme': {
-                titre: 'Coran Fermé',
-                points: 15,
-                couleur: '#fffbf0',
-                contenu: `
+        },
+        'coran-ferme': {
+            titre: 'Coran Fermé',
+            points: 15,
+            couleur: '#fffbf0',
+            contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve d'Excellence consistant en la récitation mémorisée du Saint Coran, sans consultation de support écrit.</p>
@@ -492,12 +489,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-            },
-            'adhan': {
-                titre: 'Adhan',
-                points: 10,
-                couleur: '#f0fdf4',
-                contenu: `
+        },
+        'adhan': {
+            titre: 'Adhan',
+            points: 10,
+            couleur: '#f0fdf4',
+            contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Performance vocale technique portant sur l'appel à la prière, alliant justesse mélodique et rigueur liturgique.</p>
@@ -515,12 +512,13 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-            },
-            'jurisprudence': {
-                titre: 'Jurisprudence (Fiqh)',
-                points: 50,
+        },
+    },
+    'jurisprudence': {
+        titre: 'Jurisprudence (Fiqh)',
+            points: 50,
                 couleur: '#fdf2f2',
-                contenu: `
+                    contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Évaluation théorique collective portant sur les fondements du droit islamique et les pratiques cultuelles.</p>
@@ -538,12 +536,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-            },
-            'prophete': {
-                titre: 'Sîra et Histoire des Compagnons',
-                points: 30,
+    },
+    'prophete': {
+        titre: 'Sîra et Histoire des Compagnons',
+            points: 30,
                 couleur: '#faf5ff',
-                contenu: `
+                    contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Étude approfondie de la biographie prophétique (Sîra) et du legs historique des nobles compagnons.</p>
@@ -561,12 +559,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-            },
-            'culture': {
-                titre: 'Culture Générale Islamique',
-                points: 100,
+    },
+    'culture': {
+        titre: 'Culture Générale Islamique',
+            points: 100,
                 couleur: '#f0fdfa',
-                contenu: `
+                    contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve encyclopédique couvrant la diversité intellectuelle et civilisationnelle du monde musulman.</p>
@@ -584,12 +582,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-            },
-            'relais': {
-                titre: 'Questions Relais',
-                points: 30,
+    },
+    'relais': {
+        titre: 'Questions Relais',
+            points: 30,
                 couleur: '#fefce8',
-                contenu: `
+                    contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve de rapidité et d'endurance mentale sous forme de relais entre les membres de l'équipe.</p>
@@ -607,12 +605,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-            },
-            'hadith': {
-                titre: 'Hadith',
-                points: 20,
+    },
+    'hadith': {
+        titre: 'Hadith',
+            points: 20,
                 couleur: '#fff1f2',
-                contenu: `
+                    contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve de transmission orale portant sur les quarante Hadiths de l'Imam An-Nawawi.</p>
@@ -630,12 +628,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-            }
-        };
+    }
+};
 
-        // Function to open modal
-        function openModal(rubriqueKey) {
-            const rubrique = rubriquesDetails[rubriqueKey];
+// Function to open modal
+function openModal(rubriqueKey) {
+    const rubrique = rubriquesDetails[rubriqueKey];
 
     if (rubrique) {
         modalBody.innerHTML = `
