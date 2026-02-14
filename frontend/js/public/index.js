@@ -538,24 +538,24 @@ function initRubriquesModal() {
             `
         },
         'prophete': {
-            titre: 'Sîra et Histoire des Compagnons',
-            points: 30,
+            titre: 'Vie du Prophète & Sîra',
+            points: 300,
             couleur: '#faf5ff',
             contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
-                    <p>Étude approfondie de la biographie prophétique (Sîra) et du legs historique des nobles compagnons.</p>
+                    <p>Grande épreuve QCM sur la biographie du Prophète ﷺ, de sa naissance à sa mort, ainsi que la vie des Compagnons.</p>
                     
                     <h3>Structure de l'Évaluation</h3>
                     <ul>
-                        <li><strong>Format :</strong> 5 questions à choix multiples ou réponses courtes.</li>
-                        <li><strong>Barème :</strong> 6 points par bonne réponse (Total 30 pts).</li>
-                        <li><strong>Chronologie :</strong> Maîtrise des événements clés de la période médinoise et mecquoise.</li>
+                        <li><strong>Format :</strong> 50 questions à choix multiples (QCM).</li>
+                        <li><strong>Barème :</strong> 6 points par bonne réponse (Total 300 pts).</li>
+                        <li><strong>Chronologie :</strong> Période Mecquoise et Médinoise.</li>
                     </ul>
                     
                     <div class="info-box-minimal">
-                        <strong>Héritage</strong>
-                        Connaissance des vertus Sahaba et compréhension des enseignements moraux.
+                        <strong>Enjeu</strong>
+                        Épreuve majeure déterminante pour le classement final.
                     </div>
                 </div>
             `

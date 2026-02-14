@@ -128,7 +128,7 @@ const genererQuestion = async (req, res, next) => {
             reference: question.reference,
             rubrique_nom: question.rubrique_nom,
             // Options pour QCM (sans révéler la bonne réponse)
-            options: question.type === 'qcm' ? {
+            options: (question.type || '').toLowerCase() === 'qcm' ? {
                 A: question.choix_a,
                 B: question.choix_b,
                 C: question.choix_c,
@@ -268,17 +268,17 @@ const getQuestionsRestantes = async (req, res, next) => {
         const rubriqueInfo = await db.query(
             `SELECT 
                 CASE 
-                    WHEN nom = 'Culture générale' THEN 10
-                    WHEN nom = 'Vie du Prophète' THEN 5
-                    WHEN nom = 'Jurisprudence' THEN 10
-                    WHEN nom = 'Questions relais' THEN 3
-                    WHEN nom = 'Hadith' THEN 1
+                    WHEN nom LIKE '%Culture%' THEN 10
+                    WHEN nom LIKE '%Prophète%' THEN 5
+                    WHEN nom LIKE '%Jurisprudence%' THEN 10
+                    WHEN nom LIKE '%Relais%' THEN 3
+                    WHEN nom LIKE '%Hadith%' THEN 1
                     ELSE 1
                 END as nb_questions_max
              FROM rubriques 
              WHERE id = $1`,
             [rubrique_id]
-        );
+        ); // Refresh
 
         const repondues = parseInt(questionsRepondues.rows[0].count);
         const total = parseInt(rubriqueInfo.rows[0].nb_questions_max);
@@ -429,7 +429,7 @@ const genererQuestionCommune = async (req, res, next) => {
             temps_limite: question.temps_limite || question.temps_par_question,
             rubrique_nom: question.rubrique_nom,
             mode: 'collectif',
-            options: question.type === 'qcm' ? {
+            options: (question.type || '').trim().toLowerCase() === 'qcm' ? {
                 A: question.choix_a,
                 B: question.choix_b,
                 C: question.choix_c,

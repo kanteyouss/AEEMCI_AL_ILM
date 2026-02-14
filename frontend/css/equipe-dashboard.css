@@ -546,3 +546,17 @@ body {
         font-size: 3.5rem;
     }
 }
+
+/* QCM Grid Style */
+.qcm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .qcm-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -265,6 +265,31 @@ function setupSocket(teamId, teamName) {
     socket.on('question_result', () => {
         // Optionnel : Feedback de clôture
     });
+
+    // Gestion de la reconnexion / état initial
+    socket.on('game_state', (state) => {
+        console.log('État du jeu reçu:', state);
+        if (state.question) {
+            console.log('Restauration de la question en cours...');
+            // Adaptation du format pour startLiveGame
+            const data = {
+                question: {
+                    ...state.question,
+                    mode: 'collectif' // Forcer le mode si absent
+                }
+            };
+            startLiveGame(data);
+
+            // Si le timer tourne, on pourrait aussi le synchroniser
+            if (state.isTimerRunning && state.tempsRestant > 0) {
+                runLiveTimer(state.tempsRestant);
+            }
+        } else {
+            // Pas de question active, on s'assure que l'overlay est caché
+            document.getElementById('liveGameSection').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
 }
 
 // Gestion de l'Interface Live
@@ -286,6 +311,10 @@ function startLiveGame(data) {
 
     // Remplir Question
     const q = data.question;
+    console.log('🔴 Question reçue Dashboard:', q);
+    console.log('Type:', q.type);
+    console.log('Options:', q.options);
+
     currentQuestionId = q.id;
     document.getElementById('liveQuestionText').textContent = q.question_texte;
     document.getElementById('liveTeamName').textContent = document.getElementById('teamName').textContent;
@@ -300,12 +329,23 @@ function startLiveGame(data) {
     textArea.disabled = true;
     document.getElementById('btnSubmitLive').disabled = true;
 
-    if (q.type === 'qcm') {
+    if ((q.type || '').trim().toLowerCase() === 'qcm') {
         inputArea.style.display = 'none';
         qcmArea.style.display = 'grid';
         qcmArea.innerHTML = '';
 
+        // Fallback ultime : si options manquantes, on les génère
+        if (!q.options || Object.keys(q.options).length === 0) {
+            console.warn('⚠️ Options manquantes pour QCM, génération par défaut');
+            q.options = {
+                A: "Réponse A",
+                B: "Réponse B",
+                C: "Réponse C"
+            };
+        }
+
         ['A', 'B', 'C', 'D'].forEach(opt => {
+            // Check if options exist and are not empty
             if (q.options && q.options[opt]) {
                 const btn = document.createElement('button');
                 btn.className = 'qcm-btn';

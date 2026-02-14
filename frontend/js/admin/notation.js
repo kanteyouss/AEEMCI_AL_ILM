@@ -502,9 +502,26 @@ async function initCollectiveNotation() {
     console.log('👥 Init Notation Collective');
 
     // 1. Déterminer le nombre de questions
-    // Culture générale (ID 6) : 4 questions. Autres (Vie du Prophète, Jurisprudence) : 2 questions.
-    const isCulture = /culture/i.test(currentRubrique.nom || '');
-    const nbQuestions = isCulture ? 4 : 2;
+    let nbQuestions = 1;
+    const nomRubrique = (currentRubrique.nom || '').toLowerCase();
+
+    if (nomRubrique.includes('culture')) {
+        nbQuestions = 10;
+    } else if (nomRubrique.includes('prophète') || nomRubrique.includes('sîra')) {
+        nbQuestions = 5;
+    } else if (nomRubrique.includes('jurisprudence') || nomRubrique.includes('fiqh')) {
+        nbQuestions = 10;
+    } else if (nomRubrique.includes('relais')) {
+        nbQuestions = 3;
+    } else {
+        // Par défaut ou extraction depuis description
+        const match = (currentRubrique.description || '').match(/(\d+)\s*questions?/i);
+        if (match) nbQuestions = parseInt(match[1]);
+    }
+
+    console.log(`📊 Rubrique: ${currentRubrique.nom}`);
+    console.log(`🔢 Nombre de questions déterminé: ${nbQuestions}`);
+
     const pointsParQuestion = currentRubrique.points_max / nbQuestions;
 
     notationSession = {
@@ -619,7 +636,16 @@ async function generateCollectiveQuestion() {
         });
 
         const question = result.data;
+        question.mode = 'collectif'; // Force mode for dashboard filter
         notationSession.currentQuestion = question;
+
+        // SOCKET : Diffuser la question immédiatement pour que les dashboards l'affichent
+        if (socket) {
+            socket.emit('question_generated', {
+                question: question,
+                temps: question.temps_limite || 30
+            });
+        }
 
         // Affichage Admin
         document.getElementById('questionText').innerHTML = `
