@@ -513,12 +513,12 @@ function initRubriquesModal() {
                 </div>
             `
         },
-    },
-    'jurisprudence': {
-        titre: 'Jurisprudence (Fiqh)',
+
+        'jurisprudence': {
+            titre: 'Jurisprudence (Fiqh)',
             points: 50,
-                couleur: '#fdf2f2',
-                    contenu: `
+            couleur: '#fdf2f2',
+            contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Évaluation théorique collective portant sur les fondements du droit islamique et les pratiques cultuelles.</p>
@@ -536,12 +536,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-    },
-    'prophete': {
-        titre: 'Sîra et Histoire des Compagnons',
+        },
+        'prophete': {
+            titre: 'Sîra et Histoire des Compagnons',
             points: 30,
-                couleur: '#faf5ff',
-                    contenu: `
+            couleur: '#faf5ff',
+            contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Étude approfondie de la biographie prophétique (Sîra) et du legs historique des nobles compagnons.</p>
@@ -559,12 +559,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-    },
-    'culture': {
-        titre: 'Culture Générale Islamique',
+        },
+        'culture': {
+            titre: 'Culture Générale Islamique',
             points: 100,
-                couleur: '#f0fdfa',
-                    contenu: `
+            couleur: '#f0fdfa',
+            contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve encyclopédique couvrant la diversité intellectuelle et civilisationnelle du monde musulman.</p>
@@ -582,12 +582,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-    },
-    'relais': {
-        titre: 'Questions Relais',
+        },
+        'relais': {
+            titre: 'Questions Relais',
             points: 30,
-                couleur: '#fefce8',
-                    contenu: `
+            couleur: '#fefce8',
+            contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve de rapidité et d'endurance mentale sous forme de relais entre les membres de l'équipe.</p>
@@ -605,12 +605,12 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-    },
-    'hadith': {
-        titre: 'Hadith',
+        },
+        'hadith': {
+            titre: 'Hadith',
             points: 20,
-                couleur: '#fff1f2',
-                    contenu: `
+            couleur: '#fff1f2',
+            contenu: `
                 <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve de transmission orale portant sur les quarante Hadiths de l'Imam An-Nawawi.</p>
@@ -628,15 +628,15 @@ function initRubriquesModal() {
                     </div>
                 </div>
             `
-    }
-};
+        }
+    };
 
-// Function to open modal
-function openModal(rubriqueKey) {
-    const rubrique = rubriquesDetails[rubriqueKey];
+    // Function to open modal
+    function openModal(rubriqueKey) {
+        const rubrique = rubriquesDetails[rubriqueKey];
 
-    if (rubrique) {
-        modalBody.innerHTML = `
+        if (rubrique) {
+            modalBody.innerHTML = `
                 <div class="modal-header-accent" style="background: ${rubrique.couleur};">
                     <h2>${rubrique.titre}</h2>
                     <div class="points-tag">
@@ -645,52 +645,52 @@ function openModal(rubriqueKey) {
                 </div>
                 ${rubrique.contenu}
             `;
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
     }
-}
 
-// Event listener sur les cartes de rubrique
-document.querySelectorAll('.rubrique-card').forEach(card => {
-    const rubriqueKey = card.dataset.rubrique;
+    // Event listener sur les cartes de rubrique
+    document.querySelectorAll('.rubrique-card').forEach(card => {
+        const rubriqueKey = card.dataset.rubrique;
 
-    // Click sur la carte entière
-    card.addEventListener('click', function (e) {
-        // Ne pas ouvrir si on clique directement sur le bouton
-        if (!e.target.classList.contains('btn-details')) {
-            openModal(rubriqueKey);
+        // Click sur la carte entière
+        card.addEventListener('click', function (e) {
+            // Ne pas ouvrir si on clique directement sur le bouton
+            if (!e.target.classList.contains('btn-details')) {
+                openModal(rubriqueKey);
+            }
+        });
+
+        // Click sur le bouton "En savoir plus"
+        const btnDetails = card.querySelector('.btn-details');
+        if (btnDetails) {
+            btnDetails.addEventListener('click', function (e) {
+                e.stopPropagation();
+                openModal(rubriqueKey);
+            });
         }
     });
 
-    // Click sur le bouton "En savoir plus"
-    const btnDetails = card.querySelector('.btn-details');
-    if (btnDetails) {
-        btnDetails.addEventListener('click', function (e) {
-            e.stopPropagation();
-            openModal(rubriqueKey);
-        });
-    }
-});
-
-// Fermer le modal
-closeBtn.addEventListener('click', () => {
-    modal.classList.remove('show');
-    document.body.style.overflow = 'auto';
-});
-
-// Fermer en cliquant en dehors du modal
-modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
+    // Fermer le modal
+    closeBtn.addEventListener('click', () => {
         modal.classList.remove('show');
         document.body.style.overflow = 'auto';
-    }
-});
+    });
 
-// Fermer avec la touche Escape
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('show')) {
-        modal.classList.remove('show');
-        document.body.style.overflow = 'auto';
-    }
-});
+    // Fermer en cliquant en dehors du modal
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+    // Fermer avec la touche Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('show')) {
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+    });
 }
