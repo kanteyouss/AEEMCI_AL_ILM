@@ -448,3 +448,31 @@ AS-SOLIHATE : SOLIHATE024
 AS SORBIROUNE : SORBIROUNE024
 AT-TAWWABOUNE : TAWWABOUNE024
 AZ-ZAKIROUNE : ZAKIROUNE024
+
+
+
+database  : alilm_db 
+username :alilm_db_user
+MP : hMC1CSOEv5QZ67NbJ6Sk4b76iZFRBMdf
+
+Internal Database URLpostgresql://alilm_db_user:hMC1CSOEv5QZ67NbJ6Sk4b76iZFRBMdf@dpg-d669dknpm1nc73b6opog-a/alilm_db
+
+External Database URL : postgresql://alilm_db_user:hMC1CSOEv5QZ67NbJ6Sk4b76iZFRBMdf@dpg-d669dknpm1nc73b6opog-a.oregon-postgres.render.com/alilm_db
+
+PSQL Command :  PGPASSWORD=hMC1CSOEv5QZ67NbJ6Sk4b76iZFRBMdf psql -h dpg-d669dknpm1nc73b6opog-a.oregon-postgres.render.com -U alilm_db_user alilm_db
+
+
+
+
+Variable 1 : DATABASE_URL
+Key : DATABASE_URL
+Value : postgresql://alilm_db_user:hMC1CSOEv5QZ67NbJ6Sk4b76iZFRBMdf@dpg-d669dknpm1nc73b6opog-a.oregon-postgres.render.com/alilm_db
+Variable 2 : NODE_ENV
+Key : NODE_ENV
+Value : production
+Variable 3 : JWT_SECRET
+Key : JWT_SECRET
+Value : ramadan2026-aeemci-esatic (Vous pouvez mettre n'importe quelle phrase secrète, c'est pour sécuriser les connexions)
+Variable 4 : FRONTEND_URL
+Key : FRONTEND_URL
+Value : * (Pour l'instant, on autorise toutes les origines. On affinera plus tard)

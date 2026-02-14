@@ -164,17 +164,27 @@ function displayQuestion(data) {
     // Options QCM
     ui.optionsContainer.innerHTML = '';
 
-    if (q.type === 'qcm' && q.options) {
-        try {
-            const opts = JSON.parse(q.options);
+    // Options QCM
+    ui.optionsContainer.innerHTML = '';
+
+    if (q.type === 'qcm') {
+        const options = [];
+        if (q.choix_a) options.push(q.choix_a);
+        if (q.choix_b) options.push(q.choix_b);
+        if (q.choix_c) options.push(q.choix_c);
+        if (q.choix_d) options.push(q.choix_d);
+
+        if (options.length > 0) {
             ui.optionsContainer.style.display = 'grid';
-            opts.forEach((opt, i) => {
+            options.forEach((opt, i) => {
                 const div = document.createElement('div');
                 div.className = 'option-card';
                 div.innerHTML = `<span class="option-lettre">${['A', 'B', 'C', 'D'][i]}</span> ${opt}`;
                 ui.optionsContainer.appendChild(div);
             });
-        } catch (e) { }
+        } else {
+            ui.optionsContainer.style.display = 'none';
+        }
     } else {
         ui.optionsContainer.style.display = 'none';
     }

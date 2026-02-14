@@ -1050,13 +1050,27 @@ async function generateQuestion() {
         const question = result.data;
 
         // Affichage Admin (Question + Réponse)
+        let optionsHtml = '';
+        if (question.type === 'qcm') {
+            optionsHtml = `<div style="margin-top: 10px; font-size: 0.9em; color: #555;">`;
+            if (question.choix_a) optionsHtml += `<div><strong>A:</strong> ${question.choix_a}</div>`;
+            if (question.choix_b) optionsHtml += `<div><strong>B:</strong> ${question.choix_b}</div>`;
+            if (question.choix_c) optionsHtml += `<div><strong>C:</strong> ${question.choix_c}</div>`;
+            if (question.choix_d) optionsHtml += `<div><strong>D:</strong> ${question.choix_d}</div>`;
+            optionsHtml += `</div>`;
+        }
+
         document.getElementById('questionText').innerHTML = `
             <div style="margin-bottom: 1.5rem;">
                 <strong>Question :</strong><br/>${question.question_texte}
+                ${optionsHtml}
             </div>
             <div style="background: #e6ffed; padding: 1rem; border-radius: 6px;">
                 <strong style="color: #065f46;">✓ Réponse :</strong><br/>
-                <span style="color: #047857;">${question.reponse_correcte}</span>
+                <span style="color: #047857; font-size: 1.2em; font-weight: bold;">
+                    ${question.reponse_correcte.replace('choix_', '').toUpperCase()}
+                    ${question[question.reponse_correcte] ? ' - ' + question[question.reponse_correcte] : ''}
+                </span>
             </div>
         `;
 
