@@ -542,6 +542,10 @@ async function chargerConfiguration() {
         document.getElementById('configAfficherFiltres').checked = config.afficher_filtres || false;
         document.getElementById('configAfficherClassementComplet').checked = config.afficher_classement_complet || false;
 
+        // Message général (global)
+        if (document.getElementById('configMessagePersonnalise'))
+            document.getElementById('configMessagePersonnalise').value = config.message_personnalise || '';
+
         // Messages personnalisés par phase
         if (document.getElementById('configMessagePreliminaire'))
             document.getElementById('configMessagePreliminaire').value = config.message_preliminaire || '';
@@ -589,6 +593,9 @@ async function sauvegarderConfiguration() {
             afficher_statistiques: document.getElementById('configAfficherStatistiques').checked,
             afficher_filtres: document.getElementById('configAfficherFiltres').checked,
             afficher_classement_complet: document.getElementById('configAfficherClassementComplet').checked,
+
+            // Message général (global)
+            message_personnalise: document.getElementById('configMessagePersonnalise').value.trim(),
 
             // Messages personnalisés par phase
             message_preliminaire: document.getElementById('configMessagePreliminaire').value.trim(),

@@ -654,7 +654,7 @@ async function generateCollectiveQuestion() {
             </div>
             <div style="background: #e6ffed; padding: 1rem; border-radius: 6px;">
                 <strong style="color: #065f46;">✓ Réponse Attendue :</strong><br/>
-                <span style="color: #047857;">${question.reponse_correcte}</span>
+                <span style="color: #047857;">${formatCorrectAnswer(question)}</span>
             </div>
             <div style="margin-top:1rem; text-align:center;">
                 <h2 id="adminTimer" style="font-size:2rem; color:#2563eb;">3...</h2>
@@ -1356,4 +1356,34 @@ function extractQuestionCount(description) {
     // 3. Déduction par nom de rubrique (via variable globale si besoin, mais ici on a que desc)
     // On suppose que si non trouvé -> 1 par défaut (ou 4 pour être safe ?)
     return 1;
+}
+
+/**
+ * Formate la réponse attendue pour l'affichage Admin
+ * @param {Object} q Question object
+ * @returns {string} Formatted answer string
+ */
+function formatCorrectAnswer(q) {
+    if (!q.reponse_correcte) return 'Non définie';
+
+    // Cas QCM (choix_a, choix_b...)
+    if (q.reponse_correcte.startsWith('choix_')) {
+        const letter = q.reponse_correcte.split('_')[1].toUpperCase(); // a -> A
+
+        // La question reçue du backend met les choix dans un objet 'options'
+        // structure: { options: { A: "...", B: "..." } }
+        let text = 'Texte introuvable';
+
+        if (q.options && q.options[letter]) {
+            text = q.options[letter];
+        } else if (q[q.reponse_correcte]) {
+            // Fallback pour compatibilité si format plat
+            text = q[q.reponse_correcte];
+        }
+
+        return `<strong>${letter}</strong> : ${text}`;
+    }
+
+    // Cas Texte Libre
+    return q.reponse_correcte;
 }

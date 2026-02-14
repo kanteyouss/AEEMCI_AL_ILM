@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         // Sinon, trouver la première phase activée
         const phases = ['finale', 'demi', 'quart', 'preliminaire'];
-        currentPhase = phases.find(p => displayConfig[`afficher_phase_${p}`] !== false) || 'preliminaire';
+        currentPhase = phases.find(p => displayConfig[`afficher_phase_${p}`] !== false) || null;
     }
 
     updateActiveTab(currentPhase);
@@ -90,7 +90,7 @@ async function loadDisplayConfig() {
         } else {
             // Trouver la meilleure phase disponible
             const phases = ['finale', 'demi', 'quart', 'preliminaire'];
-            currentPhase = phases.find(p => displayConfig[`afficher_phase_${p}`] !== false) || 'preliminaire';
+            currentPhase = phases.find(p => displayConfig[`afficher_phase_${p}`] !== false) || null;
         }
 
         console.log('✅ Configuration chargée:', displayConfig);
@@ -324,10 +324,11 @@ async function loadClassement() {
             // Si une manche est sélectionnée manuellement
             url = `/api/classement/manche/${currentFilters.manche}`;
         } else {
-            // Aucun classement à afficher
+            // Aucun classement à afficher - toutes les phases sont désactivées
             displayTableau([]);
             displayCharts([]);
-            showError('Aucun classement publié pour le moment');
+            hideAllSections();
+            showError('Aucun classement publié pour le moment. Toutes les phases sont actuellement masquées.');
             return;
         }
 
@@ -984,6 +985,19 @@ function updateLastRefreshTime() {
         });
         lastUpdateElem.textContent = `Dernière mise à jour : ${timeString}`;
     }
+}
+
+/**
+ * Masquer toutes les sections du classement
+ */
+function hideAllSections() {
+    const podiumSection = document.querySelector('.podium-section');
+    const statsSection = document.querySelector('.stats-section');
+    const tableContainer = document.querySelector('.table-container');
+
+    if (podiumSection) podiumSection.style.display = 'none';
+    if (statsSection) statsSection.style.display = 'none';
+    if (tableContainer) tableContainer.style.display = 'none';
 }
 
 /**
