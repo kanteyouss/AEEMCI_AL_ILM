@@ -235,7 +235,7 @@ function updateCustomMessage(phase) {
     if (noteBasPage) noteBasPage.style.display = 'none';
 
     if (!heroSection) return;
-
+    //ok
     // --- 1. Message Général (.custom-message) ---
     const generalMessage = displayConfig.message_personnalise;
 

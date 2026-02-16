@@ -548,8 +548,8 @@ function initRubriquesModal() {
                     
                     <h3>Structure de l'Évaluation</h3>
                     <ul>
-                        <li><strong>Format :</strong> 50 questions à choix multiples (QCM).</li>
-                        <li><strong>Barème :</strong> 6 points par bonne réponse (Total 300 pts).</li>
+                        <li><strong>Format :</strong> 5 questions à choix multiples (QCM).</li>
+                        <li><strong>Barème :</strong> 6 points par bonne réponse (Total 30 pts).</li>
                         <li><strong>Chronologie :</strong> Période Mecquoise et Médinoise.</li>
                     </ul>
                     
@@ -596,7 +596,7 @@ function initRubriquesModal() {
                     <ul>
                         <li><strong>Format :</strong> 3 questions successives (1 par membre).</li>
                         <li><strong>Barème :</strong> 10 points par bonne réponse (Total 30 pts).</li>
-                        <li><strong>Relais :</strong> Transmission immédiate du tour au membre suivant après réponse.</li>
+                        <li><strong>Relais :</strong> Transmission immédiate du tour au membre suivant après une  réponse correcte dns le cas contraire le relai prend fin.</li>
                     </ul>
                     
                     <div class="warning-box-minimal">
