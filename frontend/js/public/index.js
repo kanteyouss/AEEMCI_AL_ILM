@@ -596,7 +596,7 @@ function initRubriquesModal() {
                     <ul>
                         <li><strong>Format :</strong> 3 questions successives (1 par membre).</li>
                         <li><strong>Barème :</strong> 10 points par bonne réponse (Total 30 pts).</li>
-                        <li><strong>Relais :</strong> Transmission immédiate du tour au membre suivant après une  réponse correcte dns le cas contraire le relai prend fin.</li>
+                        <li><strong>Relais :</strong> Transmission immédiate du tour au membre suivant après une réponse correcte. En cas de réponse incorrecte, le relais s'arrête immédiatement et l'équipe ne marque aucun point pour les questions restantes.</li>
                     </ul>
                     
                     <div class="warning-box-minimal">
