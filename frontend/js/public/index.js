@@ -329,21 +329,13 @@ function initCountdown() {
                             <div style="font-size: 1.2rem; font-weight: 600; color: white;">Phase actuelle : <span style="color: #FFD700;">${phases[currentIdx].title} (${phases[currentIdx].detail})</span></div>
                         </div>
 
-                        <!-- Timeline des Phases (Affichage des 3 phases) -->
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2.5rem;">
+                        <!-- Timeline des Phases (Responsivité via CSS) -->
+                        <div class="ramadan-phases-grid">
                             ${phases.map((p, i) => `
-                                <div style="
-                                    background: ${i === currentIdx ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.05)'};
-                                    padding: 1.2rem;
-                                    border-radius: 15px;
-                                    border: 1px solid ${i === currentIdx ? '#FFD700' : 'rgba(255,255,255,0.1)'};
-                                    text-align: center;
-                                    transition: all 0.3s ease;
-                                    opacity: ${i < currentIdx ? '0.5' : '1'};
-                                ">
-                                    <div style="font-size: 0.75rem; text-transform: uppercase; opacity: 0.6; margin-bottom: 5px;">${p.title}</div>
-                                    <div style="font-size: 1rem; font-weight: 800; color: ${i === currentIdx ? '#FFD700' : 'white'};">${p.detail}</div>
-                                    <div style="font-size: 0.7rem; margin-top: 8px; font-weight: 600; font-style: italic; opacity: 0.8;">${p.goal}</div>
+                                <div class="phase-item ${i === currentIdx ? 'active' : ''} ${i < currentIdx ? 'past' : ''}">
+                                    <div class="phase-title">${p.title}</div>
+                                    <div class="phase-name" style="color: ${i === currentIdx ? '#FFD700' : 'white'};">${p.detail}</div>
+                                    <div class="phase-goal">${p.goal}</div>
                                 </div>
                             `).join('')}
                         </div>
