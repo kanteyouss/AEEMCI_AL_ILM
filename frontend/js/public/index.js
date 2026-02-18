@@ -242,10 +242,10 @@ function initCountdown() {
 
                 wisdomCarousel.innerHTML = `
                     <div class="wisdom-carousel-card">
-                        <div style="font-size: 2rem; margin-bottom: 1.5rem; color: #D4AF37; filter: drop-shadow(0 0 5px rgba(212,175,55,0.2));">✨</div>
+                        <div style="font-size: 2rem; margin-bottom: 1.5rem; color: #D4AF37; filter: drop-shadow(0 0 5px rgba(212,175,55,0.2));"></div>
                         <div class="wisdom-arabe">${v.arabe}</div>
                         <div class="wisdom-traduction">"${v.traduction}"</div>
-                        <div class="wisdom-ref">✨ ${v.reference} ✨</div>
+                        <div class="wisdom-ref"> ${v.reference} </div>
                     </div>
                 `;
             }
