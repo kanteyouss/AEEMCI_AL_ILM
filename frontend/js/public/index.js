@@ -311,9 +311,30 @@ function initCountdown() {
                 const progressPercent = Math.min((completedDays / 30) * 100, 100);
 
                 const phases = [
-                    { title: "Miséricorde", detail: "Rahma", range: "Jours 1 - 10", goal: "Ouvrir son cœur à la clémence" },
-                    { title: "Pardon", detail: "Maghfirah", range: "Jours 11 - 20", goal: "Purification de l'âme" },
-                    { title: "Salut", detail: "Itqun minan-Nar", range: "Jours 21 - 30", goal: "Excellence et Sauvetage" }
+                    {
+                        title: "Miséricorde",
+                        detail: "Rahma",
+                        days: "Jours 1 à 10",
+                        goal: "Ouvrir son cœur à la clémence",
+                        desc: "Une période pour solliciter la bonté infinie d'Allah sur nos vies.",
+                        action: "Multiplier les invocations pour soi et ses proches."
+                    },
+                    {
+                        title: "Pardon",
+                        detail: "Maghfirah",
+                        days: "Jours 11 à 20",
+                        goal: "Purification de l'âme",
+                        desc: "Le moment idéal pour regretter ses fautes et se purifier le cœur.",
+                        action: "Multiplier l'Istighfar (demandes de pardon)."
+                    },
+                    {
+                        title: "Salut",
+                        detail: "Itqun minan-Nar",
+                        days: "Jours 21 à 30",
+                        goal: "Excellence et Sauvetage",
+                        desc: "La quête de l'affranchissement du feu et la recherche de Laylat al-Qadr.",
+                        action: "Intensifier les prières nocturnes et les bonnes œuvres."
+                    }
                 ];
 
                 let currentIdx = 0;
@@ -323,19 +344,24 @@ function initCountdown() {
                 tracker.innerHTML = `
                     <div class="ramadan-tracker-container">
                         <!-- En-tête : Jour Actuel -->
-                        <div style="text-align: center; margin-bottom: 2.5rem;">
+                        <div style="text-align: center; margin-bottom: 2rem;">
                             <div style="font-size: 0.9rem; text-transform: uppercase; opacity: 0.7; letter-spacing: 2px;">Aujourd'hui</div>
-                            <div style="font-size: 4rem; font-weight: 900; color: #FFD700; line-height: 1; margin: 10px 0;">Jour ${dayOfRamadan} <span style="font-size: 1.5rem; opacity: 0.5; font-weight: 400;">/ 30</span></div>
-                            <div style="font-size: 1.2rem; font-weight: 600; color: white;">Phase actuelle : <span style="color: #FFD700;">${phases[currentIdx].title} (${phases[currentIdx].detail})</span></div>
+                            <div style="font-size: clamp(3rem, 8vw, 4.5rem); font-weight: 900; color: #FFD700; line-height: 1; margin: 10px 0;">Jour ${dayOfRamadan} <span style="font-size: 1.5rem; opacity: 0.5; font-weight: 400;">/ 30</span></div>
+                            <div style="font-size: 1.1rem; font-weight: 600; color: white;">Phase active : <span style="color: #FFD700;">${phases[currentIdx].title} (${phases[currentIdx].detail})</span></div>
                         </div>
 
-                        <!-- Timeline des Phases (Responsivité via CSS) -->
+                        <!-- Timeline des Phases -->
                         <div class="ramadan-phases-grid">
                             ${phases.map((p, i) => `
                                 <div class="phase-item ${i === currentIdx ? 'active' : ''} ${i < currentIdx ? 'past' : ''}">
                                     <div class="phase-title">${p.title}</div>
                                     <div class="phase-name" style="color: ${i === currentIdx ? '#FFD700' : 'white'};">${p.detail}</div>
-                                    <div class="phase-goal">${p.goal}</div>
+                                    <div style="font-size: 0.75rem; font-weight: 700; color: #FFD700; margin-bottom: 8px;">${p.days}</div>
+                                    <div class="phase-goal" style="font-size: 0.85rem; opacity: 1; margin-bottom: 10px;">"${p.goal}"</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.7; line-height: 1.4; margin-bottom: 10px;">${p.desc}</div>
+                                    <div style="background: rgba(255,255,255,0.1); padding: 8px; border-radius: 8px; font-size: 0.7rem; font-weight: 600;">
+                                        <span style="color: #FFD700;">Conseil :</span> ${p.action}
+                                    </div>
                                 </div>
                             `).join('')}
                         </div>
