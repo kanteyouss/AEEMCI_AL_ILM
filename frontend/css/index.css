@@ -10,31 +10,80 @@
     overflow: hidden;
 }
 
-.verset-section::before,
-.verset-section::after {
-    content: '';
-    position: absolute;
-    width: 250px;
-    height: 250px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.15;
-    animation: rotate 25s linear infinite;
-    z-index: 0;
+.wisdom-carousel-card {
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid #D4AF37;
+    border-radius: 24px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    font-family: 'Outfit', sans-serif;
+    color: #2D3748;
+    /* Midnight Charcoal au lieu de noir pur */
 }
 
-.verset-section::before {
-    top: -2rem;
-    left: -2rem;
-    background-image: url('/assets/images/logoAEEMCIESATIC.png');
+.wisdom-arabe {
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    color: #1a202c;
+    font-weight: 800;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    font-family: 'Amiri', serif;
 }
 
-.verset-section::after {
-    bottom: -2rem;
-    right: -2rem;
-    background-image: url('/assets/images/logoAEEMCIESATIC.png');
-    animation-direction: reverse;
+.wisdom-traduction {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: #4a5568;
+    line-height: 1.6;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.wisdom-ref {
+    font-size: 0.95rem;
+    color: #718096;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Tracker de Ramadan */
+.ramadan-tracker-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.tracker-card {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 1.8rem;
+    border-radius: 20px;
+    border-left: 5px solid #FFD700;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.tracker-card.next {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-left: none;
+}
+
+.tracker-day-number {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #FFD700;
+    line-height: 1.1;
 }
 
 @keyframes rotate {
@@ -66,6 +115,9 @@
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
 }
 
+.wisdom-carousel {
+    transition: all 0.5s ease;
+}
 
 /* Reste du contenu du verset */
 .verset-icon {
@@ -101,46 +153,49 @@
 }
 
 /* Compte à rebours Ramadan */
+/* Section Tracker / Compte à rebours */
 .countdown-section {
     padding: 3rem 0;
     background: linear-gradient(135deg, var(--primary-color) 0%, #1d4e1f 100%);
     color: white;
     text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .countdown-section h2 {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
     margin-bottom: 2rem;
-    animation: pulse 2s ease-in-out infinite;
-    color: white;
+    color: rgba(255, 255, 255, 0.9);
     font-weight: 700;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .countdown {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
-    max-width: 800px;
-    margin: 0 auto 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .countdown-item {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    padding: 2rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
     border-radius: 15px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
+    min-width: 100px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
 }
 
 .countdown-item:hover {
-    transform: scale(1.1);
-    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .countdown-value {
-    display: block;
     font-size: 3.8rem;
     font-weight: 900;
     color: #FFD700;
@@ -175,6 +230,40 @@
 
     50% {
         opacity: 0.7;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
     }
 }
 

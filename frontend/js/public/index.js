@@ -210,77 +210,165 @@ function initVersetsRotation() {
  * Initialiser le compte à rebours jusqu'au Ramadan
  */
 function initCountdown() {
-    // Date de début du Ramadan 2026 (18 Février 2026)
-    const ramadanDate = new Date('2026-02-18T00:00:00').getTime();
+    function updateUI() {
+        const now = new Date();
+        const ramadanStartDate = new Date('2026-02-18T00:00:00');
+        const diff = now - ramadanStartDate;
 
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const distance = ramadanDate - now;
+        // Heure du Maghrib (décalage de 5h30 : 24h - 18.5h)
+        const maghribOffset = 5.5 * 60 * 60 * 1000;
+        const isRamadanActive = (diff + maghribOffset) >= 0;
 
-        if (distance < 0) {
-            const countdownEl = document.getElementById('countdown');
-            // Message de bienvenue
-            countdownEl.innerHTML = '<div style="font-size: 3rem; font-weight: bold; text-shadow: 0 4px 6px rgba(0,0,0,0.3);"> Ramadan Mubarak ! </div>';
+        // --- 1. GESTION DU CARROUSEL DE SAGESSE (HAUT) ---
+        const wisdomCarousel = document.getElementById('wisdomCarousel');
+        if (wisdomCarousel) {
+            const wisdomVersets = [
+                { arabe: "وَقُل رَّبِّ زِدْنِي عِلْمًا", traduction: "Et dis : « Ô mon Seigneur, accroît mes connaissances ! »", reference: "Sourate Ta-Ha (20:114)" },
+                { arabe: "يَا أَيُّهَا الَّذِينَ آمَنُوا كُتِبَ عَلَيْكُمُ الصِّيَامُ كَمَا كُتِبَ عَلَى الَّذِينَ مِن قَبْلِكُمْ لَعَلَّكُمْ تَتَّقُونَ", traduction: "Ô vous qui avez cru! Le jeûne vous a été prescrit comme il a été prescrit à ceux qui vous ont précédés, ainsi atteindrez-vous la piété.", reference: "Sourate Al-Baqara (2:183)" },
+                { arabe: "أَيَّامًا مَّعْدُودَاتٍ ۚ فَمَن كَانَ مِنكُم مَّرِيضًا أَوْ عَلَىٰ سَفَرٍ فَعِدَّةٌ مِّنْ أَيَّامٍ أُخَرَ", traduction: "(Jeûnez) pendant des jours comptés. Quiconque d'entre vous est malade ou en voyage, devra jeûner un nombre égal d'autres jours.", reference: "Sourate Al-Baqara (2:184)" },
+                { arabe: "شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ هُدًى لِّلنَّاسِ وَبَيِّنَاتٍ مِّنَ الْهُدَىٰ وَالْفُرْقَانِ", traduction: "Le mois de Ramadan au cours duquel le Coran a été révélé comme guide pour les gens, et preuves claires de la bonne direction et du discernement.", reference: "Sourate Al-Baqara (2:185)" },
+                { arabe: "وَذَكِّرْ فَإِنَّ الذِّكْرَى تَنْفَعُ الْمُؤْمِنِينَ", traduction: "Et rappelle; car le rappel profite aux croyants.", reference: "Sourate Adh-Dhariyat (51:55)" },
+                { arabe: "وَمَا خَلَقْتُ الْجِنَّ وَالْإِنسَ إِلَّا لِيَعْبُدُونِ", traduction: "Je n'ai créé les djinns et les hommes que pour qu'ils M'adorent.", reference: "Sourate Adh-Dhariyat (51:56)" }
+            ];
 
-            // Afficher le verset du jour (remplace la date)
-            const section = document.querySelector('.countdown-section');
-            if (section) {
-                const title = section.querySelector('h2');
-                const dateText = section.querySelector('.countdown-date');
-                if (title) title.textContent = "Le mois sacré est arrivé !";
-                if (dateText) {
-                    // Liste de 20 versets (exemple, peut être étendue)
-                    const ramadanVersets = [
-                        { arabe: "شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ", traduction: "Le mois de Ramadan au cours duquel le Coran a été révélé", reference: "Sourate Al-Baqara (2:185)" },
-                        { arabe: "إِنَّ هَذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ", traduction: "Ce Coran guide vers ce qu'il y a de plus droit", reference: "Sourate Al-Isra (17:9)" },
-                        { arabe: "وَأَقِمِ الصَّلَاةَ إِنَّ الصَّلَاةَ تَنْهَى عَنِ الْفَحْشَاءِ وَالْمُنكَرِ", traduction: "Accomplis la prière, car la prière éloigne de la turpitude et du blâmable", reference: "Sourate Al-Ankabut (29:45)" },
-                        { arabe: "يَا أَيُّهَا الَّذِينَ آمَنُوا كُتِبَ عَلَيْكُمُ الصِّيَامُ", traduction: "Ô vous qui avez cru! Le jeûne vous a été prescrit", reference: "Sourate Al-Baqara (2:183)" },
-                        { arabe: "وَذَكِّرْ فَإِنَّ الذِّكْرَى تَنْفَعُ الْمُؤْمِنِينَ", traduction: "Rappelle, car le rappel profite aux croyants", reference: "Sourate Adh-Dhariyat (51:55)" },
-                        { arabe: "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", traduction: "Allah est avec les endurants", reference: "Sourate Al-Baqara (2:153)" },
-                        { arabe: "وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَى", traduction: "Aidez-vous dans la bonté et la piété", reference: "Sourate Al-Maida (5:2)" },
-                        { arabe: "إِنَّ اللَّهَ يُحِبُّ الْمُحْسِنِينَ", traduction: "Allah aime les bienfaisants", reference: "Sourate Al-Baqara (2:195)" },
-                        { arabe: "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ", traduction: "Quand Mes serviteurs t'interrogent à Mon sujet... Je suis tout proche", reference: "Sourate Al-Baqara (2:186)" },
-                        { arabe: "وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا", traduction: "Tenez fermement ensemble à la corde d'Allah", reference: "Sourate Al-Imran (3:103)" },
-                        { arabe: "إِنَّ اللَّهَ غَفُورٌ رَحِيمٌ", traduction: "Allah est Pardonneur et Miséricordieux", reference: "Sourate Al-Baqara (2:199)" },
-                        { arabe: "وَأَنفِقُوا مِمَّا رَزَقْنَاكُم", traduction: "Dépensez de ce que Nous vous avons octroyé", reference: "Sourate Al-Baqara (2:254)" },
-                        { arabe: "إِنَّ اللَّهَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", traduction: "Allah est capable de toute chose", reference: "Sourate Al-Baqara (2:284)" },
-                        { arabe: "وَإِنَّ رَبَّكَ لَذُو فَضْلٍ عَلَى النَّاسِ", traduction: "Ton Seigneur est plein de grâce envers les gens", reference: "Sourate An-Naml (27:73)" },
-                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ الْغَنِيُّ الْحَمِيدُ", traduction: "Allah est le Riche, le Digne de louange", reference: "Sourate Al-Baqara (2:267)" },
-                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ الْقَوِيُّ الْعَزِيزُ", traduction: "Allah est le Fort, le Puissant", reference: "Sourate Al-Baqara (2:220)" },
-                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ الْحَلِيمُ الْغَفُورُ", traduction: "Allah est le Doux, le Pardonneur", reference: "Sourate Al-Baqara (2:225)" },
-                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ الْعَلِيمُ الْحَكِيمُ", traduction: "Allah est le Savant, le Sage", reference: "Sourate Al-Baqara (2:228)" },
-                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ السَّمِيعُ الْبَصِيرُ", traduction: "Allah est l'Audient, le Clairvoyant", reference: "Sourate Al-Baqara (2:233)" },
-                        { arabe: "وَإِنَّ اللَّهَ لَهُوَ الرَّؤُوفُ الرَّحِيمُ", traduction: "Allah est le Compatissant, le Miséricordieux", reference: "Sourate Al-Baqara (2:143)" }
-                    ];
-                    // Verset du jour (change toutes les 10 heures)
-                    const now = new Date();
-                    const dayIndex = Math.floor(now.getTime() / (1000 * 60 * 60 * 10)) % ramadanVersets.length;
-                    const v = ramadanVersets[dayIndex];
-                    dateText.style.display = 'block';
-                    dateText.innerHTML = `<div style="margin-top:1rem; padding:1rem; background:#f3f4f6; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
-                        <div style="font-size:1.3rem; color:#2C5F2D; font-weight:700;">${v.arabe}</div>
-                        <div style="font-size:1.1rem; color:#2C3E50; margin-top:0.5rem;">${v.traduction}</div>
-                        <div style="font-size:0.95rem; color:#718096; margin-top:0.5rem;">${v.reference}</div>
-                    </div>`;
-                }
+            const index = Math.floor(now.getTime() / 13000) % wisdomVersets.length;
+            const v = wisdomVersets[index];
+
+            if (wisdomCarousel.getAttribute('data-current-verse') !== v.reference) {
+                wisdomCarousel.setAttribute('data-current-verse', v.reference);
+                wisdomCarousel.style.animation = 'none';
+                wisdomCarousel.offsetHeight; // force reflow
+                wisdomCarousel.style.animation = 'fadeInUp 1s ease-out';
+
+                wisdomCarousel.innerHTML = `
+                    <div class="wisdom-carousel-card">
+                        <div style="font-size: 2rem; margin-bottom: 1.5rem; color: #D4AF37; filter: drop-shadow(0 0 5px rgba(212,175,55,0.2));">✨</div>
+                        <div class="wisdom-arabe">${v.arabe}</div>
+                        <div class="wisdom-traduction">"${v.traduction}"</div>
+                        <div class="wisdom-ref">✨ ${v.reference} ✨</div>
+                    </div>
+                `;
             }
-            return;
         }
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        // --- 2. GESTION DU TRACKER RAMADAN (BAS) ---
+        const tracker = document.getElementById('ramadanTracker');
+        const section = document.querySelector('.countdown-section');
+        const sectionTitle = section ? section.querySelector('h2') : null;
 
-        document.getElementById('days').textContent = String(days).padStart(2, '0');
-        document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-        document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-        document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        if (tracker) {
+            if (!isRamadanActive) {
+                if (sectionTitle) sectionTitle.textContent = "Compte à rebours jusqu'au Ramadan 2026";
+                // Avant Ramadan : Affichage Compte à rebours classique
+                const distance = ramadanStartDate - now;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                const countdownID = `${days}-${hours}-${minutes}-${seconds}`;
+                if (tracker.getAttribute('data-last-countdown') === countdownID) return;
+                tracker.setAttribute('data-last-countdown', countdownID);
+
+                tracker.innerHTML = `
+                    <div class="countdown" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; font-family: 'Outfit', sans-serif;">
+                        <div class="countdown-item">
+                            <span class="countdown-value">${String(days).padStart(2, '0')}</span>
+                            <span class="countdown-label">Jours</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-value">${String(hours).padStart(2, '0')}</span>
+                            <span class="countdown-label">Heures</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-value">${String(minutes).padStart(2, '0')}</span>
+                            <span class="countdown-label">Min</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-value">${String(seconds).padStart(2, '0')}</span>
+                            <span class="countdown-label">Sec</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: 1.5rem; opacity: 0.8; font-style: italic; font-family: 'Outfit', sans-serif;">Préparez vos cœurs pour le mois sacré...</p>
+                `;
+            } else {
+                // Pendant Ramadan : Affichage Tracker de Progression
+                if (sectionTitle) sectionTitle.textContent = "Suivi de votre mois Béni";
+
+                // LOGIQUE ISLAMIQUE : Le jour change au Maghrib (environ 18h30)
+                // On ajoute un décalage de 5h30 (24h - 18.5h) pour que le jour "roule" à 18h30.
+                const adjustedDiff = diff + maghribOffset;
+                const dayOfRamadan = Math.floor(adjustedDiff / (1000 * 60 * 60 * 24)) + 1;
+
+                // ANTIFLICKER : On ne met à jour que si nécessaire
+                if (tracker.getAttribute('data-current-day') === String(dayOfRamadan)) {
+                    return;
+                }
+                tracker.setAttribute('data-current-day', dayOfRamadan);
+
+                // Progression basée sur les jours ENTIÈREMENT terminés (0% le premier jour, 100% à l'Aïd)
+                const completedDays = dayOfRamadan - 1;
+                const progressPercent = Math.min((completedDays / 30) * 100, 100);
+
+                const phases = [
+                    { title: "Miséricorde", detail: "Rahma", range: "Jours 1 - 10", goal: "Ouvrir son cœur à la clémence" },
+                    { title: "Pardon", detail: "Maghfirah", range: "Jours 11 - 20", goal: "Purification de l'âme" },
+                    { title: "Salut", detail: "Itqun minan-Nar", range: "Jours 21 - 30", goal: "Excellence et Sauvetage" }
+                ];
+
+                let currentIdx = 0;
+                if (dayOfRamadan > 20) currentIdx = 2;
+                else if (dayOfRamadan > 10) currentIdx = 1;
+
+                tracker.innerHTML = `
+                    <div class="ramadan-tracker-container">
+                        <!-- En-tête : Jour Actuel -->
+                        <div style="text-align: center; margin-bottom: 2.5rem;">
+                            <div style="font-size: 0.9rem; text-transform: uppercase; opacity: 0.7; letter-spacing: 2px;">Aujourd'hui</div>
+                            <div style="font-size: 4rem; font-weight: 900; color: #FFD700; line-height: 1; margin: 10px 0;">Jour ${dayOfRamadan} <span style="font-size: 1.5rem; opacity: 0.5; font-weight: 400;">/ 30</span></div>
+                            <div style="font-size: 1.2rem; font-weight: 600; color: white;">Phase actuelle : <span style="color: #FFD700;">${phases[currentIdx].title} (${phases[currentIdx].detail})</span></div>
+                        </div>
+
+                        <!-- Timeline des Phases (Affichage des 3 phases) -->
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2.5rem;">
+                            ${phases.map((p, i) => `
+                                <div style="
+                                    background: ${i === currentIdx ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.05)'};
+                                    padding: 1.2rem;
+                                    border-radius: 15px;
+                                    border: 1px solid ${i === currentIdx ? '#FFD700' : 'rgba(255,255,255,0.1)'};
+                                    text-align: center;
+                                    transition: all 0.3s ease;
+                                    opacity: ${i < currentIdx ? '0.5' : '1'};
+                                ">
+                                    <div style="font-size: 0.75rem; text-transform: uppercase; opacity: 0.6; margin-bottom: 5px;">${p.title}</div>
+                                    <div style="font-size: 1rem; font-weight: 800; color: ${i === currentIdx ? '#FFD700' : 'white'};">${p.detail}</div>
+                                    <div style="font-size: 0.7rem; margin-top: 8px; font-weight: 600; font-style: italic; opacity: 0.8;">${p.goal}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <!-- Barre de progression -->
+                        <div style="margin-bottom: 12px;">
+                            <div style="height: 12px; background: rgba(0,0,0,0.3); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                                <div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, #D4AF37, #FFD700, #D4AF37); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); border-radius: 20px; transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.8rem; font-weight: 800; opacity: 0.8;">
+                            <span style="color: #4CAF50;">1er RAMADAN</span>
+                            <span style="color: #FFD700;">Progression : ${Math.round(progressPercent)}% terminé</span>
+                            <span style="color: #D4AF37;">AÏD AL-FITR</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
     }
 
     // Mettre à jour toutes les secondes
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+    updateUI();
+    setInterval(updateUI, 1000);
 }
 
 /**
