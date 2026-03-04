@@ -6,15 +6,15 @@ const QuestionModel = require('../models/questionModel');
 const getAllQuestions = async (req, res, next) => {
     try {
         const { rubrique_id, type, difficulte, utilise } = req.query;
-        
+
         const filters = {};
         if (rubrique_id) filters.rubrique_id = rubrique_id;
         if (type) filters.type = type;
         if (difficulte) filters.difficulte = difficulte;
         if (utilise !== undefined) filters.utilise = utilise === 'true';
-        
+
         const questions = await QuestionModel.getAll(filters);
-        
+
         res.json({
             success: true,
             data: questions,
@@ -31,16 +31,16 @@ const getAllQuestions = async (req, res, next) => {
 const getQuestionById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+
         const question = await QuestionModel.getById(id);
-        
+
         if (!question) {
             return res.status(404).json({
                 success: false,
                 message: 'Question non trouvée'
             });
         }
-        
+
         res.json({
             success: true,
             data: question
@@ -56,9 +56,9 @@ const getQuestionById = async (req, res, next) => {
 const createQuestion = async (req, res, next) => {
     try {
         const data = req.body;
-        
+
         const question = await QuestionModel.create(data);
-        
+
         res.status(201).json({
             success: true,
             message: 'Question créée avec succès',
@@ -76,16 +76,16 @@ const updateQuestion = async (req, res, next) => {
     try {
         const { id } = req.params;
         const data = req.body;
-        
+
         const question = await QuestionModel.update(id, data);
-        
+
         if (!question) {
             return res.status(404).json({
                 success: false,
                 message: 'Question non trouvée'
             });
         }
-        
+
         res.json({
             success: true,
             message: 'Question mise à jour',
@@ -102,16 +102,16 @@ const updateQuestion = async (req, res, next) => {
 const deleteQuestion = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+
         const question = await QuestionModel.delete(id);
-        
+
         if (!question) {
             return res.status(404).json({
                 success: false,
                 message: 'Question non trouvée'
             });
         }
-        
+
         res.json({
             success: true,
             message: 'Question supprimée'
@@ -127,16 +127,16 @@ const deleteQuestion = async (req, res, next) => {
 const markQuestionAsUsed = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+
         const question = await QuestionModel.markAsUsed(id);
-        
+
         if (!question) {
             return res.status(404).json({
                 success: false,
                 message: 'Question non trouvée'
             });
         }
-        
+
         res.json({
             success: true,
             message: 'Question marquée comme utilisée',
@@ -153,24 +153,24 @@ const markQuestionAsUsed = async (req, res, next) => {
 const getRandomQuestion = async (req, res, next) => {
     try {
         const { rubrique_id } = req.query;
-        
+
         if (!rubrique_id) {
             return res.status(400).json({
                 success: false,
                 message: 'rubrique_id est requis'
             });
         }
-        
-        // Récupérer une question aléatoire non utilisée
-        const questions = await QuestionModel.getRandomUnused(rubrique_id, 1);
-        
+
+        // Récupérer une question aléatoire (avec réinitialisation automatique si besoin)
+        const questions = await QuestionModel.getRandomWithAutoReset(rubrique_id, 1);
+
         if (questions.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Aucune question disponible pour cette rubrique'
             });
         }
-        
+
         res.json({
             success: true,
             data: questions[0]
@@ -187,13 +187,30 @@ const getRandomUnusedQuestions = async (req, res, next) => {
     try {
         const { rubriqueId } = req.params;
         const { limit = 10 } = req.query;
-        
+
         const questions = await QuestionModel.getRandomUnused(rubriqueId, parseInt(limit));
-        
+
         res.json({
             success: true,
             data: questions,
             count: questions.length
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * Réinitialiser le statut d'utilisation de toutes les questions
+ */
+const resetQuestionsUsage = async (req, res, next) => {
+    try {
+        const count = await QuestionModel.resetUsage();
+
+        res.json({
+            success: true,
+            message: `${count} question(s) ont été réinitialisées`,
+            count
         });
     } catch (error) {
         next(error);
@@ -208,5 +225,6 @@ module.exports = {
     deleteQuestion,
     markQuestionAsUsed,
     getRandomQuestion,
-    getRandomUnusedQuestions
+    getRandomUnusedQuestions,
+    resetQuestionsUsage
 };

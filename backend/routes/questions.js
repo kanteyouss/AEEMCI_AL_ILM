@@ -52,4 +52,10 @@ router.put('/:id/mark-used', questionController.markQuestionAsUsed);
  */
 router.get('/rubrique/:rubriqueId/random', verifyJWT, questionController.getRandomUnusedQuestions);
 
+/**
+ * POST /api/questions/reset-usage
+ * Réinitialiser l'utilisation de toutes les questions
+ */
+router.post('/reset-usage', questionController.resetQuestionsUsage);
+
 module.exports = router;

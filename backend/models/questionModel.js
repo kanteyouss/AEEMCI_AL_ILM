@@ -10,29 +10,29 @@ class QuestionModel {
     static async getAll(filters = {}) {
         let query = 'SELECT * FROM questions WHERE 1=1';
         const params = [];
-        
+
         if (filters.rubrique_id) {
             params.push(filters.rubrique_id);
             query += ` AND rubrique_id = $${params.length}`;
         }
-        
+
         if (filters.type) {
             params.push(filters.type);
             query += ` AND type = $${params.length}`;
         }
-        
+
         if (filters.difficulte) {
             params.push(filters.difficulte);
             query += ` AND difficulte = $${params.length}`;
         }
-        
+
         if (filters.utilise !== undefined) {
             params.push(filters.utilise);
             query += ` AND utilise = $${params.length}`;
         }
-        
+
         query += ' ORDER BY created_at DESC';
-        
+
         const result = await db.query(query, params);
         return result.rows;
     }
@@ -59,7 +59,7 @@ class QuestionModel {
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING *
         `;
-        
+
         const values = [
             data.rubrique_id,
             data.question_texte,
@@ -73,7 +73,7 @@ class QuestionModel {
             data.points || 1,
             data.reference || null
         ];
-        
+
         const result = await db.query(query, values);
         return result.rows[0];
     }
@@ -98,7 +98,7 @@ class QuestionModel {
             WHERE id = $11
             RETURNING *
         `;
-        
+
         const values = [
             data.question_texte,
             data.reponse_correcte,
@@ -112,7 +112,7 @@ class QuestionModel {
             data.reference,
             id
         ];
-        
+
         const result = await db.query(query, values);
         return result.rows[0];
     }
@@ -138,16 +138,66 @@ class QuestionModel {
     /**
      * Récupérer des questions aléatoires non utilisées
      */
-    static async getRandomUnused(rubriqueId, limit = 10) {
-        const query = `
-            SELECT * FROM questions 
-            WHERE rubrique_id = $1 AND utilise = false
-            ORDER BY RANDOM()
-            LIMIT $2
+    static async getRandomUnused(rubriqueId, limit = 10, excludeIds = []) {
+        let query = `
+            SELECT q.*, r.nom as rubrique_nom, r.temps_par_question
+            FROM questions q
+            JOIN rubriques r ON q.rubrique_id = r.id
+            WHERE q.rubrique_id = $1 AND q.utilise = false
         `;
-        
-        const result = await db.query(query, [rubriqueId, limit]);
+
+        const params = [rubriqueId];
+
+        if (excludeIds && excludeIds.length > 0) {
+            params.push(excludeIds);
+            query += ` AND q.id NOT IN (SELECT unnest($${params.length}::int[]))`;
+        }
+
+        query += ` ORDER BY RANDOM() LIMIT $${params.length + 1}`;
+        params.push(limit);
+
+        const result = await db.query(query, params);
         return result.rows;
+    }
+
+    /**
+     * Réinitialiser le statut 'utilise' de toutes les questions (ou pour une rubrique spécifique)
+     */
+    static async resetUsage(rubriqueId = null, excludeIds = []) {
+        let query = 'UPDATE questions SET utilise = false WHERE utilise = true';
+        const params = [];
+
+        if (rubriqueId) {
+            params.push(rubriqueId);
+            query += ` AND rubrique_id = $${params.length}`;
+        }
+
+        if (excludeIds && excludeIds.length > 0) {
+            params.push(excludeIds);
+            query += ` AND id NOT IN (SELECT unnest($${params.length}::int[]))`;
+        }
+
+        query += ' RETURNING id';
+        const result = await db.query(query, params);
+        return result.rowCount;
+    }
+
+    /**
+     * Récupérer des questions aléatoires avec réinitialisation automatique si épuisement
+     */
+    static async getRandomWithAutoReset(rubriqueId, limit = 1, excludeIds = []) {
+        // 1. Tenter de récupérer des questions non utilisées
+        let questions = await this.getRandomUnused(rubriqueId, limit, excludeIds);
+
+        // 2. Si aucune question n'est trouvée, réinitialiser la rubrique et réessayer
+        if (questions.length === 0) {
+            console.log(`♻️ Épuisement des questions pour la rubrique ${rubriqueId}. Réinitialisation automatique...`);
+            // On réinitialise, mais on garde 'utilise = true' pour les questions déjà posées dans CETTE session (excludeIds)
+            await this.resetUsage(rubriqueId, excludeIds);
+            questions = await this.getRandomUnused(rubriqueId, limit, excludeIds);
+        }
+
+        return questions;
     }
 }
 

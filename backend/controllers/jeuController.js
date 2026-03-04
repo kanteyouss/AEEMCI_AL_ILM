@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const QuestionModel = require('../models/questionModel');
 
 /**
  * Démarrer une session de jeu pour une manche
@@ -83,40 +84,20 @@ const genererQuestion = async (req, res, next) => {
 
         const idsUtilises = questionsUtilisees.rows.map(r => r.question_id);
 
-        // Récupérer une question aléatoire non utilisée
-        let query = `
-            SELECT q.*, r.temps_par_question, r.nom as rubrique_nom
-            FROM questions q
-            JOIN rubriques r ON q.rubrique_id = r.id
-            WHERE q.rubrique_id = $1
-            AND q.utilise = false
-        `;
+        // Récupérer une question aléatoire (avec réinitialisation automatique si besoin)
+        const questions = await QuestionModel.getRandomWithAutoReset(rubrique_id, 1, idsUtilises);
 
-        const params = [rubrique_id];
-
-        if (idsUtilises.length > 0) {
-            params.push(idsUtilises);
-            query += ` AND q.id NOT IN (SELECT unnest($${params.length}::int[]))`;
-        }
-
-        query += ` ORDER BY RANDOM() LIMIT 1`;
-
-        const result = await db.query(query, params);
-
-        if (result.rows.length === 0) {
+        if (questions.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Aucune question disponible pour cette rubrique'
             });
         }
 
-        const question = result.rows[0];
+        const question = questions[0];
 
         // Marquer la question comme utilisée
-        await db.query(
-            `UPDATE questions SET utilise = true WHERE id = $1`,
-            [question.id]
-        );
+        await QuestionModel.markAsUsed(question.id);
 
         // Ne pas renvoyer la réponse correcte au frontend (sécurité)
         const questionPourJury = {
@@ -386,40 +367,20 @@ const genererQuestionCommune = async (req, res, next) => {
 
         const idsUtilises = questionsUtilisees.rows.map(r => r.question_id);
 
-        // Récupérer une question aléatoire non utilisée
-        let query = `
-            SELECT q.*, r.temps_par_question, r.nom as rubrique_nom
-            FROM questions q
-            JOIN rubriques r ON q.rubrique_id = r.id
-            WHERE q.rubrique_id = $1
-            AND q.utilise = false
-        `;
+        // Récupérer une question aléatoire (avec réinitialisation automatique si besoin)
+        const questions = await QuestionModel.getRandomWithAutoReset(rubrique_id, 1, idsUtilises);
 
-        const params = [rubrique_id];
-
-        if (idsUtilises.length > 0) {
-            params.push(idsUtilises);
-            query += ` AND q.id NOT IN (SELECT unnest($${params.length}::int[]))`;
-        }
-
-        query += ` ORDER BY RANDOM() LIMIT 1`;
-
-        const result = await db.query(query, params);
-
-        if (result.rows.length === 0) {
+        if (questions.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Aucune question disponible pour cette rubrique'
             });
         }
 
-        const question = result.rows[0];
+        const question = questions[0];
 
         // Marquer la question comme utilisée
-        await db.query(
-            `UPDATE questions SET utilise = true WHERE id = $1`,
-            [question.id]
-        );
+        await QuestionModel.markAsUsed(question.id);
 
         const questionPublique = {
             id: question.id,

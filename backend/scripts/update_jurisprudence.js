@@ -124,15 +124,25 @@ async function updateQuestions() {
     try {
         await client.query('BEGIN');
 
-        console.log('🧹 Suppression des anciennes questions de Jurisprudence (id: 5)...');
-        await client.query('DELETE FROM questions WHERE rubrique_id = 5');
+        // Chercher l'ID de la rubrique "Jurisprudence" ou "Fiqh"
+        const rubriqueRes = await client.query("SELECT id FROM rubriques WHERE nom ILIKE 'Jurisprudence' OR nom ILIKE 'Fiqh' LIMIT 1");
 
-        console.log('📥 Insertion des 20 nouvelles questions...');
+        if (rubriqueRes.rows.length === 0) {
+            throw new Error("Rubrique 'Jurisprudence' non trouvée dans la base de données.");
+        }
+
+        const rubriqueId = rubriqueRes.rows[0].id;
+        console.log(`✅ Rubrique trouvée : ID ${rubriqueId}`);
+
+        console.log(`🧹 Suppression des anciennes questions de Jurisprudence (id: ${rubriqueId})...`);
+        await client.query('DELETE FROM questions WHERE rubrique_id = $1', [rubriqueId]);
+
+        console.log(`📥 Insertion des ${newQuestions.length} nouvelles questions...`);
         for (const q of newQuestions) {
             await client.query(`
                 INSERT INTO questions (rubrique_id, question_texte, reponse_correcte, type, difficulte, points)
-                VALUES (5, $1, $2, 'texte_libre', $3, 25)
-            `, [q.texte, q.reponse, q.difficulte]);
+                VALUES ($1, $2, $3, 'texte_libre', $4, 25)
+            `, [rubriqueId, q.texte, q.reponse, q.difficulte]);
             console.log(`✅ Ajouté : ${q.texte.substring(0, 50)}...`);
         }
 
