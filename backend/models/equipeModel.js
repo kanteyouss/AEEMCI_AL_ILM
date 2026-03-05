@@ -17,7 +17,7 @@ class EquipeModel {
             GROUP BY e.id
             ORDER BY e.nom
         `;
-        
+
         const result = await db.query(query);
         return result.rows;
     }
@@ -29,13 +29,13 @@ class EquipeModel {
         // Infos équipe
         const equipeQuery = 'SELECT * FROM equipes WHERE id = $1';
         const equipeResult = await db.query(equipeQuery, [id]);
-        
+
         if (equipeResult.rows.length === 0) {
             return null;
         }
-        
+
         const equipe = equipeResult.rows[0];
-        
+
         // Membres avec rôles
         const membresQuery = `
             SELECT 
@@ -56,9 +56,9 @@ class EquipeModel {
             WHERE me.equipe_id = $1
             ORDER BY me.est_capitaine DESC, p.nom
         `;
-        
+
         const membresResult = await db.query(membresQuery, [id]);
-        
+
         return {
             ...equipe,
             membres: membresResult.rows
@@ -83,7 +83,7 @@ class EquipeModel {
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
         `;
-        
+
         const values = [
             data.nom,
             data.signification,
@@ -91,7 +91,7 @@ class EquipeModel {
             data.symbole,
             data.code_acces
         ];
-        
+
         const result = await db.query(query, values);
         return result.rows[0];
     }
@@ -105,7 +105,7 @@ class EquipeModel {
             VALUES ($1, $2, $3)
             RETURNING *
         `;
-        
+
         const result = await db.query(query, [equipeId, participantId, estCapitaine]);
         return result.rows[0];
     }
@@ -119,7 +119,7 @@ class EquipeModel {
             WHERE equipe_id = $1 AND participant_id = $2
             RETURNING *
         `;
-        
+
         const result = await db.query(query, [equipeId, participantId]);
         return result.rows[0];
     }
@@ -133,7 +133,7 @@ class EquipeModel {
             'UPDATE membres_equipe SET est_capitaine = false WHERE equipe_id = $1',
             [equipeId]
         );
-        
+
         // Définir le nouveau capitaine
         const query = `
             UPDATE membres_equipe 
@@ -141,7 +141,7 @@ class EquipeModel {
             WHERE equipe_id = $1 AND participant_id = $2
             RETURNING *
         `;
-        
+
         const result = await db.query(query, [equipeId, participantId]);
         return result.rows[0];
     }
@@ -160,7 +160,7 @@ class EquipeModel {
             WHERE equipe_id = $5 AND participant_id = $6
             RETURNING *
         `;
-        
+
         const values = [
             roles.role_adhan || false,
             roles.role_coran_ouvert || false,
@@ -169,7 +169,7 @@ class EquipeModel {
             equipeId,
             participantId
         ];
-        
+
         const result = await db.query(query, values);
         return result.rows[0];
     }
@@ -184,7 +184,7 @@ class EquipeModel {
             JOIN membres_equipe me ON p.id = me.participant_id
             WHERE me.equipe_id = $1 AND me.est_capitaine = true
         `;
-        
+
         const result = await db.query(query, [equipeId]);
         return result.rows[0];
     }

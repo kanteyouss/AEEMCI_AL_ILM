@@ -210,8 +210,26 @@ async function loadEquipeDetails() {
             equipeData = result.data.find(eq => eq.nom === equipeNom);
         }
 
+        // Charger la configuration pour vérifier l'élimination
+        const configRes = await fetch('/api/classement-config');
+        const configData = await configRes.json();
+        let isEliminee = false;
+
+        if (configData.success && configData.data) {
+            const configObj = configData.data;
+
+            if (configObj.equipes_eliminees) {
+                try {
+                    const eliminees = JSON.parse(configObj.equipes_eliminees);
+                    isEliminee = eliminees.includes(equipeNom);
+                } catch (e) {
+                    console.error('Erreur parse equipes_eliminees:', e);
+                }
+            }
+        }
+
         // Afficher le header
-        displayEquipeHeader(equipeNom, equipeInfo, equipeData);
+        displayEquipeHeader(equipeNom, equipeInfo, equipeData, isEliminee);
 
         // Afficher le verset
         displayEquipeVerset(equipeInfo);
@@ -236,14 +254,19 @@ async function loadEquipeDetails() {
 /**
  * Afficher le header de l'équipe
  */
-function displayEquipeHeader(nom, info, data) {
+function displayEquipeHeader(nom, info, data, isEliminee = false) {
     const header = document.getElementById('equipeHeader');
     header.style.setProperty('--team-color', info.couleur);
+
+    if (isEliminee) {
+        header.classList.add('is-eliminee');
+    }
 
     const nbMembres = data ? data.nb_membres : 0;
     const statut = data && nbMembres > 0 ? 'Constituée' : 'En formation';
 
     header.innerHTML = `
+        ${isEliminee ? '<div class="eliminee-badge-large">ÉLIMINÉ</div>' : ''}
         <div class="equipe-header-content">
             <div class="equipe-symbole-large">${info.symbole}</div>
             <div class="equipe-header-info">

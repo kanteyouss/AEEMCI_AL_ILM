@@ -110,7 +110,7 @@ nano .env
 DB_USER=alilm
 DB_HOST=localhost
 DB_NAME=alilm2026
-DB_PASSWORD=votreMotDePasse2026    # ⚠️ METTEZ VOTRE MOT DE PASSE ICI
+DB_PASSWORD=votreDePasse2026    # ⚠️ METTEZ VOTRE MOT DE PASSE ICI
 DB_PORT=5432
 
 # ============================================

@@ -76,6 +76,7 @@ async function loadAllData() {
 
         // Afficher les données
         displayEtapes();
+        await renderEliminationGrid();
 
         showNotification('✅ Données chargées', 'success');
 
@@ -536,6 +537,9 @@ async function chargerConfiguration() {
         const response = await apiRequest('/classement-config');
         const config = response.data;
 
+        // Stocker la config pour usage ultérieur
+        window.currentConfig = config;
+
         // Remplir les champs avec les valeurs actuelles
         document.getElementById('configAfficherPodium').checked = config.afficher_podium || false;
         document.getElementById('configAfficherStatistiques').checked = config.afficher_statistiques || false;
@@ -613,7 +617,10 @@ async function sauvegarderConfiguration() {
             afficher_nav_calendrier: document.getElementById('configAfficherNavCalendrier').checked,
             afficher_nav_classement: document.getElementById('configAfficherNavClassement').checked,
             afficher_nav_inscription: document.getElementById('configAfficherNavInscription').checked,
-            afficher_nav_connexion: document.getElementById('configAfficherNavConnexion').checked
+            afficher_nav_connexion: document.getElementById('configAfficherNavConnexion').checked,
+
+            // Éliminations
+            equipes_eliminees: JSON.stringify(Array.from(document.querySelectorAll('.elimination-checkbox:checked')).map(cb => cb.value))
         };
 
         // Envoyer au serveur
@@ -631,5 +638,55 @@ async function sauvegarderConfiguration() {
     } catch (error) {
         console.error('❌ Erreur sauvegarde configuration:', error);
         showNotification('❌ Erreur lors de la sauvegarde: ' + error.message, 'error');
+    }
+}
+
+// ============================================
+// GESTION DES ÉLIMINATIONS
+// ============================================
+
+async function renderEliminationGrid() {
+    const grid = document.getElementById('eliminationGrid');
+    if (!grid) return;
+
+    try {
+        // Charger les équipes
+        const response = await apiRequest('/equipes');
+        const equipes = response.data || [];
+
+        // Récupérer les éliminées depuis la config chargée
+        let eliminees = [];
+        try {
+            eliminees = JSON.parse(window.currentConfig.equipes_eliminees || '[]');
+        } catch (e) {
+            console.error('Erreur parse equipes_eliminees:', e);
+            eliminees = [];
+        }
+
+        if (equipes.length === 0) {
+            grid.innerHTML = '<p style="color: #94a3b8;">Aucune équipe trouvée.</p>';
+            return;
+        }
+
+        grid.innerHTML = equipes.map(eq => {
+            const isEliminated = eliminees.includes(eq.nom);
+            return `
+                <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: ${isEliminated ? '#fff1f2' : 'white'};" class="elimination-item">
+                    <input type="checkbox" 
+                           class="elimination-checkbox" 
+                           value="${eq.nom}" 
+                           ${isEliminated ? 'checked' : ''}
+                           onchange="this.parentElement.style.background = this.checked ? '#fff1f2' : 'white'; this.parentElement.querySelector('span').style.color = this.checked ? '#be123c' : '#1e293b'">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-weight: 600; color: ${isEliminated ? '#be123c' : '#1e293b'}; transition: color 0.2s;">${eq.nom}</span>
+                        <span style="font-size: 0.75rem; color: #64748b;">${eq.signification || ''}</span>
+                    </div>
+                </label>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error('Erreur renderEliminationGrid:', error);
+        grid.innerHTML = '<p style="color: #ef4444;">Erreur lors du chargement des équipes.</p>';
     }
 }

@@ -405,6 +405,14 @@ async function loadEquipes() {
         const allEquipesRes = await fetch('/api/equipes');
         const allEquipesResult = await allEquipesRes.json();
 
+        // 1b. Charger la config pour les éliminations
+        const configRes = await fetch('/api/classement-config');
+        const configData = await configRes.json();
+        let eliminees = [];
+        try {
+            eliminees = JSON.parse(configData.data.equipes_eliminees || '[]');
+        } catch (e) { console.error('Erreur parse eliminees:', e); }
+
         if (!allEquipesResult.success) {
             throw new Error('Impossible de charger la liste des équipes');
         }
@@ -443,13 +451,14 @@ async function loadEquipes() {
 
                 return `
                 <a href="/public/equipe-details.html?equipe=${encodeURIComponent(equipe.nom)}" 
-                   class="equipe-card" 
+                   class="equipe-card ${eliminees.includes(equipe.nom) ? 'is-eliminee' : ''}" 
                    style="--team-color: ${equipe.couleur};">
                     <div class="equipe-logo">
                         <img src="/assets/images/equipes/${equipe.nom.toLowerCase().replace('-', '_')}.png" 
                              alt="Logo ${equipe.nom}" 
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                         <div class="equipe-symbole" style="color: ${equipe.couleur}; display:none;">${equipe.symbole}</div>
+                        ${eliminees.includes(equipe.nom) ? '<div class="eliminee-badge">ÉLIMINÉ</div>' : ''}
                     </div>
                     <h3>${equipe.nom}</h3>
                     <p class="signification">${equipe.signification}</p>

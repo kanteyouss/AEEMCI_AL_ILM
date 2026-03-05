@@ -798,6 +798,50 @@
     margin-bottom: 0.5rem;
 }
 
+/* Éliminations */
+.equipe-card.is-eliminee {
+    filter: grayscale(0.8);
+    opacity: 0.8;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+}
+
+.equipe-card.is-eliminee:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.eliminee-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 900;
+    border: 4px double white;
+    border-radius: 4px;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: stampIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+}
+
+@keyframes stampIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(-15deg) scale(2);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(-15deg) scale(1);
+    }
+}
+
 .equipe-link {
     margin-top: 1rem;
     padding-top: 1rem;
