@@ -6,7 +6,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const poolConfig = process.env.DATABASE_URL
     ? {
         connectionString: process.env.DATABASE_URL,
-        ssl: isProduction ? { rejectUnauthorized: false } : false
+        ssl: { rejectUnauthorized: false } // Requis pour Neon.tech et Render
     }
     : {
         user: process.env.DB_USER || 'postgres',
