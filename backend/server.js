@@ -22,8 +22,30 @@ const jeuRoutes = require('./routes/jeu');
 // Import du middleware d'erreur
 const errorHandler = require('./middleware/errorHandler');
 
+const db = require('./config/database');
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ============================================
+// INITIALISATION CONFIGURATION (ÉLIMINATIONS)
+// ============================================
+(async () => {
+    try {
+        await db.query(`
+            INSERT INTO classement_config (cle, valeur, type, description)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (cle) DO NOTHING
+        `, [
+            'equipes_eliminees',
+            '[]',
+            'string',
+            'Liste des noms d\'équipes éliminées (Format JSON array)'
+        ]);
+        console.log(`✅ Config equipes_eliminees vérifiée/ajoutée`);
+    } catch (e) {
+        console.error(`❌ Erreur init config:`, e);
+    }
+})();
 
 // ============================================
 // CRÉATION AUTOMATIQUE DES DOSSIERS D'UPLOAD
