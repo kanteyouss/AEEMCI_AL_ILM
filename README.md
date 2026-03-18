@@ -476,3 +476,10 @@ Value : ramadan2026-aeemci-esatic (Vous pouvez mettre n'importe quelle phrase se
 Variable 4 : FRONTEND_URL
 Key : FRONTEND_URL
 Value : * (Pour l'instant, on autorise toutes les origines. On affinera plus tard)
+
+
+
+
+
+DATABASE_URL   DE RENDER   
+postgresql://alilm_db_user:hMC1CSOEv5QZ67NbJ6Sk4b76iZFRBMdf@dpg-d669dknpm1nc73b6opog-a.oregon-postgres.render.com/alilm_db

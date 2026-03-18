@@ -10,7 +10,7 @@
 ## Étape 1 : Installation des dépendances
 
 ```bash
-cd /home/kant_dev/KANTDEV/PROJET\ PERSO/COUCOURALILM/alilm2026/backend
+cd /home/backend
 npm install
 ```
 

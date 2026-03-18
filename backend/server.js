@@ -41,7 +41,30 @@ const PORT = process.env.PORT || 3000;
             'string',
             'Liste des noms d\'équipes éliminées (Format JSON array)'
         ]);
-        console.log(`✅ Config equipes_eliminees vérifiée/ajoutée`);
+
+        await db.query(`
+            INSERT INTO classement_config (cle, valeur, type, description)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (cle) DO NOTHING
+        `, [
+            'fin_ramadan',
+            'false',
+            'boolean',
+            'Activer le mode fin de Ramadan (Clôture & Podium)'
+        ]);
+
+        await db.query(`
+            INSERT INTO classement_config (cle, valeur, type, description)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (cle) DO NOTHING
+        `, [
+            'afficher_podium_accueil',
+            'false',
+            'boolean',
+            'Afficher le podium de la finale sur l\'accueil public'
+        ]);
+
+        console.log(`✅ Configuration de base vérifiée/ajoutée`);
     } catch (e) {
         console.error(`❌ Erreur init config:`, e);
     }

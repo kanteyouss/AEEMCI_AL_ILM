@@ -3,13 +3,196 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-    initTypewriterEffect();
     initVersetsRotation();
-    initCountdown();
+    await initAccueil();
     await loadEquipes();
     initRubriquesModal();
     initHeroAnimation();
 });
+
+/**
+ * Initialiser la page d'accueil en fonction de la configuration admin
+ */
+async function initAccueil() {
+    try {
+        const configRes = await fetch('/api/classement-config');
+        const configData = await configRes.json();
+        let config = {};
+
+        if (configData.success && configData.data) {
+            config = configData.data;
+        }
+
+        const isFinRamadanActive = config.fin_ramadan === true || config.fin_ramadan === 'true';
+        console.log('🕌 [CONFIG] Mode Fin Ramadan:', isFinRamadanActive, config.fin_ramadan);
+
+        if (isFinRamadanActive) {
+            // Mode Clôture / Résultats
+            const wisdomSection = document.getElementById('wisdomSection');
+            const ramadanSection = document.getElementById('ramadanCountdownSection');
+            const podiumSection = document.getElementById('podiumSection');
+            const heroTitle = document.getElementById('heroTitle');
+            const heroSubtitle = document.getElementById('heroSubtitle');
+            const ctaActive = document.getElementById('ctaSectionActive');
+            const ctaClosed = document.getElementById('ctaSectionClosed');
+
+            if (wisdomSection) wisdomSection.style.display = 'none';
+            if (ramadanSection) ramadanSection.style.display = 'none';
+            if (podiumSection) podiumSection.style.display = 'block';
+
+            if (heroTitle) {
+                // S'assurer que le contenu est correct avant de relancer l'effet
+                heroTitle.textContent = "Clôture de l'Édition 2026 - AL ILM";
+                initTypewriterEffect();
+            }
+            if (heroSubtitle) {
+                heroSubtitle.textContent = "Merci à tous les participants. Retrouvez le classement de la Finale ci-dessous ";
+                heroSubtitle.style.animation = 'none';
+                heroSubtitle.offsetHeight; // force reflow
+                heroSubtitle.style.animation = 'fadeInUp 0.8s ease 0.2s both';
+            }
+
+            if (ctaActive) ctaActive.style.display = 'none';
+            if (ctaClosed) ctaClosed.style.display = 'block';
+
+            if (config.afficher_podium === true || config.afficher_podium === 'true') {
+                await loadPodiumFinale();
+            } else {
+                if (podiumSection) podiumSection.style.display = 'none';
+            }
+        } else {
+            // Mode Normal (Pendant Ramadan) => Revenir à l'état initial
+            const wisdomSection = document.getElementById('wisdomSection');
+            const ramadanSection = document.getElementById('ramadanCountdownSection');
+            const podiumSection = document.getElementById('podiumSection');
+            const heroTitle = document.getElementById('heroTitle');
+            const heroSubtitle = document.getElementById('heroSubtitle');
+            const ctaActive = document.getElementById('ctaSectionActive');
+            const ctaClosed = document.getElementById('ctaSectionClosed');
+
+            if (wisdomSection) wisdomSection.style.display = 'block';
+            if (ramadanSection) ramadanSection.style.display = 'block';
+            if (podiumSection) podiumSection.style.display = 'none';
+
+            if (heroTitle) {
+                heroTitle.textContent = "Marhaba au Jeu Concours AL ILM - Édition 2026";
+                initTypewriterEffect();
+            }
+            if (heroSubtitle) {
+                heroSubtitle.textContent = "Concours de connaissances islamiques organisé par l'AEEMCI - Section ESATIC";
+                heroSubtitle.style.animation = 'fadeInUp 0.8s ease 0.2s both';
+            }
+
+            if (ctaActive) ctaActive.style.display = 'block';
+            if (ctaClosed) ctaClosed.style.display = 'none';
+
+            initCountdown();
+        }
+    } catch (error) {
+        console.error('Erreur initialisation accueil:', error);
+        initCountdown(); // Fallback
+    }
+}
+
+/**
+ * Charger et afficher le podium de la Finale
+ */
+async function loadPodiumFinale() {
+    try {
+        let res = await fetch('/api/classement/etape/finale');
+        let data = await res.json();
+
+        // Si pas de données pour la finale, tenter le classement général
+        if (!data.success || !data.classement || data.classement.length === 0) {
+            console.log('🏆 [INFO] Pas de résultats pour la Finale, basculement sur le Classement Général.');
+            res = await fetch('/api/classement/general');
+            data = await res.json();
+        }
+
+        if (data.success && data.classement && data.classement.length > 0) {
+            const podiumContainer = document.getElementById('podiumContainer');
+            if (!podiumContainer) return;
+
+            const top3 = data.classement.slice(0, 3);
+
+            const displayOrder = [];
+            if (top3.length > 1) displayOrder.push({ ...top3[1], pos: 2 });
+            if (top3.length > 0) displayOrder.push({ ...top3[0], pos: 1 });
+            if (top3.length > 2) displayOrder.push({ ...top3[2], pos: 3 });
+
+            const html = displayOrder.map(team => {
+                const score = parseFloat(team.score_total || 0).toFixed(1);
+                const medalIcon = team.pos === 1 ? '🥇' : team.pos === 2 ? '🥈' : '🥉';
+                const posClass = team.pos === 1 ? 'podium-first spotlight-winner' : team.pos === 2 ? 'podium-second' : 'podium-third';
+
+                return `
+                    <div class="podium-step-wrapper ${posClass}" style="--team-color: ${team.couleur || '#D4AF37'};">
+                        <div class="podium-medal">${medalIcon}</div>
+                        <div class="podium-team-logo">
+                            <img src="/assets/images/equipes/${team.nom_equipe.toLowerCase().replace('-', '_')}.png" 
+                                 alt="Logo ${team.nom_equipe}"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="equipe-symbole" style="display:none; color: ${team.couleur}; font-size: 2.5rem; justify-content: center; align-items: center; border-radius: 50%; width: 100%; height: 100%; background: #f8fafc;">${team.symbole || '🏴'}</div>
+                        </div>
+                        <div class="podium-box">
+                            ${team.pos === 1 ? '<div class="champion-badge">Grand Vainqueur</div>' : ''}
+                            <div class="podium-rank">#${team.pos}</div>
+                            <h3 class="podium-name">${team.nom_equipe}</h3>
+                            <div class="podium-score">${score} pts</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            podiumContainer.innerHTML = html;
+
+            // Déclencher les confettis quand la section est visible
+            const podiumSection = document.getElementById('podiumSection');
+            if (podiumSection && typeof confetti === 'function') {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !podiumSection.dataset.confettiFired) {
+                            triggerVictoryConfetti();
+                            podiumSection.dataset.confettiFired = 'true';
+                        }
+                    });
+                }, { threshold: 0.5 });
+                observer.observe(podiumSection);
+            }
+        }
+    } catch (e) {
+        console.error('Erreur chargement podium:', e);
+    }
+}
+
+/**
+ * Déclenche une pluie de confettis dorés
+ */
+function triggerVictoryConfetti() {
+    const end = Date.now() + (3 * 1000);
+    const colors = ['#D4AF37', '#FFD700', '#ffffff', '#2C5F2D'];
+
+    (function frame() {
+        confetti({
+            particleCount: 3,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: colors
+        });
+        confetti({
+            particleCount: 3,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: colors
+        });
+
+        if (Date.now() < end) {
+            requestAnimationFrame(frame);
+        }
+    }());
+}
 
 /**
  * Initialiser l'animation Three.js dans le hero
@@ -130,11 +313,16 @@ function initTypewriterEffect() {
 
     let index = 0;
 
+    // Nettoyer toute animation précédente pour éviter les doublons
+    if (heroTitle._typewriterTimeout) {
+        clearTimeout(heroTitle._typewriterTimeout);
+    }
+
     function typeWriter() {
         if (index < text.length) {
             heroTitle.textContent += text.charAt(index);
             index++;
-            setTimeout(typeWriter, 80); // 80ms entre chaque lettre
+            heroTitle._typewriterTimeout = setTimeout(typeWriter, 80); // 80ms entre chaque lettre
         }
     }
 
@@ -266,7 +454,7 @@ function initCountdown() {
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                const countdownID = `${days}-${hours}-${minutes}-${seconds}`;
+                const countdownID = `${days} -${hours} -${minutes} -${seconds} `;
                 if (tracker.getAttribute('data-last-countdown') === countdownID) return;
                 tracker.setAttribute('data-last-countdown', countdownID);
 
@@ -289,8 +477,8 @@ function initCountdown() {
                             <span class="countdown-label">Sec</span>
                         </div>
                     </div>
-                    <p style="margin-top: 1.5rem; opacity: 0.8; font-style: italic; font-family: 'Outfit', sans-serif;">Préparez vos cœurs pour le mois sacré...</p>
-                `;
+                <p style="margin-top: 1.5rem; opacity: 0.8; font-style: italic; font-family: 'Outfit', sans-serif;">Préparez vos cœurs pour le mois sacré...</p>
+            `;
             } else {
                 // Pendant Ramadan : Affichage Tracker de Progression
                 if (sectionTitle) sectionTitle.textContent = "Suivi de votre mois Béni";
@@ -444,15 +632,15 @@ async function loadEquipes() {
                 const hasMembers = validated && validated.nb_membres > 0;
                 const isValidated = !!validated; // A un code d'accès
 
-                console.log(`\n🏆 ${equipe.nom}:`);
-                console.log(`   Validée:`, isValidated);
-                console.log(`   Membres:`, validated ? validated.nb_membres : 0);
-                console.log(`   A des membres:`, hasMembers);
+                console.log(`\n🏆 ${equipe.nom}: `);
+                console.log(`   Validée: `, isValidated);
+                console.log(`   Membres: `, validated ? validated.nb_membres : 0);
+                console.log(`   A des membres: `, hasMembers);
 
                 return `
-                <a href="/public/equipe-details.html?equipe=${encodeURIComponent(equipe.nom)}" 
-                   class="equipe-card ${eliminees.includes(equipe.nom) ? 'is-eliminee' : ''}" 
-                   style="--team-color: ${equipe.couleur};">
+                <a href="/public/equipe-details.html?equipe=${encodeURIComponent(equipe.nom)}"
+            class="equipe-card ${eliminees.includes(equipe.nom) ? 'is-eliminee' : ''}"
+            style="--team-color: ${equipe.couleur};">
                     <div class="equipe-logo">
                         <img src="/assets/images/equipes/${equipe.nom.toLowerCase().replace('-', '_')}.png" 
                              alt="Logo ${equipe.nom}" 
@@ -485,7 +673,7 @@ async function loadEquipes() {
                         Voir les détails <span>→</span>
                     </div>
                 </a>
-            `;
+                `;
             }).join('');
 
             console.log('✅ Affichage mis à jour');
@@ -494,9 +682,9 @@ async function loadEquipes() {
             // Si la requête de statut échoue, afficher les équipes sans statut
             console.warn('⚠️ Impossible de charger le statut des équipes. Affichage sans statut.');
             equipesGrid.innerHTML = equipesData.map(equipe => `
-                <a href="/public/equipe-details.html?equipe=${encodeURIComponent(equipe.nom)}" 
-                   class="equipe-card" 
-                   style="--team-color: ${equipe.couleur};">
+                <a href="/public/equipe-details.html?equipe=${encodeURIComponent(equipe.nom)}"
+            class="equipe-card"
+            style="--team-color: ${equipe.couleur};">
                     <div class="equipe-logo">
                         <img src="/assets/images/equipes/${equipe.nom.toLowerCase().replace('-', '_')}.png" 
                              alt="Logo ${equipe.nom}" 
@@ -509,7 +697,7 @@ async function loadEquipes() {
                         Voir les détails <span>→</span>
                     </div>
                 </a>
-            `).join('');
+                `).join('');
             console.log('✅ Affichage mis à jour (sans statut)');
             console.log('=== FIN CHARGEMENT ===\n');
         }
@@ -527,9 +715,9 @@ async function loadEquipes() {
         // Une meilleure gestion serait de définir equipesData comme [] initialement.
         const equipesDataFallback = typeof equipesData !== 'undefined' ? equipesData : [];
         equipesGrid.innerHTML = equipesDataFallback.map(equipe => `
-            <a href="/public/equipe-details.html?equipe=${encodeURIComponent(equipe.nom)}" 
-               class="equipe-card" 
-               style="border-left: 5px solid ${equipe.couleur}; text-decoration: none; color: inherit;">
+                <a href="/public/equipe-details.html?equipe=${encodeURIComponent(equipe.nom)}"
+            class="equipe-card"
+            style = "border-left: 5px solid ${equipe.couleur}; text-decoration: none; color: inherit;" >
                 <div class="equipe-logo">
                     <img src="/assets/images/equipes/${equipe.nom.toLowerCase().replace('-', '_')}.png" 
                          alt="Logo ${equipe.nom}" 
@@ -541,8 +729,8 @@ async function loadEquipes() {
                 <div class="equipe-link">
                     Voir les details →
                 </div>
-            </a>
-        `).join('');
+            </a >
+                `).join('');
     }
 }
 
@@ -564,7 +752,7 @@ function initRubriquesModal() {
             points: 15,
             couleur: '#fffbf0',
             contenu: `
-                <div class="rubrique-detail-container">
+                < div class="rubrique-detail-container" >
                     <h3>Description</h3>
                     <p>Cette épreuve consiste en une lecture psalmodiée du Saint Coran, effectuée directement depuis le Mushaf (support physique).</p>
                     
@@ -579,15 +767,15 @@ function initRubriquesModal() {
                         <strong>Référentiel</strong>
                         L'épreuve porte sur le Juz Amma (Sourates 78 à 114).
                     </div>
-                </div>
-            `
+                </div >
+                `
         },
         'coran-ferme': {
             titre: 'Coran Fermé',
             points: 15,
             couleur: '#fffbf0',
             contenu: `
-                <div class="rubrique-detail-container">
+                < div class="rubrique-detail-container" >
                     <h3>Description</h3>
                     <p>Épreuve d'Excellence consistant en la récitation mémorisée du Saint Coran, sans consultation de support écrit.</p>
                     
@@ -602,15 +790,15 @@ function initRubriquesModal() {
                         <strong>Référentiel</strong>
                         L'épreuve porte sur les sourates allant de Al-A'la (87) à An-Nas (114).
                     </div>
-                </div>
-            `
+                </div >
+                `
         },
         'adhan': {
             titre: 'Adhan',
             points: 10,
             couleur: '#f0fdf4',
             contenu: `
-                <div class="rubrique-detail-container">
+                < div class="rubrique-detail-container" >
                     <h3>Description</h3>
                     <p>Performance vocale technique portant sur l'appel à la prière, alliant justesse mélodique et rigueur liturgique.</p>
                     
@@ -625,8 +813,8 @@ function initRubriquesModal() {
                         <strong>Contrainte Temporelle</strong>
                         Durée maximale autorisée : 3 minutes.
                     </div>
-                </div>
-            `
+                </div >
+                `
         },
 
         'jurisprudence': {
@@ -634,7 +822,7 @@ function initRubriquesModal() {
             points: 50,
             couleur: '#fdf2f2',
             contenu: `
-                <div class="rubrique-detail-container">
+                < div class="rubrique-detail-container" >
                     <h3>Description</h3>
                     <p>Évaluation théorique collective portant sur les fondements du droit islamique et les pratiques cultuelles.</p>
                     
@@ -649,15 +837,15 @@ function initRubriquesModal() {
                         <strong>Objectif</strong>
                         Valider la compréhension des règles régissant la vie du musulman.
                     </div>
-                </div>
-            `
+                </div >
+                `
         },
         'prophete': {
             titre: 'Vie du Prophète & Sîra',
             points: 300,
             couleur: '#faf5ff',
             contenu: `
-                <div class="rubrique-detail-container">
+                < div class="rubrique-detail-container" >
                     <h3>Description</h3>
                     <p>Grande épreuve QCM sur la biographie du Prophète ﷺ, de sa naissance à sa mort, ainsi que la vie des Compagnons.</p>
                     
@@ -672,15 +860,15 @@ function initRubriquesModal() {
                         <strong>Enjeu</strong>
                         Épreuve majeure déterminante pour le classement final.
                     </div>
-                </div>
-            `
+                </div >
+                `
         },
         'culture': {
             titre: 'Culture Générale Islamique',
             points: 100,
             couleur: '#f0fdfa',
             contenu: `
-                <div class="rubrique-detail-container">
+                < div class="rubrique-detail-container" >
                     <h3>Description</h3>
                     <p>Épreuve encyclopédique couvrant la diversité intellectuelle et civilisationnelle du monde musulman.</p>
                     
@@ -695,15 +883,15 @@ function initRubriquesModal() {
                         <strong>Conseil</strong>
                         Rubrique valorisant la curiosité intellectuelle et la culture transversale.
                     </div>
-                </div>
-            `
+                </div >
+                `
         },
         'relais': {
             titre: 'Questions Relais',
             points: 30,
             couleur: '#fefce8',
             contenu: `
-                <div class="rubrique-detail-container">
+                < div class="rubrique-detail-container" >
                     <h3>Description</h3>
                     <p>Épreuve de rapidité et d'endurance mentale sous forme de relais entre les membres de l'équipe.</p>
                     
@@ -718,15 +906,15 @@ function initRubriquesModal() {
                         <strong>Engagement Maximum</strong>
                         Rubrique exigeant une coordination parfaite et une réactivité optimale du groupe.
                     </div>
-                </div>
-            `
+                </div >
+                `
         },
         'hadith': {
             titre: 'Hadith',
             points: 20,
             couleur: '#fff1f2',
             contenu: `
-                <div class="rubrique-detail-container">
+                < div class="rubrique-detail-container" >
                     <h3>Description</h3>
                     <p>Épreuve de transmission orale portant sur les quarante Hadiths de l'Imam An-Nawawi.</p>
                     
@@ -741,8 +929,8 @@ function initRubriquesModal() {
                         <strong>Référence</strong>
                         Quarante Hadiths de l'An-Nawawi (Hadiths 1 à 10).
                     </div>
-                </div>
-            `
+                </div >
+                `
         }
     };
 
@@ -752,12 +940,12 @@ function initRubriquesModal() {
 
         if (rubrique) {
             modalBody.innerHTML = `
-                <div class="modal-header-accent" style="background: ${rubrique.couleur};">
+                < div class="modal-header-accent" style = "background: ${rubrique.couleur};" >
                     <h2>${rubrique.titre}</h2>
                     <div class="points-tag">
                         Points maximum : ${rubrique.points}
                     </div>
-                </div>
+                </div >
                 ${rubrique.contenu}
             `;
             modal.classList.add('show');

@@ -10,6 +10,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap"
         rel="stylesheet">
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 
 <body>
@@ -28,22 +30,41 @@
         </section>
 
         <!-- Compte à rebours Ramadan -->
-        <section class="countdown-section">
+        <section class="countdown-section" id="ramadanCountdownSection">
             <div class="container">
-                <h2>Compte à rebours jusqu'au Ramadan 2026</h2>
+                <h2 id="countdownTitle">Compte à rebours jusqu'au Ramadan 2026</h2>
                 <div id="ramadanTracker" class="ramadan-tracker">
                     <!-- Contenu du Tracker généré par JS (Jour X, Barre de progression, Phase) -->
                 </div>
             </div>
         </section>
-        </div>
+
+        <!-- Section Podium (affichée selon la configuration admin) -->
+        <section class="podium-section" id="podiumSection"
+            style="display: none; padding: 4rem 0; background: linear-gradient(135deg, white, #f7fafc);">
+            <div class="container">
+                <div class="podium-header" style="text-align: center; margin-bottom: 3rem;">
+                    <h2 style="color: #D4AF37; font-size: 2.5rem; margin-bottom: 0.5rem;">Tableau d'Honneur</h2>
+                    <p style="font-size: 1.2rem; opacity: 0.8; color: #4a5568;">Félicitations aux vainqueurs de la
+                        Grande Finale 2026</p>
+                </div>
+                <div id="podiumContainer" class="podium-container">
+                    <!-- Podium dynamique chargé par JS -->
+                </div>
+                <div style="text-align: center; margin-top: 3rem;">
+                    <a href="/public/classement.html" class="btn-large"
+                        style="background: var(--primary-color); color: white; border: 2px solid #D4AF37;">Découvrir le
+                        classement complet</a>
+                </div>
+            </div>
         </section>
 
         <section class="hero">
             <canvas id="heroCanvas" class="hero-canvas"></canvas>
             <div class="container">
                 <h2 id="heroTitle" class="hero-title">Marhaba au Jeu Concours AL ILM - Édition 2026</h2>
-                <p class="subtitle">Concours de connaissances islamiques organisé par l'AEEMCI - Section ESATIC</p>
+                <p id="heroSubtitle" class="subtitle">Concours de connaissances islamiques organisé par l'AEEMCI -
+                    Section ESATIC</p>
                 <div class="hero-stats">
                     <div class="stat-card">
                         <h3>8</h3>
@@ -152,11 +173,21 @@
             </div>
         </section>
 
-        <section class="cta">
+        <section class="cta" id="ctaSectionActive">
             <div class="container">
                 <h2>Rejoignez l'aventure !</h2>
                 <p>Inscrivez-vous dès maintenant pour participer au Jeu Concours AL ILM 2026</p>
                 <a href="/public/inscription.html" class="btn-large">S'inscrire maintenant</a>
+            </div>
+        </section>
+
+        <section class="cta" id="ctaSectionClosed"
+            style="display: none; background: linear-gradient(135deg, #1d4e1f 0%, var(--primary-color) 100%);">
+            <div class="container">
+                <h2>Merci pour votre participation !</h2>
+                <p>L'édition 2026 du Jeu Concours AL ILM est désormais terminée. Qu'Allah accepte nos bonnes œuvres.</p>
+                <a href="/public/classement.html" class="btn-large"
+                    style="background: white; color: var(--primary-color);">Voir les résultats finaux</a>
             </div>
         </section>
     </main>

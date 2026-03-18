@@ -278,11 +278,6 @@ async function createAdmin() {
          VALUES ($1, $2, $3, $4, $5) RETURNING *`,
         ['Admin', 'AL ILM', 'admin@alilm.ci', hashedPassword, 'admin']
     );
-    
-    console.log('✅ Admin créé avec succès !');
-    console.log('📧 Email: admin@alilm.ci');
-    console.log('🔑 Mot de passe: Admin2026!');
-    
     await pool.end();
 }
 

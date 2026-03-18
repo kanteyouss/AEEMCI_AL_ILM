@@ -542,6 +542,9 @@ async function chargerConfiguration() {
 
         // Remplir les champs avec les valeurs actuelles
         document.getElementById('configAfficherPodium').checked = config.afficher_podium || false;
+        if (document.getElementById('configFinRamadan')) {
+            document.getElementById('configFinRamadan').checked = config.fin_ramadan || false;
+        }
         document.getElementById('configAfficherStatistiques').checked = config.afficher_statistiques || false;
         document.getElementById('configAfficherFiltres').checked = config.afficher_filtres || false;
         document.getElementById('configAfficherClassementComplet').checked = config.afficher_classement_complet || false;
@@ -594,6 +597,7 @@ async function sauvegarderConfiguration() {
         // Récupérer les valeurs des champs
         const config = {
             afficher_podium: document.getElementById('configAfficherPodium').checked,
+            fin_ramadan: document.getElementById('configFinRamadan') ? document.getElementById('configFinRamadan').checked : false,
             afficher_statistiques: document.getElementById('configAfficherStatistiques').checked,
             afficher_filtres: document.getElementById('configAfficherFiltres').checked,
             afficher_classement_complet: document.getElementById('configAfficherClassementComplet').checked,
