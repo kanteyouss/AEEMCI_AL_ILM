@@ -752,7 +752,7 @@ function initRubriquesModal() {
             points: 15,
             couleur: '#fffbf0',
             contenu: `
-                < div class="rubrique-detail-container" >
+                <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Cette épreuve consiste en une lecture psalmodiée du Saint Coran, effectuée directement depuis le Mushaf (support physique).</p>
                     
@@ -767,7 +767,7 @@ function initRubriquesModal() {
                         <strong>Référentiel</strong>
                         L'épreuve porte sur le Juz Amma (Sourates 78 à 114).
                     </div>
-                </div >
+                </div>
                 `
         },
         'coran-ferme': {
@@ -775,7 +775,7 @@ function initRubriquesModal() {
             points: 15,
             couleur: '#fffbf0',
             contenu: `
-                < div class="rubrique-detail-container" >
+                <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve d'Excellence consistant en la récitation mémorisée du Saint Coran, sans consultation de support écrit.</p>
                     
@@ -790,7 +790,7 @@ function initRubriquesModal() {
                         <strong>Référentiel</strong>
                         L'épreuve porte sur les sourates allant de Al-A'la (87) à An-Nas (114).
                     </div>
-                </div >
+                </div>
                 `
         },
         'adhan': {
@@ -798,7 +798,7 @@ function initRubriquesModal() {
             points: 10,
             couleur: '#f0fdf4',
             contenu: `
-                < div class="rubrique-detail-container" >
+                <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Performance vocale technique portant sur l'appel à la prière, alliant justesse mélodique et rigueur liturgique.</p>
                     
@@ -813,7 +813,7 @@ function initRubriquesModal() {
                         <strong>Contrainte Temporelle</strong>
                         Durée maximale autorisée : 3 minutes.
                     </div>
-                </div >
+                </div>
                 `
         },
 
@@ -822,7 +822,7 @@ function initRubriquesModal() {
             points: 50,
             couleur: '#fdf2f2',
             contenu: `
-                < div class="rubrique-detail-container" >
+                <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Évaluation théorique collective portant sur les fondements du droit islamique et les pratiques cultuelles.</p>
                     
@@ -837,7 +837,7 @@ function initRubriquesModal() {
                         <strong>Objectif</strong>
                         Valider la compréhension des règles régissant la vie du musulman.
                     </div>
-                </div >
+                </div>
                 `
         },
         'prophete': {
@@ -845,7 +845,7 @@ function initRubriquesModal() {
             points: 300,
             couleur: '#faf5ff',
             contenu: `
-                < div class="rubrique-detail-container" >
+                <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Grande épreuve QCM sur la biographie du Prophète ﷺ, de sa naissance à sa mort, ainsi que la vie des Compagnons.</p>
                     
@@ -860,7 +860,7 @@ function initRubriquesModal() {
                         <strong>Enjeu</strong>
                         Épreuve majeure déterminante pour le classement final.
                     </div>
-                </div >
+                </div>
                 `
         },
         'culture': {
@@ -868,7 +868,7 @@ function initRubriquesModal() {
             points: 100,
             couleur: '#f0fdfa',
             contenu: `
-                < div class="rubrique-detail-container" >
+                <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve encyclopédique couvrant la diversité intellectuelle et civilisationnelle du monde musulman.</p>
                     
@@ -883,7 +883,7 @@ function initRubriquesModal() {
                         <strong>Conseil</strong>
                         Rubrique valorisant la curiosité intellectuelle et la culture transversale.
                     </div>
-                </div >
+                </div>
                 `
         },
         'relais': {
@@ -891,7 +891,7 @@ function initRubriquesModal() {
             points: 30,
             couleur: '#fefce8',
             contenu: `
-                < div class="rubrique-detail-container" >
+                <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve de rapidité et d'endurance mentale sous forme de relais entre les membres de l'équipe.</p>
                     
@@ -906,7 +906,7 @@ function initRubriquesModal() {
                         <strong>Engagement Maximum</strong>
                         Rubrique exigeant une coordination parfaite et une réactivité optimale du groupe.
                     </div>
-                </div >
+                </div>
                 `
         },
         'hadith': {
@@ -914,7 +914,7 @@ function initRubriquesModal() {
             points: 20,
             couleur: '#fff1f2',
             contenu: `
-                < div class="rubrique-detail-container" >
+                <div class="rubrique-detail-container">
                     <h3>Description</h3>
                     <p>Épreuve de transmission orale portant sur les quarante Hadiths de l'Imam An-Nawawi.</p>
                     
@@ -929,7 +929,7 @@ function initRubriquesModal() {
                         <strong>Référence</strong>
                         Quarante Hadiths de l'An-Nawawi (Hadiths 1 à 10).
                     </div>
-                </div >
+                </div>
                 `
         }
     };
@@ -940,12 +940,12 @@ function initRubriquesModal() {
 
         if (rubrique) {
             modalBody.innerHTML = `
-                < div class="modal-header-accent" style = "background: ${rubrique.couleur};" >
+                <div class="modal-header-accent" style="background: ${rubrique.couleur};">
                     <h2>${rubrique.titre}</h2>
                     <div class="points-tag">
                         Points maximum : ${rubrique.points}
                     </div>
-                </div >
+                </div>
                 ${rubrique.contenu}
             `;
             modal.classList.add('show');
