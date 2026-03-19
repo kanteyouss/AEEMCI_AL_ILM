@@ -448,7 +448,16 @@ async function exportEtape(etapeCode, format = 'excel') {
         showNotification(` Préparation de l'export ${format.toUpperCase()} détaillé...`, 'info');
         const response = await apiRequest(`/classement/etape/${etapeCode}`);
         const classement = response.classement || [];
-        const rubriquesList = response.rubriques || [];
+
+        // DÉDUPLICATION DES RUBRIQUES PAR NOM
+        const uniqueRubriques = [];
+        const seenNames = new Set();
+        (response.rubriques || []).forEach(r => {
+            if (!seenNames.has(r.nom)) {
+                seenNames.add(r.nom);
+                uniqueRubriques.push(r);
+            }
+        });
 
         if (classement.length === 0) {
             showNotification(' Aucun résultat à exporter', 'warning');
@@ -459,9 +468,9 @@ async function exportEtape(etapeCode, format = 'excel') {
         const fileName = `AL_ILM_2026_Classement_${etapeNom.replace(/\s+/g, '_')}`;
 
         if (format === 'excel') {
-            exportDetailedToExcel(classement, rubriquesList, fileName, `Classement ${etapeNom}`);
+            exportDetailedToExcel(classement, uniqueRubriques, fileName, `Classement ${etapeNom}`);
         } else {
-            exportDetailedToPDF(classement, rubriquesList, fileName, `CLASSEMENT ${etapeNom.toUpperCase()}`);
+            exportDetailedToPDF(classement, uniqueRubriques, fileName, `CLASSEMENT ${etapeNom.toUpperCase()}`);
         }
     } catch (error) {
         console.error('Erreur export étape:', error);
@@ -474,7 +483,16 @@ async function exportManche(mancheId, format = 'excel') {
         showNotification(`Préparation de l'export ${format.toUpperCase()} détaillé...`, 'info');
         const response = await apiRequest(`/classement/manche/${mancheId}`);
         const classement = response.classement || [];
-        const rubriquesList = response.rubriques || [];
+
+        // DÉDUPLICATION DES RUBRIQUES PAR NOM
+        const uniqueRubriques = [];
+        const seenNames = new Set();
+        (response.rubriques || []).forEach(r => {
+            if (!seenNames.has(r.nom)) {
+                seenNames.add(r.nom);
+                uniqueRubriques.push(r);
+            }
+        });
 
         if (classement.length === 0) {
             showNotification(' Aucun résultat à exporter', 'warning');
@@ -494,9 +512,9 @@ async function exportManche(mancheId, format = 'excel') {
         const fileName = `AL_ILM_2026_${mancheNom}`;
 
         if (format === 'excel') {
-            exportDetailedToExcel(classement, rubriquesList, fileName, `Résultats ${mancheNom.replace(/_/g, ' ')}`);
+            exportDetailedToExcel(classement, uniqueRubriques, fileName, `Résultats ${mancheNom.replace(/_/g, ' ')}`);
         } else {
-            exportDetailedToPDF(classement, rubriquesList, fileName, `RÉSULTATS ${mancheNom.replace(/_/g, ' ').toUpperCase()}`);
+            exportDetailedToPDF(classement, uniqueRubriques, fileName, `RÉSULTATS ${mancheNom.replace(/_/g, ' ').toUpperCase()}`);
         }
     } catch (error) {
         console.error('Erreur export manche:', error);

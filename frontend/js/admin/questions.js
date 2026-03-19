@@ -257,9 +257,16 @@ async function loadRubriques() {
 
     try {
         const result = await apiRequest('/rubriques');
-        rubriques = result.data || [];
 
-        console.log(`✅ ${rubriques.length} rubrique(s) chargée(s):`, rubriques.map(r => r.nom));
+        // DÉDUPLICATION PAR NOM
+        const seen = new Set();
+        rubriques = (result.data || []).filter(r => {
+            if (!r.nom || seen.has(r.nom)) return false;
+            seen.add(r.nom);
+            return true;
+        });
+
+        console.log(`✅ ${rubriques.length} rubrique(s) unique(s) chargée(s):`, rubriques.map(r => r.nom));
 
         // Afficher les onglets
         displayRubriqueTabs();
