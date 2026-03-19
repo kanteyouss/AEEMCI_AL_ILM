@@ -176,7 +176,7 @@ function displayEtapes() {
 
         // Une étape est considérée complète si elle a au moins une notation
         const isEtapeComplete = totalNotations > 0;
-        const icon = etapeIcons[etape.code] || '📋';
+        const icon = etapeIcons[etape.code] || '';
 
         return `
             <section style="margin-bottom: 3rem;">
@@ -194,7 +194,7 @@ function displayEtapes() {
             return `
                             <div class="result-card">
                                 <h3>
-                                    <span>📅</span>
+                                    <span></span>
                                     ${manche.nom || `Manche ${manche.numero}`}
                                 </h3>
                                 <p style="color: #6b7280; font-size: 0.9rem; margin: 0.5rem 0;">
@@ -237,7 +237,7 @@ function displayEtapes() {
                 <!-- Classement cumulé de l'étape -->
                 <div class="result-card" style="margin-top: 1.5rem; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
                     <h3>
-                        <span>📊</span>
+                        <span></span>
                         Classement ${etape.nom}
                     </h3>
                     <p style="color: #6b7280; margin-bottom: 1rem;">
@@ -286,7 +286,7 @@ async function previewManche(mancheId) {
         const results = response.classement || [];
 
         if (results.length === 0) {
-            showNotification('⚠️ Aucun résultat pour cette manche', 'warning');
+            showNotification(' Aucun résultat pour cette manche', 'warning');
             return;
         }
 
@@ -306,8 +306,8 @@ async function previewManche(mancheId) {
         );
 
     } catch (error) {
-        console.error('❌ Erreur prévisualisation manche:', error);
-        showNotification('❌ Erreur lors du chargement du classement', 'error');
+        console.error(' Erreur prévisualisation manche:', error);
+        showNotification(' Erreur lors du chargement du classement', 'error');
     }
 }
 
@@ -320,7 +320,7 @@ async function previewEtape(etapeCode) {
         showClassementModal(etapeNom, classement);
     } catch (error) {
         console.error('Erreur prévisualisation étape:', error);
-        showNotification('❌ Erreur lors de la prévisualisation', 'error');
+        showNotification(' Erreur lors de la prévisualisation', 'error');
     }
 }
 
@@ -436,22 +436,22 @@ async function publierEtape(etapeCode) {
             })
         });
 
-        showNotification(`✅ ${etapeNom} publiée !`, 'success');
+        showNotification(` ${etapeNom} publiée !`, 'success');
     } catch (error) {
         console.error('Erreur publication:', error);
-        showNotification('❌ Erreur lors de la publication', 'error');
+        showNotification(' Erreur lors de la publication', 'error');
     }
 }
 
 async function exportEtape(etapeCode, format = 'excel') {
     try {
-        showNotification(`📊 Préparation de l'export ${format.toUpperCase()} détaillé...`, 'info');
+        showNotification(` Préparation de l'export ${format.toUpperCase()} détaillé...`, 'info');
         const response = await apiRequest(`/classement/etape/${etapeCode}`);
         const classement = response.classement || [];
         const rubriquesList = response.rubriques || [];
 
         if (classement.length === 0) {
-            showNotification('⚠️ Aucun résultat à exporter', 'warning');
+            showNotification(' Aucun résultat à exporter', 'warning');
             return;
         }
 
@@ -465,19 +465,19 @@ async function exportEtape(etapeCode, format = 'excel') {
         }
     } catch (error) {
         console.error('Erreur export étape:', error);
-        showNotification('❌ Erreur lors de l\'export', 'error');
+        showNotification(' Erreur lors de l\'export', 'error');
     }
 }
 
 async function exportManche(mancheId, format = 'excel') {
     try {
-        showNotification(`📊 Préparation de l'export ${format.toUpperCase()} détaillé...`, 'info');
+        showNotification(`Préparation de l'export ${format.toUpperCase()} détaillé...`, 'info');
         const response = await apiRequest(`/classement/manche/${mancheId}`);
         const classement = response.classement || [];
         const rubriquesList = response.rubriques || [];
 
         if (classement.length === 0) {
-            showNotification('⚠️ Aucun résultat à exporter', 'warning');
+            showNotification(' Aucun résultat à exporter', 'warning');
             return;
         }
 
@@ -500,18 +500,18 @@ async function exportManche(mancheId, format = 'excel') {
         }
     } catch (error) {
         console.error('Erreur export manche:', error);
-        showNotification('❌ Erreur lors de l\'export', 'error');
+        showNotification(' Erreur lors de l\'export', 'error');
     }
 }
 
 async function exportClassementGlobal(format = 'excel') {
     try {
-        showNotification(`📊 Préparation de l'export GLOBAL ${format.toUpperCase()}...`, 'info');
+        showNotification(` Préparation de l'export GLOBAL ${format.toUpperCase()}...`, 'info');
         const response = await apiRequest('/classement/general');
         const classement = response.classement || [];
 
         if (classement.length === 0) {
-            showNotification('⚠️ Aucun résultat à exporter', 'warning');
+            showNotification(' Aucun résultat à exporter', 'warning');
             return;
         }
 
@@ -524,7 +524,7 @@ async function exportClassementGlobal(format = 'excel') {
         }
     } catch (error) {
         console.error('Erreur export global:', error);
-        showNotification('❌ Erreur lors de l\'export', 'error');
+        showNotification(' Erreur lors de l\'export', 'error');
     }
 }
 
@@ -552,7 +552,7 @@ function exportDetailedToExcel(data, rubriques, fileName, sheetName) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Résultats Détaillés");
     XLSX.writeFile(wb, `${fileName}_Detail_${new Date().toISOString().split('T')[0]}.xlsx`);
-    showNotification('✅ Export Excel détaillé réussi', 'success');
+    showNotification('Export Excel détaillé réussi', 'success');
 }
 
 function exportDetailedToPDF(data, rubriques, fileName, title) {
@@ -603,7 +603,7 @@ function exportDetailedToPDF(data, rubriques, fileName, title) {
     });
 
     doc.save(`${fileName}_Detail_${new Date().toISOString().split('T')[0]}.pdf`);
-    showNotification('✅ Export PDF détaillé réussi', 'success');
+    showNotification('Export PDF détaillé réussi', 'success');
 }
 
 /**
@@ -618,7 +618,7 @@ function exportToExcel(data, fileName, sheetName) {
             'Équipe': item.nom_equipe || item.equipe || 'N/A',
             'Score Total': score.toFixed(1),
             'Manches': nManches,
-            'Moyenne': nManches > 0 ? (score / nManches).toFixed(1) : "0.0"
+            'Moyenne (/20)': nManches > 0 ? ((score / nManches) / 5).toFixed(2) : "0.00"
         };
     });
 
@@ -626,7 +626,7 @@ function exportToExcel(data, fileName, sheetName) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Résultats");
     XLSX.writeFile(wb, `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`);
-    showNotification('✅ Export Excel réussi', 'success');
+    showNotification(' Export Excel réussi', 'success');
 }
 
 function exportToPDF(data, fileName, title) {
@@ -646,7 +646,7 @@ function exportToPDF(data, fileName, title) {
         { header: 'Équipe', dataKey: 'equipe' },
         { header: 'Score Total', dataKey: 'score' },
         { header: 'Manches', dataKey: 'manches' },
-        { header: 'Moyenne', dataKey: 'moyenne' }
+        { header: 'Moyenne (/20)', dataKey: 'moyenne' }
     ];
 
     const rows = data.map((item, index) => {
@@ -657,7 +657,7 @@ function exportToPDF(data, fileName, title) {
             equipe: item.nom_equipe || item.equipe || 'N/A',
             score: score.toFixed(1),
             manches: nManches,
-            moyenne: nManches > 0 ? (score / nManches).toFixed(1) : "0.0"
+            moyenne: nManches > 0 ? ((score / nManches) / 5).toFixed(2) : "0.00"
         };
     });
 
@@ -671,7 +671,7 @@ function exportToPDF(data, fileName, title) {
     });
 
     doc.save(`${fileName}_${new Date().toISOString().split('T')[0]}.pdf`);
-    showNotification('✅ Export PDF réussi', 'success');
+    showNotification(' Export PDF réussi', 'success');
 }
 
 function displayManches() {
@@ -822,16 +822,16 @@ async function chargerConfiguration() {
         if (document.getElementById('configAfficherNavConnexion'))
             document.getElementById('configAfficherNavConnexion').checked = config.afficher_nav_connexion !== false;
 
-        console.log('✅ Configuration chargée:', config);
+        console.log(' Configuration chargée:', config);
     } catch (error) {
-        console.error('❌ Erreur chargement configuration:', error);
+        console.error(' Erreur chargement configuration:', error);
         showNotification('Erreur lors du chargement de la configuration', 'error');
     }
 }
 
 async function sauvegarderConfiguration() {
     try {
-        showNotification('💾 Sauvegarde de la configuration...', 'info');
+        showNotification(' Sauvegarde de la configuration...', 'info');
 
         // Récupérer les valeurs des champs
         const config = {
@@ -874,14 +874,14 @@ async function sauvegarderConfiguration() {
         });
 
         if (response.success) {
-            showNotification('✅ Configuration sauvegardée avec succès', 'success');
-            console.log('✅ Configuration mise à jour:', config);
+            showNotification(' Configuration sauvegardée avec succès', 'success');
+            console.log(' Configuration mise à jour:', config);
         } else {
             throw new Error(response.message || 'Erreur lors de la sauvegarde');
         }
     } catch (error) {
-        console.error('❌ Erreur sauvegarde configuration:', error);
-        showNotification('❌ Erreur lors de la sauvegarde: ' + error.message, 'error');
+        console.error(' Erreur sauvegarde configuration:', error);
+        showNotification(' Erreur lors de la sauvegarde: ' + error.message, 'error');
     }
 }
 
