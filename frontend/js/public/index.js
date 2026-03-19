@@ -43,7 +43,7 @@ async function initAccueil() {
 
             if (heroTitle) {
                 if (isModeAidActive) {
-                    heroTitle.innerHTML = 'Aïd Moubarak Saïd ! <span class="eid-emoji">🌙✨</span>';
+                    heroTitle.innerHTML = 'Aïd Moubarak Saïd ! <span class="eid-emoji"></span>';
                     document.body.classList.add('theme-aid');
                 } else {
                     heroTitle.textContent = "Clôture de l'Édition 2026 - AL ILM";
