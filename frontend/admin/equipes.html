@@ -477,6 +477,16 @@
                 <p class="tagline">Administration - Pour une identité islamique !</p>
             </div>
             <div class="user-session-block">
+                <div style="display: flex; gap: 0.5rem; margin-right: 1rem;">
+                    <button class="btn-primary" id="exportEquipesExcelBtn"
+                        style="background: #27ae60; font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        <i class="fas fa-file-excel"></i> Exporter Équipes (Excel)
+                    </button>
+                    <button class="btn-primary" id="exportEquipesPdfBtn"
+                        style="background: #e74c3c; font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        <i class="fas fa-file-pdf"></i> Feuilles d'Émargement (PDF)
+                    </button>
+                </div>
                 <div class="user-identity">
                     <span class="user-name" id="userName">Admin</span>
                     <span class="admin-badge">Administrateur</span>
@@ -626,7 +636,9 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/admin/equipes.js"></script>
 </body>

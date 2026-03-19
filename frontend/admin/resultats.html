@@ -296,12 +296,18 @@
                 <h1>AL ILM 2026</h1>
                 <p class="tagline">Administration - Résultats et Classement</p>
             </div>
-            <div class="user-session-block">
-                <div class="user-identity">
-                    <span class="user-name" id="userName">Admin</span>
-                    <span class="admin-badge">Administrateur</span>
+            <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn-primary" onclick="exportClassementGlobal('excel')"
+                        style="background: #27ae60; font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        <i class="fas fa-file-excel"></i> Classement Global (Excel)
+                    </button>
+                    <button class="btn-primary" onclick="exportClassementGlobal('pdf')"
+                        style="background: #e74c3c; font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        <i class="fas fa-file-pdf"></i> Classement Global (PDF)
+                    </button>
                 </div>
-                <button id="logoutBtn" class="btn-logout" title="Déconnexion">
+                <button id="logoutBtn" class="btn-logout" title="Déconnexion" style="margin-left: auto;">
                     <i class="fas fa-right-from-bracket"></i>
                 </button>
             </div>
@@ -448,7 +454,7 @@
                             <input type="checkbox" id="configModeAid" class="config-checkbox"
                                 style="width: 20px; height: 20px; cursor: pointer;">
                             <div style="flex: 1;">
-                                <strong style="color: #166534;">Activer le Mode Aïd Moubarak 🌙✨</strong>
+                                <strong style="color: #166534;">Activer le Mode Aïd Moubarak </strong>
                                 <p style="margin: 0.25rem 0 0 0; color: #15803d; font-size: 0.9rem;">
                                     Affiche un message de fête et une ambiance festive sur la page d'accueil.
                                 </p>
@@ -620,6 +626,9 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="/js/api.js?v=6"></script>
     <script src="/js/admin/resultats.js?v=7"></script>
 </body>

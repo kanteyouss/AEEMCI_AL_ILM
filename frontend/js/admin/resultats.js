@@ -218,9 +218,15 @@ function displayEtapes() {
                                     </div>
                                 </div>
                                 
-                                <div class="actions-grid">
-                                    <button class="btn-publish btn-preview" onclick="previewManche(${manche.id})">
+                                <div class="actions-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                                    <button class="btn-publish btn-preview" onclick="previewManche(${manche.id})" style="grid-column: span 2;">
                                         👁️ Voir Classement
+                                    </button>
+                                    <button class="btn-publish" onclick="exportManche(${manche.id}, 'excel')" style="background: #27ae60; font-size: 0.8rem; padding: 0.5rem;">
+                                        <i class="fas fa-file-excel"></i> Excel
+                                    </button>
+                                    <button class="btn-publish" onclick="exportManche(${manche.id}, 'pdf')" style="background: #e74c3c; font-size: 0.8rem; padding: 0.5rem;">
+                                        <i class="fas fa-file-pdf"></i> PDF
                                     </button>
                                 </div>
                             </div>
@@ -247,15 +253,18 @@ function displayEtapes() {
                         </div>
                     </div>
                     
-                    <div class="actions-grid">
+                    <div class="actions-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem;">
                         <button class="btn-publish btn-preview" onclick="previewEtape('${etape.code}')">
-                            👁️ Prévisualiser Classement
+                            👁️ Prévisualiser
                         </button>
                         <button class="btn-publish" onclick="publierEtape('${etape.code}')" ${!isEtapeComplete ? 'disabled' : ''}>
                             🌐 Publier ${etape.nom}
                         </button>
-                        <button class="btn-publish btn-export" onclick="exportEtape('${etape.code}')">
-                            📊 Exporter Excel
+                        <button class="btn-publish" onclick="exportEtape('${etape.code}', 'excel')" style="background: #27ae60;">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn-publish" onclick="exportEtape('${etape.code}', 'pdf')" style="background: #e74c3c;">
+                            <i class="fas fa-file-pdf"></i> PDF
                         </button>
                     </div>
                     
@@ -434,8 +443,235 @@ async function publierEtape(etapeCode) {
     }
 }
 
-async function exportEtape(etapeCode) {
-    showNotification('📊 Export en développement...', 'info');
+async function exportEtape(etapeCode, format = 'excel') {
+    try {
+        showNotification(`📊 Préparation de l'export ${format.toUpperCase()} détaillé...`, 'info');
+        const response = await apiRequest(`/classement/etape/${etapeCode}`);
+        const classement = response.classement || [];
+        const rubriquesList = response.rubriques || [];
+
+        if (classement.length === 0) {
+            showNotification('⚠️ Aucun résultat à exporter', 'warning');
+            return;
+        }
+
+        const etapeNom = manchesParEtape.find(e => e.code === etapeCode)?.nom || etapeCode;
+        const fileName = `AL_ILM_2026_Classement_${etapeNom.replace(/\s+/g, '_')}`;
+
+        if (format === 'excel') {
+            exportDetailedToExcel(classement, rubriquesList, fileName, `Classement ${etapeNom}`);
+        } else {
+            exportDetailedToPDF(classement, rubriquesList, fileName, `CLASSEMENT ${etapeNom.toUpperCase()}`);
+        }
+    } catch (error) {
+        console.error('Erreur export étape:', error);
+        showNotification('❌ Erreur lors de l\'export', 'error');
+    }
+}
+
+async function exportManche(mancheId, format = 'excel') {
+    try {
+        showNotification(`📊 Préparation de l'export ${format.toUpperCase()} détaillé...`, 'info');
+        const response = await apiRequest(`/classement/manche/${mancheId}`);
+        const classement = response.classement || [];
+        const rubriquesList = response.rubriques || [];
+
+        if (classement.length === 0) {
+            showNotification('⚠️ Aucun résultat à exporter', 'warning');
+            return;
+        }
+
+        // Trouver le nom de la manche
+        let mancheNom = `Manche_${mancheId}`;
+        for (const etape of manchesParEtape) {
+            const m = etape.manches.find(manche => manche.id === parseInt(mancheId));
+            if (m) {
+                mancheNom = (m.nom || `Manche_${m.numero}`).replace(/\s+/g, '_');
+                break;
+            }
+        }
+
+        const fileName = `AL_ILM_2026_${mancheNom}`;
+
+        if (format === 'excel') {
+            exportDetailedToExcel(classement, rubriquesList, fileName, `Résultats ${mancheNom.replace(/_/g, ' ')}`);
+        } else {
+            exportDetailedToPDF(classement, rubriquesList, fileName, `RÉSULTATS ${mancheNom.replace(/_/g, ' ').toUpperCase()}`);
+        }
+    } catch (error) {
+        console.error('Erreur export manche:', error);
+        showNotification('❌ Erreur lors de l\'export', 'error');
+    }
+}
+
+async function exportClassementGlobal(format = 'excel') {
+    try {
+        showNotification(`📊 Préparation de l'export GLOBAL ${format.toUpperCase()}...`, 'info');
+        const response = await apiRequest('/classement/general');
+        const classement = response.classement || [];
+
+        if (classement.length === 0) {
+            showNotification('⚠️ Aucun résultat à exporter', 'warning');
+            return;
+        }
+
+        const fileName = `AL_ILM_2026_Classement_GENERAL`;
+
+        if (format === 'excel') {
+            exportToExcel(classement, fileName, 'Classement Général AL ILM 2026');
+        } else {
+            exportToPDF(classement, fileName, 'CLASSEMENT GÉNÉRAL - AL ILM 2026');
+        }
+    } catch (error) {
+        console.error('Erreur export global:', error);
+        showNotification('❌ Erreur lors de l\'export', 'error');
+    }
+}
+
+/**
+ * UTILS EXPORT DÉTAILLÉ (AVEC RUBRIQUES)
+ */
+function exportDetailedToExcel(data, rubriques, fileName, sheetName) {
+    const formattedData = data.map((item, index) => {
+        const row = {
+            'Rang': index + 1,
+            'Équipe': item.nom_equipe || item.equipe || 'N/A'
+        };
+
+        // Ajouter chaque rubrique
+        rubriques.forEach(r => {
+            const score = item.details_rubriques ? (item.details_rubriques[r.nom] || 0) : 0;
+            row[`${r.nom} (max ${r.points_max})`] = score;
+        });
+
+        row['Score Total'] = parseFloat(item.score_total || item.points_totaux || 0).toFixed(1);
+        return row;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(formattedData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Résultats Détaillés");
+    XLSX.writeFile(wb, `${fileName}_Detail_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showNotification('✅ Export Excel détaillé réussi', 'success');
+}
+
+function exportDetailedToPDF(data, rubriques, fileName, title) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // Paysage pour plus de colonnes
+
+    doc.setFontSize(18);
+    doc.setTextColor(45, 106, 79);
+    doc.text(title, 148, 20, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`AL ILM 2026 - Résultats Détaillés | Généré le: ${new Date().toLocaleString()}`, 148, 28, { align: 'center' });
+
+    // Colonnes dynamiques
+    const columns = [
+        { header: 'Rang', dataKey: 'rang' },
+        { header: 'Équipe', dataKey: 'equipe' }
+    ];
+
+    rubriques.forEach(r => {
+        columns.push({ header: r.nom, dataKey: r.nom });
+    });
+
+    columns.push({ header: 'TOTAL', dataKey: 'total' });
+
+    const rows = data.map((item, index) => {
+        const rowData = {
+            rang: index + 1,
+            equipe: item.nom_equipe || item.equipe || 'N/A',
+            total: parseFloat(item.score_total || item.points_totaux || 0).toFixed(1)
+        };
+
+        rubriques.forEach(r => {
+            rowData[r.nom] = item.details_rubriques ? (item.details_rubriques[r.nom] || 0) : 0;
+        });
+
+        return rowData;
+    });
+
+    doc.autoTable({
+        columns: columns,
+        body: rows,
+        startY: 35,
+        theme: 'striped',
+        headStyles: { fillColor: [45, 106, 79] },
+        styles: { fontSize: 8, cellPadding: 2 }
+    });
+
+    doc.save(`${fileName}_Detail_${new Date().toISOString().split('T')[0]}.pdf`);
+    showNotification('✅ Export PDF détaillé réussi', 'success');
+}
+
+/**
+ * Utilitaires d'export génériques
+ */
+function exportToExcel(data, fileName, sheetName) {
+    const formattedData = data.map((item, index) => {
+        const score = parseFloat(item.score_total || item.points_totaux || 0);
+        const nManches = parseInt(item.nombre_manches || 0);
+        return {
+            'Rang': index + 1,
+            'Équipe': item.nom_equipe || item.equipe || 'N/A',
+            'Score Total': score.toFixed(1),
+            'Manches': nManches,
+            'Moyenne': nManches > 0 ? (score / nManches).toFixed(1) : "0.0"
+        };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(formattedData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+    XLSX.writeFile(wb, `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showNotification('✅ Export Excel réussi', 'success');
+}
+
+function exportToPDF(data, fileName, title) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.setTextColor(45, 106, 79);
+    doc.text(title, 105, 20, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`AL ILM 2026 - Administration | Généré le: ${new Date().toLocaleString()}`, 105, 28, { align: 'center' });
+
+    const columns = [
+        { header: 'Rang', dataKey: 'rang' },
+        { header: 'Équipe', dataKey: 'equipe' },
+        { header: 'Score Total', dataKey: 'score' },
+        { header: 'Manches', dataKey: 'manches' },
+        { header: 'Moyenne', dataKey: 'moyenne' }
+    ];
+
+    const rows = data.map((item, index) => {
+        const score = parseFloat(item.score_total || item.points_totaux || 0);
+        const nManches = parseInt(item.nombre_manches || 0);
+        return {
+            rang: index + 1,
+            equipe: item.nom_equipe || item.equipe || 'N/A',
+            score: score.toFixed(1),
+            manches: nManches,
+            moyenne: nManches > 0 ? (score / nManches).toFixed(1) : "0.0"
+        };
+    });
+
+    doc.autoTable({
+        columns: columns,
+        body: rows,
+        startY: 35,
+        theme: 'striped',
+        headStyles: { fillColor: [45, 106, 79] },
+        styles: { fontSize: 10 }
+    });
+
+    doc.save(`${fileName}_${new Date().toISOString().split('T')[0]}.pdf`);
+    showNotification('✅ Export PDF réussi', 'success');
 }
 
 function displayManches() {

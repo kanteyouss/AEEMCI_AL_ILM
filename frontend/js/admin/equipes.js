@@ -772,7 +772,49 @@ function generateEquipesPDF() {
     const date = new Date().toISOString().split('T')[0];
     doc.save(`AL_ILM_2026_Equipes_${date}.pdf`);
 
-    showNotification('Fiches PDF generees avec succes !', 'success');
+    showNotification('Fiches PDF générées avec succès !', 'success');
+}
+
+/**
+ * Exporter les équipes en Excel
+ */
+function exportEquipesExcel() {
+    const teams = Object.values(equipes);
+    if (teams.length === 0) {
+        showNotification('Aucune équipe à exporter', 'warning');
+        return;
+    }
+
+    const data = [];
+    teams.forEach(team => {
+        if (!team.membres || team.membres.length === 0) return;
+
+        const capitaine = team.membres.find(m => m.id === team.capitaine);
+
+        // Lignes pour les membres
+        team.membres.forEach(m => {
+            const isCap = m.id === team.capitaine;
+            data.push({
+                'Équipe': team.nom.toUpperCase(),
+                'Symbole': team.symbole || '',
+                'Code': team.code || 'N/A',
+                'Rôle': isCap ? 'CAPITAINE' : 'MEMBRE',
+                'Nom': m.nom.toUpperCase(),
+                'Prénom': m.prenom,
+                'Établissement': m.etablissement || 'N/A',
+                'Téléphone': m.telephone || 'N/A'
+            });
+        });
+
+        // Ligne vide pour séparer les équipes
+        data.push({});
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Équipes");
+    XLSX.writeFile(wb, `AL_ILM_2026_Equipes_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showNotification('✅ Export Excel réussi', 'success');
 }
 
 async function confirmValidation() {
@@ -936,6 +978,13 @@ function initEventListeners() {
     document.getElementById('btnValidate').addEventListener('click', validateEquipes);
     document.getElementById('btnConfirmValidation').addEventListener('click', confirmValidation);
     document.getElementById('btnGeneratePDF').addEventListener('click', generateEquipesPDF);
+
+    // Nouveaux boutons d'export (en haut de page)
+    const exportExcelBtn = document.getElementById('exportEquipesExcelBtn');
+    const exportPdfBtn = document.getElementById('exportEquipesPdfBtn');
+
+    if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportEquipesExcel);
+    if (exportPdfBtn) exportPdfBtn.addEventListener('click', generateEquipesPDF);
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
         localStorage.removeItem('token');

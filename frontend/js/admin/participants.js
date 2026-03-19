@@ -43,7 +43,102 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     console.log('📥 Chargement des participants...');
     await loadParticipants();
+
+    // Export listeners
+    const excelBtn = document.getElementById('exportExcelBtn');
+    const pdfBtn = document.getElementById('exportPdfBtn');
+
+    if (excelBtn) excelBtn.addEventListener('click', exportParticipantsExcel);
+    if (pdfBtn) pdfBtn.addEventListener('click', exportParticipantsPDF);
 });
+
+/**
+ * Exporter en Excel (XLSX)
+ */
+function exportParticipantsExcel() {
+    if (filteredParticipants.length === 0) {
+        showNotification('Aucune donnée à exporter', 'warning');
+        return;
+    }
+
+    // Préparer les données détaillées
+    const data = filteredParticipants.map(p => ({
+        'ID': p.id,
+        'Nom': (p.nom || '').toUpperCase(),
+        'Prénom': p.prenom || '',
+        'Genre': p.genre || 'N/A',
+        'Établissement': p.etablissement || 'N/A',
+        'Téléphone': p.telephone || 'N/A',
+        'Email': p.email || 'N/A',
+        'Équipe': p.equipe_nom || 'Libre',
+        'Rôle': p.est_capitaine ? 'Capitaine' : (p.equipe_id ? 'Membre' : 'Libre'),
+        'Niveau Coran': p.niveau_coranique || 'N/A',
+        'Hadiths': p.connaissance_hadiths || 'N/A',
+        'Mémorisation': p.memorisation_sourate || 'N/A'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Participants Détaillés");
+
+    XLSX.writeFile(wb, `AL_ILM_2026_Participants_Detail_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showNotification('✅ Export Excel détaillé réussi', 'success');
+}
+
+/**
+ * Exporter en PDF (Tableau)
+ */
+function exportParticipantsPDF() {
+    if (filteredParticipants.length === 0) {
+        showNotification('Aucune donnée à exporter', 'warning');
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // Paysage
+
+    doc.setFontSize(18);
+    doc.setTextColor(45, 106, 79);
+    doc.text('AL ILM 2026 - Liste Détaillée des Participants', 14, 20);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Généré le: ${new Date().toLocaleString()} | Total: ${filteredParticipants.length} participants`, 14, 28);
+
+    const columns = [
+        { header: 'ID', dataKey: 'id' },
+        { header: 'Nom', dataKey: 'nom' },
+        { header: 'Prénom', dataKey: 'prenom' },
+        { header: 'École', dataKey: 'ecole' },
+        { header: 'Téléphone', dataKey: 'tel' },
+        { header: 'Équipe', dataKey: 'equipe' },
+        { header: 'Rôle', dataKey: 'role' },
+        { header: 'Coran', dataKey: 'coran' }
+    ];
+
+    const rows = filteredParticipants.map(p => ({
+        id: p.id,
+        nom: (p.nom || '').toUpperCase(),
+        prenom: p.prenom || '',
+        ecole: p.etablissement || '-',
+        tel: p.telephone || '-',
+        equipe: p.equipe_nom || 'Libre',
+        role: p.est_capitaine ? 'Capitaine' : (p.equipe_id ? 'Membre' : 'Libre'),
+        coran: p.niveau_coranique || '-'
+    }));
+
+    doc.autoTable({
+        columns: columns,
+        body: rows,
+        startY: 35,
+        theme: 'striped',
+        headStyles: { fillColor: [45, 106, 79] },
+        styles: { fontSize: 8 }
+    });
+
+    doc.save(`AL_ILM_2026_Participants_Detail_${new Date().toISOString().split('T')[0]}.pdf`);
+    showNotification('✅ Export PDF détaillé réussi', 'success');
+}
 
 async function loadParticipants() {
     try {
@@ -120,7 +215,7 @@ function renderParticipants() {
                 ${p.photo_url
             ? `<img src="${p.photo_url}" alt="${p.prenom}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`
             : `<div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                        ${p.prenom.charAt(0)}${p.nom.charAt(0)}
+                        ${(p.prenom || '').charAt(0)}${(p.nom || '').charAt(0)}
                     </div>`
         }
             </td>

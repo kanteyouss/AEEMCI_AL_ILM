@@ -134,6 +134,119 @@ function initEventListeners() {
 
     // Déconnexion
     document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    // Export listeners
+    const excelBtn = document.getElementById('exportExcelBtn');
+    const pdfBtn = document.getElementById('exportPdfBtn');
+
+    if (excelBtn) excelBtn.addEventListener('click', exportQuestionsExcel);
+    if (pdfBtn) pdfBtn.addEventListener('click', exportQuestionsPDF);
+}
+
+/**
+ * Exporter en Excel (XLSX)
+ */
+function exportQuestionsExcel() {
+    if (questions.length === 0) {
+        showNotification('Aucune question à exporter', 'warning');
+        return;
+    }
+
+    // Préparer les données
+    const data = questions.map(q => {
+        const rubrique = rubriques.find(r => r.id === q.rubrique_id);
+
+        let row = {
+            'Rubrique': rubrique?.nom || 'N/A',
+            'Question': q.question_texte,
+            'Type': getTypeLabel(q.type),
+            'Difficulté': q.difficulte,
+            'Points': q.points,
+            'Temps Limite': q.temps_limite ? `${q.temps_limite}s` : 'N/A',
+            'Référence': q.reference || 'N/A'
+        };
+
+        if (q.type === 'qcm' && q.options) {
+            row['Option A'] = q.options.A || '';
+            row['Option B'] = q.options.B || '';
+            row['Option C'] = q.options.C || '';
+            row['Option D'] = q.options.D || '';
+            row['Réponse Correcte'] = q.reponse_correcte;
+        } else {
+            row['Réponse'] = q.reponse_correcte || 'N/A';
+        }
+
+        return row;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Questions");
+    XLSX.writeFile(wb, `AL_ILM_2026_Banque_Questions_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showNotification('✅ Export Excel réussi', 'success');
+}
+
+/**
+ * Exporter en PDF (Tableau)
+ */
+function exportQuestionsPDF() {
+    if (questions.length === 0) {
+        showNotification('Aucune question à exporter', 'warning');
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // Paysage
+
+    doc.setFontSize(18);
+    doc.setTextColor(45, 106, 79);
+    doc.text('AL ILM 2026 - Banque de Questions', 14, 20);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Total: ${questions.length} questions | Généré le: ${new Date().toLocaleString()}`, 14, 28);
+
+    const columns = [
+        { header: 'Rubrique', dataKey: 'rubrique' },
+        { header: 'Question', dataKey: 'question' },
+        { header: 'Type', dataKey: 'type' },
+        { header: 'Diff.', dataKey: 'diff' },
+        { header: 'Pts', dataKey: 'pts' },
+        { header: 'Réponse', dataKey: 'reponse' }
+    ];
+
+    const rows = questions.map(q => {
+        const rubrique = rubriques.find(r => r.id === q.rubrique_id);
+        let reponseText = q.reponse_correcte || '';
+        if (q.type === 'qcm' && q.options) {
+            reponseText = `${q.reponse_correcte} (${q.options[q.reponse_correcte] || ''})`;
+        }
+
+        return {
+            rubrique: rubrique?.nom || 'N/A',
+            question: q.question_texte,
+            type: getTypeLabel(q.type),
+            diff: q.difficulte,
+            pts: q.points,
+            reponse: reponseText
+        };
+    });
+
+    doc.autoTable({
+        columns: columns,
+        body: rows,
+        startY: 35,
+        theme: 'striped',
+        headStyles: { fillColor: [45, 106, 79] },
+        styles: { fontSize: 8, cellPadding: 2 },
+        columnStyles: {
+            question: { cellWidth: 80 },
+            reponse: { cellWidth: 50 }
+        }
+    });
+
+    doc.save(`AL_ILM_2026_Banque_Questions_${new Date().toISOString().split('T')[0]}.pdf`);
+    showNotification('✅ Export PDF réussi', 'success');
 }
 
 /**
