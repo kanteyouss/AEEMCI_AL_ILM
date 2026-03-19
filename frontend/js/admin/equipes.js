@@ -726,53 +726,55 @@ function generateEquipesPDF() {
 
         y += 20;
 
-        // Liste des membres
+        // Liste des membres (Tableau)
         doc.setFont('helvetica', 'bold');
-        doc.text(`MEMBRES (${equipe.membres.length}):`, 25, y);
+        doc.setFontSize(14);
+        doc.text('LISTE DES MEMBRES & ÉMARGEMENT', 20, y);
+        y += 8;
 
-        y += 10;
+        const columns = [
+            { header: 'N°', dataKey: 'index' },
+            { header: 'Rôle', dataKey: 'role' },
+            { header: 'Nom & Prénoms', dataKey: 'nom' },
+            { header: 'Établissement', dataKey: 'ecole' },
+            { header: 'Émargement', dataKey: 'signature' }
+        ];
 
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
+        const rows = equipe.membres.map((m, idx) => ({
+            index: idx + 1,
+            role: m.id === equipe.capitaine ? 'Capitaine' : 'Membre',
+            nom: `${m.prenom} ${m.nom.toUpperCase()}`,
+            ecole: m.etablissement || '-',
+            signature: '_________________' // Ligne pour signer
+        }));
 
-        equipe.membres.forEach((membre, idx) => {
-            const isCap = membre.id === equipe.capitaine;
-            const prefix = isCap ? '[C]' : `${idx + 1}.`;
-
-            // Nom avec préfixe
-            doc.setFont('helvetica', isCap ? 'bold' : 'normal');
-            doc.text(`${prefix} ${membre.prenom} ${membre.nom}`, 30, y);
-
-            // Établissement
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(100, 100, 100);
-            doc.setFontSize(9);
-            doc.text(membre.etablissement, 35, y + 4);
-
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(10);
-
-            y += 12;
-
-            // Nouvelle page si nécessaire
-            if (y > 270) {
-                doc.addPage();
-                y = 20;
+        doc.autoTable({
+            columns: columns,
+            body: rows,
+            startY: y,
+            theme: 'grid',
+            headStyles: { fillColor: [45, 106, 79], textColor: [255, 255, 255] },
+            styles: { fontSize: 9, cellPadding: 3 },
+            columnStyles: {
+                index: { cellWidth: 10, halign: 'center' },
+                role: { cellWidth: 25 },
+                signature: { cellWidth: 40, minCellHeight: 15 } // Plus haut pour la signature
             }
         });
 
         // Pied de page
+        const pageHeight = doc.internal.pageSize.height;
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.text('AL ILM 2026 - Competition Islamique Inter-Ecoles', 105, 285, { align: 'center' });
-        doc.text(`Page ${pageCount}`, 105, 290, { align: 'center' });
+        doc.text('AL ILM 2026 - Compétition Islamique Inter-Écoles | Fiche officielle émise par l\'administration', 105, pageHeight - 15, { align: 'center' });
+        doc.text(`Page ${pageCount}`, 105, pageHeight - 10, { align: 'center' });
     });
 
     // Télécharger le PDF
     const date = new Date().toISOString().split('T')[0];
-    doc.save(`AL_ILM_2026_Equipes_${date}.pdf`);
+    doc.save(`AL_ILM_2026_Fiches_Emargement_${date}.pdf`);
 
-    showNotification('Fiches PDF générées avec succès !', 'success');
+    showNotification('Fiches d\'émargement PDF générées (format tableau) !', 'success');
 }
 
 /**
