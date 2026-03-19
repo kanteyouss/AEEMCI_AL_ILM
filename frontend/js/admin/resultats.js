@@ -545,6 +545,9 @@ async function chargerConfiguration() {
         if (document.getElementById('configFinRamadan')) {
             document.getElementById('configFinRamadan').checked = config.fin_ramadan || false;
         }
+        if (document.getElementById('configModeAid')) {
+            document.getElementById('configModeAid').checked = config.mode_aid || false;
+        }
         document.getElementById('configAfficherStatistiques').checked = config.afficher_statistiques || false;
         document.getElementById('configAfficherFiltres').checked = config.afficher_filtres || false;
         document.getElementById('configAfficherClassementComplet').checked = config.afficher_classement_complet || false;
@@ -598,6 +601,7 @@ async function sauvegarderConfiguration() {
         const config = {
             afficher_podium: document.getElementById('configAfficherPodium').checked,
             fin_ramadan: document.getElementById('configFinRamadan') ? document.getElementById('configFinRamadan').checked : false,
+            mode_aid: document.getElementById('configModeAid') ? document.getElementById('configModeAid').checked : false,
             afficher_statistiques: document.getElementById('configAfficherStatistiques').checked,
             afficher_filtres: document.getElementById('configAfficherFiltres').checked,
             afficher_classement_complet: document.getElementById('configAfficherClassementComplet').checked,

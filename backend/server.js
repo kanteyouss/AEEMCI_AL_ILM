@@ -64,6 +64,17 @@ const PORT = process.env.PORT || 3000;
             'Afficher le podium de la finale sur l\'accueil public'
         ]);
 
+        await db.query(`
+            INSERT INTO classement_config (cle, valeur, type, description)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (cle) DO NOTHING
+        `, [
+            'mode_aid',
+            'false',
+            'boolean',
+            'Activer le mode Aïd Moubarak (Message de fête)'
+        ]);
+
         console.log(`✅ Configuration de base vérifiée/ajoutée`);
     } catch (e) {
         console.error(`❌ Erreur init config:`, e);

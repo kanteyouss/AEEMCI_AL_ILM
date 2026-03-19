@@ -24,10 +24,11 @@ async function initAccueil() {
         }
 
         const isFinRamadanActive = config.fin_ramadan === true || config.fin_ramadan === 'true';
-        console.log('🕌 [CONFIG] Mode Fin Ramadan:', isFinRamadanActive, config.fin_ramadan);
+        const isModeAidActive = config.mode_aid === true || config.mode_aid === 'true';
+        console.log('🕌 [CONFIG] Mode:', { fin_ramadan: isFinRamadanActive, mode_aid: isModeAidActive });
 
-        if (isFinRamadanActive) {
-            // Mode Clôture / Résultats
+        if (isModeAidActive || isFinRamadanActive) {
+            // Mode Aïd ou Clôture
             const wisdomSection = document.getElementById('wisdomSection');
             const ramadanSection = document.getElementById('ramadanCountdownSection');
             const podiumSection = document.getElementById('podiumSection');
@@ -41,12 +42,22 @@ async function initAccueil() {
             if (podiumSection) podiumSection.style.display = 'block';
 
             if (heroTitle) {
-                // S'assurer que le contenu est correct avant de relancer l'effet
-                heroTitle.textContent = "Clôture de l'Édition 2026 - AL ILM";
+                if (isModeAidActive) {
+                    heroTitle.innerHTML = 'Aïd Moubarak Saïd ! <span class="eid-emoji">🌙✨</span>';
+                    document.body.classList.add('theme-aid');
+                } else {
+                    heroTitle.textContent = "Clôture de l'Édition 2026 - AL ILM";
+                    document.body.classList.remove('theme-aid');
+                }
                 initTypewriterEffect();
             }
+
             if (heroSubtitle) {
-                heroSubtitle.textContent = "Merci à tous les participants. Retrouvez le classement de la Finale ci-dessous ";
+                if (isModeAidActive) {
+                    heroSubtitle.textContent = "Toute l'équipe d'AL ILM vous souhaite une excellente fête. Félicitations aux vainqueurs !";
+                } else {
+                    heroSubtitle.textContent = "Merci à tous les participants. Retrouvez le classement de la Finale ci-dessous ";
+                }
                 heroSubtitle.style.animation = 'none';
                 heroSubtitle.offsetHeight; // force reflow
                 heroSubtitle.style.animation = 'fadeInUp 0.8s ease 0.2s both';
