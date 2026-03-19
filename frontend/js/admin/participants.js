@@ -131,7 +131,7 @@ function exportParticipantsPDF() {
         columns: columns,
         body: rows,
         startY: 35,
-        theme: 'striped',
+        theme: 'grid',
         headStyles: { fillColor: [45, 106, 79] },
         styles: { fontSize: 8 }
     });

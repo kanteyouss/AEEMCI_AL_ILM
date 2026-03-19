@@ -597,7 +597,7 @@ function exportDetailedToPDF(data, rubriques, fileName, title) {
         columns: columns,
         body: rows,
         startY: 35,
-        theme: 'striped',
+        theme: 'grid',
         headStyles: { fillColor: [45, 106, 79] },
         styles: { fontSize: 8, cellPadding: 2 }
     });
@@ -665,7 +665,7 @@ function exportToPDF(data, fileName, title) {
         columns: columns,
         body: rows,
         startY: 35,
-        theme: 'striped',
+        theme: 'grid',
         headStyles: { fillColor: [45, 106, 79] },
         styles: { fontSize: 10 }
     });

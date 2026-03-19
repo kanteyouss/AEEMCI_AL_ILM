@@ -236,7 +236,7 @@ function exportQuestionsPDF() {
         columns: columns,
         body: rows,
         startY: 35,
-        theme: 'striped',
+        theme: 'grid',
         headStyles: { fillColor: [45, 106, 79] },
         styles: { fontSize: 8, cellPadding: 2 },
         columnStyles: {
@@ -246,14 +246,14 @@ function exportQuestionsPDF() {
     });
 
     doc.save(`AL_ILM_2026_Banque_Questions_${new Date().toISOString().split('T')[0]}.pdf`);
-    showNotification('✅ Export PDF réussi', 'success');
+    showNotification(' Export PDF réussi', 'success');
 }
 
 /**
  * Charger les rubriques
  */
 async function loadRubriques() {
-    console.log('📥 Chargement des rubriques...');
+    console.log(' Chargement des rubriques...');
 
     try {
         const result = await apiRequest('/rubriques');
@@ -310,7 +310,7 @@ function displayRubriqueTabs() {
     let tabsHTML = `
         <button class="rubrique-tab ${currentRubrique === null ? 'active' : ''}" 
                 data-rubrique-id="all">
-            📚 Toutes
+             Toutes
         </button>
     `;
 
